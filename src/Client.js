@@ -4,22 +4,12 @@ class Client {
     // how we model the data (i.e. not as normal rooms + timelines
     // given everything is threaded)
 
-    serverUrl;
-    userId;
-    accessToken;
-    guest;
-    serverName;
-
-    constructor() {
-        this.loadAuthState();
-    }
-
-    loadAuthState() {
-        this.serverUrl = window.localStorage.serverUrl;
-        this.userId = window.localStorage.userId;
-        this.accessToken = window.localStorage.accessToken;
-        this.guest = window.localStorage.guest;
-        this.serverName = window.localStorage.serverName;
+    constructor(config) {
+        this.serverUrl = config.serverUrl;
+        this.userId = config.userId;
+        this.accessToken = config.accessToken;
+        this.guest = config.guest;
+        this.serverName = config.serverName;
     }
 
     saveAuthState() {
@@ -56,7 +46,7 @@ class Client {
         const txnId = Date.now();
         let eventId;
 
-        fetch(`${serverUrl}/r0/room/${roomId}/send/m.room.message/${txnId}`, {
+        fetch(`${this.serverUrl}/r0/room/${roomId}/send/m.room.message/${txnId}`, {
             method: 'POST',
             body: JSON.stringify(content),
         }).then(
@@ -76,7 +66,7 @@ class Client {
 
         let msgs = [];
         if (eventId) {
-            fetch(`${serverUrl}/r0/rooms/${roomId}/context/${eventId}`, {
+            fetch(`${this.serverUrl}/r0/rooms/${roomId}/context/${eventId}`, {
                 headers: { Authorization: `Bearer: ${this.accessToken}` },
             }).then(
                 response => response.json()
@@ -91,7 +81,7 @@ class Client {
             // only grab unlabelled messages if we don't want the user's replies.
             if (!withReplies) filter['m.label'] = '';
 
-            fetch(`${serverUrl}/r0/rooms/${roomId}/messages?filter=${JSON.stringify(filter)}`, {
+            fetch(`${this.serverUrl}/r0/rooms/${roomId}/messages?filter=${JSON.stringify(filter)}`, {
                 headers: { Authorization: `Bearer: ${this.accessToken}` },
             }).then(
                 response => response.json()
@@ -117,7 +107,7 @@ class Client {
             'm.label': threadId,
         };
 
-        fetch(`${serverUrl}/r0/rooms/${roomId}/messages?filter=${JSON.stringify(filter)}`, {
+        fetch(`${this.serverUrl}/r0/rooms/${roomId}/messages?filter=${JSON.stringify(filter)}`, {
             headers: { Authorization: `Bearer: ${this.accessToken}` },
         }).then(
             response => response.json()
@@ -146,7 +136,7 @@ class Client {
         });
         */
 
-        fetch(`${serverUrl}/r0/directory/room/${roomAlias}`, {
+        fetch(`${this.serverUrl}/r0/directory/room/${roomAlias}`, {
         }).then(
             response => response.json()
         ).then(data => {
@@ -159,7 +149,7 @@ class Client {
     joinRoom(roomAlias) {
         let roomId;
 
-        fetch(`${serverUrl}/r0/join/${roomAlias}`, {
+        fetch(`${this.serverUrl}/r0/join/${roomAlias}`, {
             method: 'POST',
             body: '{}',
             headers: { Authorization: `Bearer: ${this.accessToken}` },
@@ -172,3 +162,5 @@ class Client {
         return roomId;
     }
 }
+
+export default Client;
