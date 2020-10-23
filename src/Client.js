@@ -10,6 +10,7 @@ class Client {
         this.accessToken = config.accessToken;
         this.guest = config.guest;
         this.serverName = config.serverName;
+        this.joinedRooms = new Map(); // room alias -> room ID
     }
 
     saveAuthState() {
@@ -20,40 +21,52 @@ class Client {
         window.localStorage.serverName = this.serverName;
     }
 
-    loginAsGuest(serverUrl) {
-        fetch(`${serverUrl}/r0/register`, {
+    async loginAsGuest(serverUrl, saveToStorage) {
+        const data = await this.fetchJson(`${serverUrl}/r0/register?kind=guest`, {
             method: 'POST',
-            body: JSON.stringify({ kind: "guest" }),
-        }).then(
-            response => response.json()
-        ).then(data => {
-            this.serverUrl = serverUrl;
-            this.userId = data.user_id;
-            this.accessToken = data.access_token;
-            this.guest = true;
-            this.serverName = data.home_server;
+            body: JSON.stringify({}),
+        });
+        this.serverUrl = serverUrl;
+        this.userId = data.user_id;
+        this.accessToken = data.access_token;
+        this.guest = true;
+        this.serverName = data.home_server;
+        if (saveToStorage) {
             this.saveAuthState();
-        });
+        }
     }
 
-    login(serverUrl, username, password) {
-
-    }
-
-    sendMessage(roomAlias, content) {
-        // XXX: only join if we're not already
-        const roomId = this.joinRoom(roomAlias);
-        const txnId = Date.now();
-        let eventId;
-
-        fetch(`${this.serverUrl}/r0/room/${roomId}/send/m.room.message/${txnId}`, {
+    async login(serverUrl, username, password, saveToStorage) {
+        const data = await this.fetchJson(`${serverUrl}/r0/login`, {
             method: 'POST',
-            body: JSON.stringify(content),
-        }).then(
-            response => response.json()
-        ).then(data => {
-            eventId = data.event_id;
+            body: JSON.stringify({
+                type: "m.login.password",
+                identifier: {
+                    type: "m.id.user",
+                    user: username,
+                },
+                password: password,
+            }),
         });
+        this.serverUrl = serverUrl;
+        this.userId = data.user_id;
+        this.accessToken = data.access_token;
+        this.guest = true;
+        this.serverName = data.home_server;
+        if (saveToStorage) {
+            this.saveAuthState();
+        }
+    }
+
+    async sendMessage(roomAlias, content) {
+        const roomId = await this.joinRoom(roomAlias);
+        const txnId = Date.now();
+        const data = await this.fetchJson(`${this.serverUrl}/r0/rooms/${encodeURIComponent(roomId)}/send/m.room.message/${encodeURIComponent(txnId)}`, {
+            method: 'PUT',
+            body: JSON.stringify(content),
+            headers: { Authorization: `Bearer ${this.accessToken}` },
+        });
+        return data.event_id;
     }
 
     getMsgs(userId, withReplies, eventId) {
@@ -121,45 +134,32 @@ class Client {
     }
 
     peekRoom(roomAlias) {
-        let roomId;
-
-        /*
+        // For now join the room instead.
         // Once MSC2753 is available, to allow federated peeking
-        fetch(`${serverUrl}/r0/peek/${roomAlias}`, {
-            method: 'POST',
-            body: '{}',
-            headers: { Authorization: `Bearer: ${this.accessToken}` },
-        }).then(
-            response => response.json()
-        ).then(data => {
-            roomId = data.room_id;
-        });
-        */
-
-        fetch(`${this.serverUrl}/r0/directory/room/${roomAlias}`, {
-        }).then(
-            response => response.json()
-        ).then(data => {
-            roomId = data.room_id;
-        });
-
-        return roomId;
+        return this.joinRoom(roomAlias);
     }
 
-    joinRoom(roomAlias) {
-        let roomId;
-
-        fetch(`${this.serverUrl}/r0/join/${roomAlias}`, {
+    async joinRoom(roomAlias) {
+        const roomId = this.joinedRooms.get(roomAlias);
+        if (roomId) {
+            return roomId;
+        }
+        const data = await this.fetchJson(`${this.serverUrl}/r0/join/${encodeURIComponent(roomAlias)}`, {
             method: 'POST',
             body: '{}',
-            headers: { Authorization: `Bearer: ${this.accessToken}` },
-        }).then(
-            response => response.json()
-        ).then(data => {
-            roomId = data.room_id;
+            headers: { Authorization: `Bearer ${this.accessToken}` },
         });
+        this.joinedRooms.set(roomAlias, data.room_id);
+        return data.room_id;
+    }
 
-        return roomId;
+    async fetchJson(fullUrl, fetchParams) {
+        const response = await fetch(fullUrl, fetchParams);
+        const data = await response.json();
+        if (!response.ok) {
+            throw data;
+        }
+        return data;
     }
 }
 
