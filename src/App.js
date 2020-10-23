@@ -48,9 +48,20 @@ class App extends React.Component {
         this.forceUpdate();
     }
 
-    loginButton() {
+    async onLogoutClick(ev) {
+        try {
+            await this.props.client.logout();
+        } finally {
+            // regardless of whether the HTTP hit worked, we'll remove creds so UI needs a kick
+            this.forceUpdate();
+        }
+    }
+
+    loginLogoutButton() {
         if (this.props.client.accessToken) {
-            return <div />;
+            return (
+                <button onClick={this.onLogoutClick.bind(this)}>Logout</button>
+            );
         }
         return <button onClick={this.onLoginClick.bind(this)}>Login</button>;
     }
@@ -77,7 +88,7 @@ class App extends React.Component {
                 <header className="AppHeader">
                     <a href="#">View Messages</a> |{" "}
                     <a href="#">View Messages and Replies</a>
-                    {this.loginButton()}
+                    {this.loginLogoutButton()}
                     {this.postButton()}
                 </header>
                 <main className="AppMain">

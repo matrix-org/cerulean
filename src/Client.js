@@ -20,11 +20,11 @@ class Client {
         if (!this.storage) {
             return;
         }
-        this.storage.setItem("serverUrl", this.serverUrl);
-        this.storage.setItem("userId", this.userId);
-        this.storage.setItem("accessToken", this.accessToken);
-        this.storage.setItem("serverName", this.serverName);
-        this.storage.setItem("guest", this.guest);
+        setOrDelete(this.storage, "serverUrl", this.serverUrl);
+        setOrDelete(this.storage, "userId", this.userId);
+        setOrDelete(this.storage, "accessToken", this.accessToken);
+        setOrDelete(this.storage, "serverName", this.serverName);
+        setOrDelete(this.storage, "guest", this.guest);
     }
 
     async loginAsGuest(serverUrl, saveToStorage) {
@@ -94,6 +94,24 @@ class Client {
             return this.sendMessage("#" + userId, content);
         });
         await Promise.all(promises);
+    }
+
+    async logout() {
+        try {
+            await this.fetchJson(`${this.serverUrl}/r0/logout`, {
+                method: "POST",
+                body: "{}",
+                headers: { Authorization: `Bearer ${this.accessToken}` },
+            });
+        } finally {
+            console.log("Removing login credentials");
+            this.serverUrl = undefined;
+            this.userId = undefined;
+            this.accessToken = undefined;
+            this.guest = undefined;
+            this.serverName = undefined;
+            this.saveAuthState();
+        }
     }
 
     getMsgs(userId, withReplies, eventId) {
@@ -246,6 +264,14 @@ class Client {
 // maps '@foo:localhost' to 'foo'
 function localpart(userId) {
     return userId.split(":")[0].substr(1);
+}
+
+function setOrDelete(storage, key, value) {
+    if (value) {
+        storage.setItem(key, value);
+    } else {
+        storage.removeItem(key, value);
+    }
 }
 
 export default Client;
