@@ -96,6 +96,14 @@ class Client {
         await Promise.all(promises);
     }
 
+    /**
+     * Follow a user by subscribing to their room.
+     * @param {string} userId
+     */
+    followUser(userId) {
+        return this.joinRoom("#" + userId);
+    }
+
     async logout() {
         try {
             await this.fetchJson(`${this.serverUrl}/r0/logout`, {

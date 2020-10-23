@@ -53,9 +53,16 @@ class App extends React.Component {
         }
     }
 
+    componentDidMount() {
+        // TODO: auto-register as a guest and allow people to login with their Matrix account
+    }
+
     async onLoginClick(ev) {
         await this.props.client.login(serverUrl, username, password, true);
-        this.forceUpdate();
+        this.setState({
+            page: "user",
+            viewingUserId: this.props.client.userId,
+        });
     }
 
     async onLogoutClick(ev) {
@@ -111,6 +118,9 @@ class App extends React.Component {
      *  - status: A permalink to a single event with replies beneath
      */
     renderPage() {
+        if (!this.props.client.accessToken) {
+            return <div>You need to login first for now!</div>;
+        }
         if (this.state.page === "user") {
             return (
                 <UserPage
