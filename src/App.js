@@ -3,6 +3,11 @@ import React from "react";
 import "./App.css";
 import MessageThread from "./MessageThread";
 
+// TODO: Input boxes
+const serverUrl = "http://localhost:8008/_matrix/client";
+const username = "foo";
+const password = "barbarbar";
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -39,9 +44,6 @@ class App extends React.Component {
     }
 
     async onLoginClick(ev) {
-        const serverUrl = "http://localhost:8008/_matrix/client";
-        const username = "foo";
-        const password = "barbarbar";
         await this.props.client.login(serverUrl, username, password, true);
         this.forceUpdate();
     }
@@ -53,6 +55,22 @@ class App extends React.Component {
         return <button onClick={this.onLoginClick.bind(this)}>Login</button>;
     }
 
+    async onPostClick(ev) {
+        let msg = "Hello world";
+        await this.props.client.postToUsers([this.props.client.userId], {
+            msgtype: "m.text",
+            body: msg,
+        });
+        this.forceUpdate();
+    }
+
+    postButton() {
+        if (!this.props.client.accessToken) {
+            return <div />;
+        }
+        return <button onClick={this.onPostClick.bind(this)}>Post</button>;
+    }
+
     render() {
         return (
             <div className="App">
@@ -60,7 +78,7 @@ class App extends React.Component {
                     <a href="#">View Messages</a> |{" "}
                     <a href="#">View Messages and Replies</a>
                     {this.loginButton()}
-                    <button>Post</button>
+                    {this.postButton()}
                 </header>
                 <main className="AppMain">
                     <MessageThread events={this.state.thread} />

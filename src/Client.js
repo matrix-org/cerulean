@@ -83,6 +83,19 @@ class Client {
         return data.event_id;
     }
 
+    /**
+     * Post to several user's timelines.
+     * @param {string[]} users a list of user IDs to post on their timeline
+     * @param {*} content the message to post
+     */
+    async postToUsers(users, content) {
+        // @foo:bar => #@foo:bar
+        const promises = users.map((userId) => {
+            return this.sendMessage("#" + userId, content);
+        });
+        await Promise.all(promises);
+    }
+
     getMsgs(userId, withReplies, eventId) {
         return [
             {
@@ -170,21 +183,54 @@ class Client {
         return this.joinRoom(roomAlias);
     }
 
+    /**
+     * Join a room by alias. If already joined, no-ops. If joining our own timeline room,
+     * attempts to create it.
+     * @param {string} roomAlias The room alias to join
+     * @returns {string} The room ID of the joined room.
+     */
     async joinRoom(roomAlias) {
         const roomId = this.joinedRooms.get(roomAlias);
         if (roomId) {
             return roomId;
         }
-        const data = await this.fetchJson(
-            `${this.serverUrl}/r0/join/${encodeURIComponent(roomAlias)}`,
-            {
-                method: "POST",
-                body: "{}",
-                headers: { Authorization: `Bearer ${this.accessToken}` },
+        const isMyself = roomAlias.substr(1) === this.userId;
+
+        try {
+            let data = await this.fetchJson(
+                `${this.serverUrl}/r0/join/${encodeURIComponent(roomAlias)}`,
+                {
+                    method: "POST",
+                    body: "{}",
+                    headers: { Authorization: `Bearer ${this.accessToken}` },
+                }
+            );
+            this.joinedRooms.set(roomAlias, data.room_id);
+            return data.room_id;
+        } catch (err) {
+            // try to make our timeline room
+            if (isMyself) {
+                let data = await this.fetchJson(
+                    `${this.serverUrl}/r0/createRoom`,
+                    {
+                        method: "POST",
+                        body: JSON.stringify({
+                            preset: "public_chat",
+                            name: `${this.userId}'s timeline`,
+                            topic: "Cerulean",
+                            room_alias_name: "@" + localpart(this.userId),
+                        }),
+                        headers: {
+                            Authorization: `Bearer ${this.accessToken}`,
+                        },
+                    }
+                );
+                this.joinedRooms.set(roomAlias, data.room_id);
+                return data.room_id;
+            } else {
+                throw err;
             }
-        );
-        this.joinedRooms.set(roomAlias, data.room_id);
-        return data.room_id;
+        }
     }
 
     async fetchJson(fullUrl, fetchParams) {
@@ -195,6 +241,11 @@ class Client {
         }
         return data;
     }
+}
+
+// maps '@foo:localhost' to 'foo'
+function localpart(userId) {
+    return userId.split(":")[0].substr(1);
 }
 
 export default Client;
