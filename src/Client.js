@@ -3,21 +3,28 @@ class Client {
     // how we model the data (i.e. not as normal rooms + timelines
     // given everything is threaded)
 
-    constructor(config) {
-        this.serverUrl = config.serverUrl;
-        this.userId = config.userId;
-        this.accessToken = config.accessToken;
-        this.guest = config.guest;
-        this.serverName = config.serverName;
+    constructor(storage) {
         this.joinedRooms = new Map(); // room alias -> room ID
+        if (!storage) {
+            return;
+        }
+        this.storage = storage;
+        this.serverUrl = storage.getItem("serverUrl");
+        this.userId = storage.getItem("userId");
+        this.accessToken = storage.getItem("accessToken");
+        this.guest = storage.getItem("guest");
+        this.serverName = storage.getItem("serverName");
     }
 
     saveAuthState() {
-        window.localStorage.serverUrl = this.serverUrl;
-        window.localStorage.userId = this.userId;
-        window.localStorage.accessToken = this.accessToken;
-        window.guest = this.guest;
-        window.localStorage.serverName = this.serverName;
+        if (!this.storage) {
+            return;
+        }
+        this.storage.setItem("serverUrl", this.serverUrl);
+        this.storage.setItem("userId", this.userId);
+        this.storage.setItem("accessToken", this.accessToken);
+        this.storage.setItem("serverName", this.serverName);
+        this.storage.setItem("guest", this.guest);
     }
 
     async loginAsGuest(serverUrl, saveToStorage) {
@@ -77,6 +84,14 @@ class Client {
     }
 
     getMsgs(userId, withReplies, eventId) {
+        return [
+            {
+                foo: "bar",
+            },
+            {
+                baz: "quuz",
+            },
+        ];
         if (!this.accessToken) {
             console.error("No access token");
             return;

@@ -38,13 +38,28 @@ class App extends React.Component {
         });
     }
 
+    async onLoginClick(ev) {
+        const serverUrl = "http://localhost:8008/_matrix/client";
+        const username = "foo";
+        const password = "barbarbar";
+        await this.props.client.login(serverUrl, username, password, true);
+        this.forceUpdate();
+    }
+
+    loginButton() {
+        if (this.props.client.accessToken) {
+            return <div />;
+        }
+        return <button onClick={this.onLoginClick.bind(this)}>Login</button>;
+    }
+
     render() {
         return (
             <div className="App">
                 <header className="AppHeader">
                     <a href="#">View Messages</a> |{" "}
                     <a href="#">View Messages and Replies</a>
-                    <button>Login</button>
+                    {this.loginButton()}
                     <button>Post</button>
                 </header>
                 <main className="AppMain">
