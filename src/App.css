@@ -1,2 +1,24 @@
 .App {
+    min-width: 920px;
+    width: 90%;
+    max-width: 1920px;
+    margin: 0 auto;
+    font-family: "helvetica neue", Helvetica, arial, sans-serif;
+}
+
+.AppHeader{
+    color: antiquewhite;
+    background-color: #007ba7;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.headerButton{
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
 }

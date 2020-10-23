@@ -2,6 +2,8 @@ import React from "react";
 // import logo from './logo.svg';
 import "./App.css";
 import MessageThread from "./MessageThread";
+import UserPage from "./UserPage";
+import StatusPage from "./StatusPage";
 
 // TODO: Input boxes
 const serverUrl = "http://localhost:8008/_matrix/client";
@@ -11,36 +13,44 @@ const password = "barbarbar";
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {
-            thread: [],
-        };
-    }
 
-    onComponentMount() {
         /*
+        Possible Cerulean paths:
             /username
             /username/with_replies  --> timeline with replies
             /username/status/id  --> permalink
             /hashtag/foo
+        Examples:
+        http://localhost:3000/@really:bigstuff.com/with_replies
+        http://localhost:3000/@really:bigstuff.com
+        http://localhost:3000/@really:bigstuff.com/status/$foobar
         */
 
-        let msgs = [];
+        // sensible defaults
+        this.state = {
+            page: "user",
+            viewingUserId: this.props.client.userId,
+            withReplies: false,
+            statusId: null,
+        };
+
+        // parse out state from path
         const path = window.location.pathname.split("/");
-        const userId = path[0];
-        if (path[1] === undefined) {
-            msgs = this.props.client.getMsgs(userId, false, null);
-            this.setState({ page: "user" });
-        } else if (path[1] === "with_replies") {
-            msgs = this.props.client.getMsgs(userId, true, null);
-        } else if (path[1] === "status") {
-            msgs = this.props.client.getMsgs(userId, true, path[2]);
-            // FIXME: as well as looking for replies to this
-            // message, we also need to hunt for parents,
-            // particularly if they are in other rooms.
+        console.log("input path: " + window.location.pathname);
+        if (path.length < 2) {
+            return;
         }
-        this.setState({
-            thread: msgs,
-        });
+        const userId = path[1];
+        if (!userId.startsWith("@")) {
+            console.log("unknown user ID in path: " + path);
+            return;
+        }
+        this.state.viewingUserId = userId;
+        this.state.withReplies = path[2] === "with_replies";
+        if (path[2] === "status" && path[3]) {
+            this.state.page = "status";
+            this.state.statusId = path[3];
+        }
     }
 
     async onLoginClick(ev) {
@@ -60,10 +70,22 @@ class App extends React.Component {
     loginLogoutButton() {
         if (this.props.client.accessToken) {
             return (
-                <button onClick={this.onLogoutClick.bind(this)}>Logout</button>
+                <button
+                    className="headerButton"
+                    onClick={this.onLogoutClick.bind(this)}
+                >
+                    Logout
+                </button>
             );
         }
-        return <button onClick={this.onLoginClick.bind(this)}>Login</button>;
+        return (
+            <button
+                className="headerButton"
+                onClick={this.onLoginClick.bind(this)}
+            >
+                Login
+            </button>
+        );
     }
 
     async onPostClick(ev) {
@@ -82,18 +104,43 @@ class App extends React.Component {
         return <button onClick={this.onPostClick.bind(this)}>Post</button>;
     }
 
+    /**
+     * Render a main content page depending on this.state.page
+     * Possible options are:
+     *  - user: The user's timeline, with replies optionally hidden.
+     *  - status: A permalink to a single event with replies beneath
+     */
+    renderPage() {
+        if (this.state.page === "user") {
+            return (
+                <UserPage
+                    client={this.props.client}
+                    userId={this.state.viewingUserId}
+                    withReplies={this.state.withReplies}
+                />
+            );
+        } else if (this.state.page === "status") {
+            return (
+                <StatusPage
+                    client={this.props.client}
+                    userId={this.state.viewingUserId}
+                    statusId={this.state.statusId}
+                />
+            );
+            //return <MessageThread events={this.state.thread} />;
+        } else {
+            return <div>Whoops, how did you get here?</div>;
+        }
+    }
+
     render() {
         return (
             <div className="App">
                 <header className="AppHeader">
-                    <a href="#">View Messages</a> |{" "}
-                    <a href="#">View Messages and Replies</a>
+                    <span className="title">Cerulean</span>
                     {this.loginLogoutButton()}
-                    {this.postButton()}
                 </header>
-                <main className="AppMain">
-                    <MessageThread events={this.state.thread} />
-                </main>
+                <main className="AppMain">{this.renderPage()}</main>
                 <footer className="AppFooter"></footer>
             </div>
         );
