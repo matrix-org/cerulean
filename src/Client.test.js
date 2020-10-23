@@ -1,7 +1,7 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-import App from './App';
-import Client from './Client';
+import React from "react";
+import { render } from "@testing-library/react";
+import App from "./App";
+import Client from "./Client";
 
 // if you want to run these tests you need to configure these constants first.
 const username = "foo";
@@ -16,13 +16,23 @@ xit("loginAsGuest works", async () => {
 
 xit("login works", async () => {
     const client = new Client({});
-    await client.login("http://localhost:8008/_matrix/client", username, password, false);
+    await client.login(
+        "http://localhost:8008/_matrix/client",
+        username,
+        password,
+        false
+    );
     expect(client.accessToken).toBeDefined();
 });
 
 it("join room works", async () => {
     const client = new Client({});
-    await client.login("http://localhost:8008/_matrix/client", username, password, false);
+    await client.login(
+        "http://localhost:8008/_matrix/client",
+        username,
+        password,
+        false
+    );
     let roomId = await client.joinRoom(existingRoomAlias);
     expect(roomId).toBeDefined();
     // should be idempotent
@@ -32,7 +42,12 @@ it("join room works", async () => {
 
 it("sendMessage works", async () => {
     const client = new Client({});
-    await client.login("http://localhost:8008/_matrix/client", username, password, false);
+    await client.login(
+        "http://localhost:8008/_matrix/client",
+        username,
+        password,
+        false
+    );
     await client.joinRoom(existingRoomAlias);
     const eventID = await client.sendMessage(existingRoomAlias, {
         msgtype: "m.text",

@@ -1,10 +1,9 @@
-import React from 'react';
+import React from "react";
 // import logo from './logo.svg';
-import './App.css';
-import MessageThread from './MessageThread';
+import "./App.css";
+import MessageThread from "./MessageThread";
 
 class App extends React.Component {
-
     constructor(props) {
         super(props);
         this.state = {
@@ -21,16 +20,14 @@ class App extends React.Component {
         */
 
         let msgs = [];
-        const path = window.location.pathname.split('/');
+        const path = window.location.pathname.split("/");
         const userId = path[0];
         if (path[1] === undefined) {
             msgs = this.props.client.getMsgs(userId, false, null);
             this.setState({ page: "user" });
-        }
-        else if (path[1] === 'with_replies') {
+        } else if (path[1] === "with_replies") {
             msgs = this.props.client.getMsgs(userId, true, null);
-        }
-        else if (path[1] === 'status') {
+        } else if (path[1] === "status") {
             msgs = this.props.client.getMsgs(userId, true, path[2]);
             // FIXME: as well as looking for replies to this
             // message, we also need to hunt for parents,
@@ -45,17 +42,15 @@ class App extends React.Component {
         return (
             <div className="App">
                 <header className="AppHeader">
-                    <a href="#">View Messages</a> | <a href="#">View Messages and Replies</a>
-
+                    <a href="#">View Messages</a> |{" "}
+                    <a href="#">View Messages and Replies</a>
                     <button>Login</button>
-
                     <button>Post</button>
                 </header>
                 <main className="AppMain">
-                    <MessageThread events={this.state.thread}/>
+                    <MessageThread events={this.state.thread} />
                 </main>
-                <footer className="AppFooter">
-                </footer>
+                <footer className="AppFooter"></footer>
             </div>
         );
     }

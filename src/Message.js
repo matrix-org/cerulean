@@ -1,20 +1,22 @@
-import React from 'react';
-import './Message.css';
+import React from "react";
+import "./Message.css";
 
 class Message extends React.Component {
     onReplyClick() {
         const replyTargets = this.getReplyTargets();
 
-        const reply = prompt(`Enter your reply (replying to ${ replyTargets.join(", ") })`);
+        const reply = prompt(
+            `Enter your reply (replying to ${replyTargets.join(", ")})`
+        );
         reply = reply + " " + replyTargets.join(" ");
 
         const content = {
             body: reply,
-            msgtype: 'm.text',
-            'm.relates_to': {
-                'rel_type': 'm.reference',
-                'event_id': this.props.event.raw.event_id,
-            }
+            msgtype: "m.text",
+            "m.relates_to": {
+                rel_type: "m.reference",
+                event_id: this.props.event.raw.event_id,
+            },
         };
 
         // we send it to our own timeline...
@@ -40,14 +42,11 @@ class Message extends React.Component {
     render() {
         return (
             <div class="Message">
-                { JSON.stringify(this.props.event.raw) }
-                <button onClick={ this.onReplyClick } >Reply</button>
-                { this.props.event.subthreads.map(
-                    subthread => {
-                        <MessageThread thread={ subthread } />
-                    }
-                  )
-                }
+                {JSON.stringify(this.props.event.raw)}
+                <button onClick={this.onReplyClick}>Reply</button>
+                {this.props.event.subthreads.map((subthread) => {
+                    <MessageThread thread={subthread} />;
+                })}
             </div>
         );
     }

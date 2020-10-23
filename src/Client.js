@@ -1,5 +1,4 @@
 class Client {
-
     // we deliberately don't use js-sdk as we want flexibility on
     // how we model the data (i.e. not as normal rooms + timelines
     // given everything is threaded)
@@ -22,10 +21,13 @@ class Client {
     }
 
     async loginAsGuest(serverUrl, saveToStorage) {
-        const data = await this.fetchJson(`${serverUrl}/r0/register?kind=guest`, {
-            method: 'POST',
-            body: JSON.stringify({}),
-        });
+        const data = await this.fetchJson(
+            `${serverUrl}/r0/register?kind=guest`,
+            {
+                method: "POST",
+                body: JSON.stringify({}),
+            }
+        );
         this.serverUrl = serverUrl;
         this.userId = data.user_id;
         this.accessToken = data.access_token;
@@ -38,7 +40,7 @@ class Client {
 
     async login(serverUrl, username, password, saveToStorage) {
         const data = await this.fetchJson(`${serverUrl}/r0/login`, {
-            method: 'POST',
+            method: "POST",
             body: JSON.stringify({
                 type: "m.login.password",
                 identifier: {
@@ -61,11 +63,16 @@ class Client {
     async sendMessage(roomAlias, content) {
         const roomId = await this.joinRoom(roomAlias);
         const txnId = Date.now();
-        const data = await this.fetchJson(`${this.serverUrl}/r0/rooms/${encodeURIComponent(roomId)}/send/m.room.message/${encodeURIComponent(txnId)}`, {
-            method: 'PUT',
-            body: JSON.stringify(content),
-            headers: { Authorization: `Bearer ${this.accessToken}` },
-        });
+        const data = await this.fetchJson(
+            `${this.serverUrl}/r0/rooms/${encodeURIComponent(
+                roomId
+            )}/send/m.room.message/${encodeURIComponent(txnId)}`,
+            {
+                method: "PUT",
+                body: JSON.stringify(content),
+                headers: { Authorization: `Bearer ${this.accessToken}` },
+            }
+        );
         return data.event_id;
     }
 
@@ -81,28 +88,32 @@ class Client {
         if (eventId) {
             fetch(`${this.serverUrl}/r0/rooms/${roomId}/context/${eventId}`, {
                 headers: { Authorization: `Bearer: ${this.accessToken}` },
-            }).then(
-                response => response.json()
-            ).then(data => {
-                msgs.push(data.event);
-            });
-        }
-        else {
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    msgs.push(data.event);
+                });
+        } else {
             const filter = {
-                'user_id': userId, // we just want this user's messages
+                user_id: userId, // we just want this user's messages
             };
             // only grab unlabelled messages if we don't want the user's replies.
-            if (!withReplies) filter['m.label'] = '';
+            if (!withReplies) filter["m.label"] = "";
 
-            fetch(`${this.serverUrl}/r0/rooms/${roomId}/messages?filter=${JSON.stringify(filter)}`, {
-                headers: { Authorization: `Bearer: ${this.accessToken}` },
-            }).then(
-                response => response.json()
-            ).then(data => {
-                for (const event of data.chunk) {
-                    msgs.push(event);
+            fetch(
+                `${
+                    this.serverUrl
+                }/r0/rooms/${roomId}/messages?filter=${JSON.stringify(filter)}`,
+                {
+                    headers: { Authorization: `Bearer: ${this.accessToken}` },
                 }
-            });
+            )
+                .then((response) => response.json())
+                .then((data) => {
+                    for (const event of data.chunk) {
+                        msgs.push(event);
+                    }
+                });
         }
 
         return msgs;
@@ -117,18 +128,23 @@ class Client {
         const roomId = this.peekRoom(`#${userId}`);
         let msgs = [];
         const filter = {
-            'm.label': threadId,
+            "m.label": threadId,
         };
 
-        fetch(`${this.serverUrl}/r0/rooms/${roomId}/messages?filter=${JSON.stringify(filter)}`, {
-            headers: { Authorization: `Bearer: ${this.accessToken}` },
-        }).then(
-            response => response.json()
-        ).then(data => {
-            for (const event of data.chunk) {
-                msgs.push(event);
+        fetch(
+            `${
+                this.serverUrl
+            }/r0/rooms/${roomId}/messages?filter=${JSON.stringify(filter)}`,
+            {
+                headers: { Authorization: `Bearer: ${this.accessToken}` },
             }
-        });
+        )
+            .then((response) => response.json())
+            .then((data) => {
+                for (const event of data.chunk) {
+                    msgs.push(event);
+                }
+            });
 
         return msgs;
     }
@@ -144,11 +160,14 @@ class Client {
         if (roomId) {
             return roomId;
         }
-        const data = await this.fetchJson(`${this.serverUrl}/r0/join/${encodeURIComponent(roomAlias)}`, {
-            method: 'POST',
-            body: '{}',
-            headers: { Authorization: `Bearer ${this.accessToken}` },
-        });
+        const data = await this.fetchJson(
+            `${this.serverUrl}/r0/join/${encodeURIComponent(roomAlias)}`,
+            {
+                method: "POST",
+                body: "{}",
+                headers: { Authorization: `Bearer ${this.accessToken}` },
+            }
+        );
         this.joinedRooms.set(roomAlias, data.room_id);
         return data.room_id;
     }
