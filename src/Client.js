@@ -173,34 +173,42 @@ class Client {
         return msgs;
     }
 
-    getSubthreadMsgs(userId, threadId) {
+    async getTimeline(roomId) {
         if (!this.accessToken) {
             console.error("No access token");
-            return;
+            return [];
         }
 
-        const roomId = this.peekRoom(`#${userId}`);
-        let msgs = [];
-        const filter = {
-            "m.label": threadId,
-        };
-
-        fetch(
-            `${
-                this.serverUrl
-            }/r0/rooms/${roomId}/messages?filter=${JSON.stringify(filter)}`,
+        // get a pagination token
+        const filterJson = JSON.stringify({
+            room: {
+                timeline: {
+                    limit: 1,
+                },
+            },
+        });
+        let syncData = await this.fetchJson(
+            `${this.serverUrl}/r0/sync?filter=${filterJson}`,
             {
-                headers: { Authorization: `Bearer: ${this.accessToken}` },
+                headers: { Authorization: `Bearer ${this.accessToken}` },
             }
-        )
-            .then((response) => response.json())
-            .then((data) => {
-                for (const event of data.chunk) {
-                    msgs.push(event);
-                }
-            });
+        );
+        let room = syncData.rooms.join[roomId];
+        if (!room) {
+            console.error("not joined to room " + roomId);
+            return [];
+        }
+        let from = room.timeline.prev_batch;
+        let recentMsg = room.timeline.events[0];
 
-        return msgs;
+        let data = await this.fetchJson(
+            `${this.serverUrl}/r0/rooms/${roomId}/messages?from=${from}&dir=b`,
+            {
+                headers: { Authorization: `Bearer ${this.accessToken}` },
+            }
+        );
+        data.chunk.unshift(recentMsg);
+        return data.chunk;
     }
 
     peekRoom(roomAlias) {

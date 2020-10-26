@@ -9,7 +9,7 @@ class UserPage extends React.Component {
             loading: true,
             error: null,
             withReplies: this.props.withReplies,
-            events: [],
+            timeline: [],
         };
     }
 
@@ -23,8 +23,9 @@ class UserPage extends React.Component {
         });
         // ensure we are following this user. In the future we can view without following
         // by using /peek but we don't have that for now.
+        let roomId;
         try {
-            await this.props.client.followUser(this.props.userId);
+            roomId = await this.props.client.followUser(this.props.userId);
         } catch (err) {
             this.setState({
                 error: JSON.stringify(err),
@@ -34,6 +35,10 @@ class UserPage extends React.Component {
                 loading: false,
             });
         }
+        let timeline = await this.props.client.getTimeline(roomId);
+        this.setState({
+            timeline: timeline,
+        });
     }
 
     handleInputChange(event) {
@@ -44,6 +49,22 @@ class UserPage extends React.Component {
         this.setState({
             [name]: value,
         });
+    }
+
+    async onPostClick(ev) {
+        let msg = "Hello world";
+        await this.props.client.postToUsers([this.props.client.userId], {
+            msgtype: "m.text",
+            body: msg,
+        });
+        this.forceUpdate();
+    }
+
+    postButton() {
+        if (!this.props.client.accessToken) {
+            return <div />;
+        }
+        return <button onClick={this.onPostClick.bind(this)}>Post</button>;
     }
 
     render() {
@@ -71,6 +92,11 @@ class UserPage extends React.Component {
                                 onChange={this.handleInputChange.bind(this)}
                             />
                         </label>
+                        <div>
+                            {this.state.timeline.map((ev) => {
+                                return <div>{JSON.stringify(ev)}</div>;
+                            })}
+                        </div>
                     </div>
                 );
             }
@@ -79,6 +105,7 @@ class UserPage extends React.Component {
         return (
             <div className="UserPage">
                 {errBlock}
+                {this.postButton()}
                 {timelineBlock}
             </div>
         );
