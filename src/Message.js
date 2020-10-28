@@ -54,10 +54,32 @@ class Message extends React.Component {
         return Object.keys(targetHash);
     }
 
+    renderTime(ts) {
+        if (!ts) {
+            return <span>Now</span>;
+        }
+        return <span>{new Date(ts).toLocaleString()}</span>;
+    }
+
+    renderEvent() {
+        const event = this.props.event;
+        if (!event) {
+            return <div></div>;
+        }
+        return (
+            <div>
+                <span className="MessageHeader">
+                    {event.sender} · {this.renderTime(event.origin_server_ts)}
+                </span>
+                <div>{event.content.body}</div>
+            </div>
+        );
+    }
+
     render() {
         return (
             <div className="Message">
-                {JSON.stringify(this.props.event)}
+                {this.renderEvent()}
                 <button
                     onClick={this.onReplyClick.bind(this)}
                     disabled={this.state.loading}

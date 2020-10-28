@@ -105,7 +105,6 @@ class StatusPage extends React.Component {
         // display the main event this hyperlink refers to then load level 1 children beneath
         return (
             <div className="StatusPage">
-                {this.props.userId}'s Status Page for event {this.props.eventId}
                 <Message event={this.state.parent} />
                 <br />
                 {this.state.children.map((ev) => {

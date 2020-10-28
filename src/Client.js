@@ -107,16 +107,17 @@ class Client {
         return [
             {
                 content: {
-                    body: "Placeholder",
+                    body: "Something completely outrageous",
                 },
                 type: "m.room.message",
                 event_id: eventId,
                 room_id: "!parent:event",
                 sender: "@parent:localhost",
+                origin_server_ts: 1603901763282,
             },
             {
                 content: {
-                    body: "Level 1 reply A",
+                    body: "How can you say that?!",
                     "m.relationship": {
                         rel_type: "m.reference",
                         event_id: eventId,
@@ -126,10 +127,11 @@ class Client {
                 event_id: "$l1ra",
                 room_id: "!a",
                 sender: "@a:localhost",
+                origin_server_ts: 1603901793282,
             },
             {
                 content: {
-                    body: "Level 1 reply B",
+                    body: "HAHAHA yeah I totally agree!",
                     "m.relationship": {
                         rel_type: "m.reference",
                         event_id: eventId,
@@ -139,10 +141,11 @@ class Client {
                 event_id: "$l1rb",
                 room_id: "!b",
                 sender: "@b:localhost",
+                origin_server_ts: 1603901799282,
             },
             {
                 content: {
-                    body: "Level 2 reply A",
+                    body: "How can you agree with this!?",
                     "m.relationship": {
                         rel_type: "m.reference",
                         event_id: "$l1rb",
@@ -152,10 +155,11 @@ class Client {
                 event_id: "$l2ra",
                 room_id: "!a",
                 sender: "@a:localhost",
+                origin_server_ts: 1603901843282,
             },
             {
                 content: {
-                    body: "Level 3 reply A",
+                    body: "It's totally outrageous",
                     "m.relationship": {
                         rel_type: "m.reference",
                         event_id: "$l2ra",
@@ -165,10 +169,11 @@ class Client {
                 event_id: "$l3ra",
                 room_id: "!a",
                 sender: "@a:localhost",
+                origin_server_ts: 1603901849282,
             },
             {
                 content: {
-                    body: "Level 4 reply B",
+                    body: "I know, that's why it's funny!",
                     "m.relationship": {
                         rel_type: "m.reference",
                         event_id: "$l3ra",
@@ -178,6 +183,21 @@ class Client {
                 event_id: "$l4rb",
                 room_id: "!b",
                 sender: "@b:localhost",
+                origin_server_ts: 1603901993282,
+            },
+            {
+                content: {
+                    body: "You're a bad person",
+                    "m.relationship": {
+                        rel_type: "m.reference",
+                        event_id: "$l4rb",
+                    },
+                },
+                type: "m.room.message",
+                event_id: "$l5rc",
+                room_id: "!c",
+                sender: "@c:localhost",
+                origin_server_ts: 1603901999992,
             },
         ];
     }
