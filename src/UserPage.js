@@ -1,6 +1,6 @@
 import React from "react";
 import "./UserPage.css";
-//import './MessageThread.css';
+import Message from "./Message";
 
 class UserPage extends React.Component {
     constructor(props) {
@@ -82,16 +82,18 @@ class UserPage extends React.Component {
             } else {
                 timelineBlock = (
                     <div>
-                        {this.props.userId}'s' Page --
-                        <label>
-                            With Replies:
-                            <input
-                                name="withReplies"
-                                type="checkbox"
-                                checked={this.state.withReplies}
-                                onChange={this.handleInputChange.bind(this)}
-                            />
-                        </label>
+                        <div className="UserPageHeader">
+                            {this.props.userId}'s' Page --
+                            <label>
+                                With Replies:
+                                <input
+                                    name="withReplies"
+                                    type="checkbox"
+                                    checked={this.state.withReplies}
+                                    onChange={this.handleInputChange.bind(this)}
+                                />
+                            </label>
+                        </div>
                         <div>
                             {this.state.timeline
                                 .filter((ev) => {
@@ -107,7 +109,7 @@ class UserPage extends React.Component {
                                     return true;
                                 })
                                 .map((ev) => {
-                                    return <div>{JSON.stringify(ev)}</div>;
+                                    return <Message event={ev} />;
                                 })}
                         </div>
                     </div>

@@ -50,10 +50,9 @@ class StatusPage extends React.Component {
             }
         }
 
-        // second sweep, find lv2 children
         this.setState({
             parent: parent,
-            children: parentToChildren.get(parent.event_id),
+            children: parentToChildren.get(parent.event_id) || [],
             parentToChildren: parentToChildren,
             eventMap: eventMap,
         });
@@ -89,7 +88,10 @@ class StatusPage extends React.Component {
             } else {
                 rendered.push(
                     <div className="child" key={event.event_id}>
-                        <Message event={event} />
+                        <Message
+                            event={event}
+                            numReplies={children ? children.length : 0}
+                        />
                     </div>
                 );
             }

@@ -1,3 +1,16 @@
 .MessageHeader{
     color: darkgray;
 }
+
+.Message{
+    cursor: pointer;
+}
+
+.Message:hover {
+    background-color: #9dd0fa;
+}
+
+.MessageFooter {
+    margin-left: 5px;
+    color: darkgray;
+}

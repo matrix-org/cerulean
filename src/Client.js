@@ -110,7 +110,7 @@ class Client {
                     body: "Something completely outrageous",
                 },
                 type: "m.room.message",
-                event_id: eventId,
+                event_id: "$lv0",
                 room_id: "!parent:event",
                 sender: "@parent:localhost",
                 origin_server_ts: 1603901763282,
@@ -120,7 +120,7 @@ class Client {
                     body: "How can you say that?!",
                     "m.relationship": {
                         rel_type: "m.reference",
-                        event_id: eventId,
+                        event_id: "$lv0",
                     },
                 },
                 type: "m.room.message",
@@ -134,7 +134,7 @@ class Client {
                     body: "HAHAHA yeah I totally agree!",
                     "m.relationship": {
                         rel_type: "m.reference",
-                        event_id: eventId,
+                        event_id: "$lv0",
                     },
                 },
                 type: "m.room.message",
@@ -198,6 +198,20 @@ class Client {
                 room_id: "!c",
                 sender: "@c:localhost",
                 origin_server_ts: 1603901999992,
+            },
+            {
+                content: {
+                    body: "This isn't funny!!!!!!",
+                    "m.relationship": {
+                        rel_type: "m.reference",
+                        event_id: "$l4rb",
+                    },
+                },
+                type: "m.room.message",
+                event_id: "$l5ra",
+                room_id: "!a",
+                sender: "@a:localhost",
+                origin_server_ts: 1603901999999,
             },
         ];
     }

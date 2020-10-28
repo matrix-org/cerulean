@@ -76,9 +76,21 @@ class Message extends React.Component {
         );
     }
 
+    onMessageClick() {
+        if (!this.props.event) {
+            return;
+        }
+        window.location.href = `/${this.props.event.sender}/status/${this.props.event.event_id}`;
+    }
+
     render() {
+        let replies;
+        if (this.props.numReplies > 1) {
+            replies = "\uD83D\uDDE8" + (this.props.numReplies - 1);
+        }
+
         return (
-            <div className="Message">
+            <div className="Message" onClick={this.onMessageClick.bind(this)}>
                 {this.renderEvent()}
                 <button
                     onClick={this.onReplyClick.bind(this)}
@@ -86,6 +98,7 @@ class Message extends React.Component {
                 >
                     Reply
                 </button>
+                <span className="MessageFooter">{replies}</span>
                 {this.state.error ? (
                     <div>Error: {JSON.stringify(this.state.error)}</div>
                 ) : (
