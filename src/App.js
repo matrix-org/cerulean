@@ -5,11 +5,6 @@ import "./App.css";
 import UserPage from "./UserPage";
 import StatusPage from "./StatusPage";
 
-// TODO: Input boxes
-const serverUrl = "http://localhost:8008/_matrix/client";
-const username = "foo";
-const password = "barbarbar";
-
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -58,6 +53,10 @@ class App extends React.Component {
     }
 
     async onLoginClick(ev) {
+        let serverUrl = prompt("Homeserver URL?", "http://localhost:8008");
+        serverUrl += "/_matrix/client";
+        let username = prompt("User ID?", "@cerulean:localhost");
+        let password = prompt("Password?", "");
         await this.props.client.login(serverUrl, username, password, true);
         this.setState({
             page: "user",
