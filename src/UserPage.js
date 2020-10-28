@@ -93,9 +93,22 @@ class UserPage extends React.Component {
                             />
                         </label>
                         <div>
-                            {this.state.timeline.map((ev) => {
-                                return <div>{JSON.stringify(ev)}</div>;
-                            })}
+                            {this.state.timeline
+                                .filter((ev) => {
+                                    if (this.state.withReplies) {
+                                        return true;
+                                    }
+                                    if (
+                                        (ev.content["m.relationship"] || {})
+                                            .rel_type === "m.reference"
+                                    ) {
+                                        return false;
+                                    }
+                                    return true;
+                                })
+                                .map((ev) => {
+                                    return <div>{JSON.stringify(ev)}</div>;
+                                })}
                         </div>
                     </div>
                 );

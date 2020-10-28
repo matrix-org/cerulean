@@ -2,7 +2,14 @@ import React from "react";
 import "./Message.css";
 
 class Message extends React.Component {
-    onReplyClick() {
+    constructor(props) {
+        super(props);
+        this.state = {
+            loading: false,
+            error: null,
+        };
+    }
+    async onReplyClick() {
         const replyTargets = this.getReplyTargets();
 
         const reply = prompt(
@@ -19,21 +26,30 @@ class Message extends React.Component {
             },
         };
 
-        // we send it to our own timeline...
-        client.sendMessage(`#${client.userId}`, content);
-
-        // ...and then to the timelines we're replying to...
-        // XXX: ideally we'd do this in one request, and factor out the event for efficency
-        for (target of replyTargets) {
-            client.sendMessage(`#${target}`, content);
+        this.setState({
+            loading: true,
+        });
+        try {
+            await this.props.client.postToUsers(
+                [this.props.client.userId],
+                content
+            );
+        } catch (err) {
+            this.setState({
+                error: err,
+            });
+        } finally {
+            this.setState({
+                loading: false,
+            });
         }
     }
 
     getReplyTargets() {
-        const body = this.props.event.raw.content.body;
+        const body = this.props.event.content.body;
         let targets = Array.from(body.matchAll(/(@.*?:.*?)\b/g));
         const targetHash = {};
-        for (target of targets) {
+        for (let target of targets) {
             targetHash[target]++;
         }
         return Object.keys(targetHash);
@@ -42,12 +58,21 @@ class Message extends React.Component {
     render() {
         return (
             <div class="Message">
-                {JSON.stringify(this.props.event.raw)}
-                <button onClick={this.onReplyClick}>Reply</button>
-                {this.props.event.subthreads.map((subthread) => {
-                    <MessageThread thread={subthread} />;
-                })}
+                {JSON.stringify(this.props.event)}
+                <button
+                    onClick={this.onReplyClick}
+                    disabled={this.state.loading}
+                >
+                    Reply
+                </button>
+                {this.state.error ? (
+                    <div>Error: {this.state.error}</div>
+                ) : (
+                    <div />
+                )}
             </div>
         );
     }
 }
+
+export default Message;

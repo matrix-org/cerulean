@@ -83,6 +83,105 @@ class Client {
         return data.event_id;
     }
 
+    async getRelationships(eventId) {
+        // TODO: Use /relationships
+        const body = {
+            event_id: eventId,
+            max_depth: 4,
+            max_breadth: 10,
+            depth_first: false,
+            recent_first: true,
+            include_parent: true,
+            direction: "down",
+        };
+        // Return stub data of the form:
+        //     Parent
+        //     /   \
+        //    A     B
+        //          |
+        //          A
+        //          |
+        //          A
+        //          |
+        //          B
+        return [
+            {
+                content: {
+                    body: "Placeholder",
+                },
+                type: "m.room.message",
+                event_id: eventId,
+                room_id: "!parent:event",
+                sender: "@parent:localhost",
+            },
+            {
+                content: {
+                    body: "Level 1 reply A",
+                    "m.relationship": {
+                        rel_type: "m.reference",
+                        event_id: eventId,
+                    },
+                },
+                type: "m.room.message",
+                event_id: "$l1ra",
+                room_id: "!a",
+                sender: "@a:localhost",
+            },
+            {
+                content: {
+                    body: "Level 1 reply B",
+                    "m.relationship": {
+                        rel_type: "m.reference",
+                        event_id: eventId,
+                    },
+                },
+                type: "m.room.message",
+                event_id: "$l1rb",
+                room_id: "!b",
+                sender: "@b:localhost",
+            },
+            {
+                content: {
+                    body: "Level 2 reply A",
+                    "m.relationship": {
+                        rel_type: "m.reference",
+                        event_id: "$l1rb",
+                    },
+                },
+                type: "m.room.message",
+                event_id: "$l2ra",
+                room_id: "!a",
+                sender: "@a:localhost",
+            },
+            {
+                content: {
+                    body: "Level 3 reply A",
+                    "m.relationship": {
+                        rel_type: "m.reference",
+                        event_id: "$l2ra",
+                    },
+                },
+                type: "m.room.message",
+                event_id: "$l3ra",
+                room_id: "!a",
+                sender: "@a:localhost",
+            },
+            {
+                content: {
+                    body: "Level 4 reply B",
+                    "m.relationship": {
+                        rel_type: "m.reference",
+                        event_id: "$l3ra",
+                    },
+                },
+                type: "m.room.message",
+                event_id: "$l4rb",
+                room_id: "!b",
+                sender: "@b:localhost",
+            },
+        ];
+    }
+
     /**
      * Post to several user's timelines.
      * @param {string[]} users a list of user IDs to post on their timeline

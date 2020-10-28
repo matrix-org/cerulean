@@ -95,22 +95,6 @@ class App extends React.Component {
         );
     }
 
-    async onPostClick(ev) {
-        let msg = "Hello world";
-        await this.props.client.postToUsers([this.props.client.userId], {
-            msgtype: "m.text",
-            body: msg,
-        });
-        this.forceUpdate();
-    }
-
-    postButton() {
-        if (!this.props.client.accessToken) {
-            return <div />;
-        }
-        return <button onClick={this.onPostClick.bind(this)}>Post</button>;
-    }
-
     /**
      * Render a main content page depending on this.state.page
      * Possible options are:
@@ -134,10 +118,9 @@ class App extends React.Component {
                 <StatusPage
                     client={this.props.client}
                     userId={this.state.viewingUserId}
-                    statusId={this.state.statusId}
+                    eventId={this.state.statusId}
                 />
             );
-            //return <MessageThread events={this.state.thread} />;
         } else {
             return <div>Whoops, how did you get here?</div>;
         }
