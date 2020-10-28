@@ -7,6 +7,7 @@ class StatusPage extends React.Component {
         super(props);
         this.state = {
             parent: null,
+            parentOfParent: null,
             parentToChildren: new Map(),
             eventMap: new Map(),
             children: [],
@@ -50,10 +51,22 @@ class StatusPage extends React.Component {
             }
         }
 
+        // if the parent has a parent include it so you can go up the tree
+        let parentOfParent;
+        if (
+            parent.content["m.relationship"] &&
+            parent.content["m.relationship"].rel_type === "m.reference"
+        ) {
+            parentOfParent = eventMap.get(
+                parent.content["m.relationship"].event_id
+            );
+        }
+
         this.setState({
             parent: parent,
             children: parentToChildren.get(parent.event_id) || [],
             parentToChildren: parentToChildren,
+            parentOfParent: parentOfParent,
             eventMap: eventMap,
         });
     }
@@ -104,9 +117,22 @@ class StatusPage extends React.Component {
     }
 
     render() {
+        let inReplyToBlock;
+        if (this.state.parentOfParent) {
+            const link = `/${this.state.parentOfParent.sender}/status/${this.state.parentOfParent.event_id}`;
+            inReplyToBlock = (
+                <div>
+                    <a href={link}>
+                        Replying to {this.state.parentOfParent.sender}
+                    </a>
+                </div>
+            );
+        }
+
         // display the main event this hyperlink refers to then load level 1 children beneath
         return (
             <div className="StatusPage">
+                {inReplyToBlock}
                 <Message event={this.state.parent} />
                 <br />
                 {this.state.children.map((ev) => {
