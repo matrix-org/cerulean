@@ -3,10 +3,13 @@
 }
 
 .child{
-
+    margin-left: 10px;
+    border-left: 1px solid;
+    padding-left: 10px;
 }
 
 .replyBlock{
     margin-top: 15px;
+    padding: 5px;
     border: 1px solid black;
 }

@@ -81,26 +81,30 @@ class StatusPage extends React.Component {
             }
             if (isFirst) {
                 rendered.push(
-                    <div class="firstChild">
-                        {event.sender} says: {JSON.stringify(event.content)}
+                    <div className="firstChild" key={event.event_id}>
+                        <Message event={event} />
                     </div>
                 );
                 isFirst = false;
             } else {
                 rendered.push(
-                    <div class="child">
-                        {event.sender} replied: {JSON.stringify(event.content)}
+                    <div className="child" key={event.event_id}>
+                        <Message event={event} />
                     </div>
                 );
             }
         }
-        return <div class="replyBlock">{rendered}</div>;
+        return (
+            <div className="replyBlock" key={ev.event_id}>
+                {rendered}
+            </div>
+        );
     }
 
     render() {
         // display the main event this hyperlink refers to then load level 1 children beneath
         return (
-            <div class="StatusPage">
+            <div className="StatusPage">
                 {this.props.userId}'s Status Page for event {this.props.eventId}
                 <Message event={this.state.parent} />
                 <br />

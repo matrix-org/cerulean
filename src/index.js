@@ -2,14 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
 import App from "./App";
-import Client from "./Client";
-
-const client = new Client(window.localStorage);
-const ClientContext = React.createContext(client);
+import { ClientContext, client } from "./ClientContext";
 
 ReactDOM.render(
     <React.StrictMode>
-        <ClientContext.Provider>
+        <ClientContext.Provider value={client}>
             <App client={client} />
         </ClientContext.Provider>
     </React.StrictMode>,

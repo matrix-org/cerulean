@@ -1,7 +1,7 @@
 import React from "react";
 // import logo from './logo.svg';
 import "./App.css";
-import MessageThread from "./MessageThread";
+// import MessageThread from "./MessageThread";
 import UserPage from "./UserPage";
 import StatusPage from "./StatusPage";
 

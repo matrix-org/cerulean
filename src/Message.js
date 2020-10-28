@@ -1,5 +1,6 @@
 import React from "react";
 import "./Message.css";
+import { ClientContext } from "./ClientContext";
 
 class Message extends React.Component {
     constructor(props) {
@@ -11,8 +12,7 @@ class Message extends React.Component {
     }
     async onReplyClick() {
         const replyTargets = this.getReplyTargets();
-
-        const reply = prompt(
+        let reply = prompt(
             `Enter your reply (replying to ${replyTargets.join(", ")})`
         );
         reply = reply + " " + replyTargets.join(" ");
@@ -20,9 +20,9 @@ class Message extends React.Component {
         const content = {
             body: reply,
             msgtype: "m.text",
-            "m.relates_to": {
+            "m.relationship": {
                 rel_type: "m.reference",
-                event_id: this.props.event.raw.event_id,
+                event_id: this.props.event.event_id,
             },
         };
 
@@ -30,11 +30,9 @@ class Message extends React.Component {
             loading: true,
         });
         try {
-            await this.props.client.postToUsers(
-                [this.props.client.userId],
-                content
-            );
+            await this.context.postToUsers([this.context.userId], content);
         } catch (err) {
+            console.error(err);
             this.setState({
                 error: err,
             });
@@ -52,21 +50,22 @@ class Message extends React.Component {
         for (let target of targets) {
             targetHash[target]++;
         }
+        targetHash[this.props.event.sender]++;
         return Object.keys(targetHash);
     }
 
     render() {
         return (
-            <div class="Message">
+            <div className="Message">
                 {JSON.stringify(this.props.event)}
                 <button
-                    onClick={this.onReplyClick}
+                    onClick={this.onReplyClick.bind(this)}
                     disabled={this.state.loading}
                 >
                     Reply
                 </button>
                 {this.state.error ? (
-                    <div>Error: {this.state.error}</div>
+                    <div>Error: {JSON.stringify(this.state.error)}</div>
                 ) : (
                     <div />
                 )}
@@ -74,5 +73,6 @@ class Message extends React.Component {
         );
     }
 }
+Message.contextType = ClientContext;
 
 export default Message;
