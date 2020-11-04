@@ -3,13 +3,31 @@
 }
 
 .child{
-    margin-left: 10px;
+    margin-left: 20px;
     border-left: 1px solid;
     padding-left: 10px;
 }
 
-.replyBlock{
-    margin-top: 15px;
-    padding: 5px;
-    border: 1px solid black;
+.StatusPage{
+    margin-top: 16px;
+    background: #F7F7F7;
+    border-radius: 12px 12px 0px 0px;
+    padding: 20px;
+}
+
+.StatusMessage {
+    background: #FFFFFF;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+}
+
+.BackButton{
+    /* Light / Element */
+    background: rgba(141, 151, 165, 0.2);
+    border-radius: 200px;
+}
+
+.BackChevron{
+    background: #737D8C;
+    transform: matrix(0.71, 0.71, -0.7, 0.71, 0, 0);
 }

@@ -61,9 +61,14 @@ class Message extends React.Component {
 
     renderTime(ts) {
         if (!ts) {
-            return <span>Now</span>;
+            return <span className="dateString">Now</span>;
         }
-        return <span>{new Date(ts).toLocaleString()}</span>;
+        const d = new Date(ts);
+        const dateStr = `${d.getDate()}/${d.getMonth()}/${d.getFullYear()} · ${d.toLocaleTimeString(
+            [],
+            { hour: "2-digit", minute: "2-digit", hour12: false }
+        )}`;
+        return <span className="DateString">{dateStr}</span>;
     }
 
     renderEvent() {
@@ -77,9 +82,10 @@ class Message extends React.Component {
                 onClick={this.onMessageClick.bind(this)}
             >
                 <span className="MessageHeader">
-                    {event.sender} · {this.renderTime(event.origin_server_ts)}
+                    <span className="MessageAuthor">{event.sender} </span>
+                    {this.renderTime(event.origin_server_ts)}
                 </span>
-                <div>{event.content.body}</div>
+                <div className="MessageText">{event.content.body}</div>
             </div>
         );
     }
@@ -100,18 +106,22 @@ class Message extends React.Component {
         return (
             <div className="Message">
                 {this.renderEvent()}
-                <button
-                    onClick={this.onReplyClick.bind(this)}
-                    disabled={this.state.loading}
-                >
-                    Reply
-                </button>
-                <span className="MessageFooter">{replies}</span>
-                {this.state.error ? (
-                    <div>Error: {JSON.stringify(this.state.error)}</div>
-                ) : (
-                    <div />
-                )}
+                <div className="MessageButtons">
+                    <span className="moreCommentsButton">{replies}</span>
+                    <button
+                        className="darkButton"
+                        onClick={this.onReplyClick.bind(this)}
+                        disabled={this.state.loading}
+                    >
+                        Reply
+                    </button>
+
+                    {this.state.error ? (
+                        <div>Error: {JSON.stringify(this.state.error)}</div>
+                    ) : (
+                        <div />
+                    )}
+                </div>
             </div>
         );
     }

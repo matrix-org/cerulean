@@ -2,15 +2,68 @@
     color: darkgray;
 }
 
+.Message{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
 .MessageBody{
     cursor: pointer;
+    margin-left: 20px;
+    margin-top: 16px;
+    margin-bottom: 16px;
 }
 
-.MessageBody:hover {
-    background-color: #9dd0fa;
+
+
+.replyButton{
 }
 
-.MessageFooter {
-    margin-left: 5px;
-    color: darkgray;
+.moreCommentsButton {
+    background: rgba(41, 82, 190, 0.1);
+    border-radius: 4px;
+    color: #2952BE;
+    margin-right: 8px;
+}
+
+.MessageAuthor {
+    /* Caption SemiBold */
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 15px;
+
+    /* identical to box height */
+
+    color: #2952BE;
+}
+
+.DateString {
+    /* Micro */
+    font-family: Inter;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 10px;
+    line-height: 12px;
+
+    /* Light / Secondary content */
+    color: #737D8C;
+}
+
+.MessageText {
+    /* Body */
+    font-family: Inter;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 15px;
+    line-height: 24px;
+
+    /* or 160% */
+
+    color: #17191C;
+}
+
+.MessageButtons{
+    margin-right: 12px;
 }

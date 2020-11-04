@@ -76,7 +76,7 @@ class App extends React.Component {
         if (this.props.client.accessToken) {
             return (
                 <button
-                    className="headerButton"
+                    className=" headerButton lightButton"
                     onClick={this.onLogoutClick.bind(this)}
                 >
                     Logout
@@ -85,7 +85,7 @@ class App extends React.Component {
         }
         return (
             <button
-                className="headerButton"
+                className=" headerButton lightButton"
                 onClick={this.onLoginClick.bind(this)}
             >
                 Login
@@ -128,11 +128,14 @@ class App extends React.Component {
         return (
             <div className="App">
                 <header className="AppHeader">
-                    <span className="title">Cerulean</span>
+                    <span />
+                    <div className="titleAndLogo">
+                        <img src="/icon.svg" />
+                        <div className="title">CERULEAN</div>
+                    </div>
                     {this.loginLogoutButton()}
                 </header>
                 <main className="AppMain">{this.renderPage()}</main>
-                <footer className="AppFooter"></footer>
             </div>
         );
     }

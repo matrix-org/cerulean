@@ -144,16 +144,19 @@ class StatusPage extends React.Component {
 
         // display the main event this hyperlink refers to then load level 1 children beneath
         return (
-            <div className="StatusPage">
-                {inReplyToBlock}
-                <Message
-                    event={this.state.parent}
-                    onPost={this.onPost.bind(this)}
-                />
-                <br />
-                {this.state.children.map((ev) => {
-                    return this.renderChild(ev);
-                })}
+            <div className="StatusPageWrapper">
+                <div className="StatusPage">
+                    {inReplyToBlock}
+                    <div className="StatusMessage">
+                        <Message
+                            event={this.state.parent}
+                            onPost={this.onPost.bind(this)}
+                        />
+                    </div>
+                    {this.state.children.map((ev) => {
+                        return this.renderChild(ev);
+                    })}
+                </div>
             </div>
         );
     }
