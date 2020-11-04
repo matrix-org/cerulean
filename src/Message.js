@@ -11,11 +11,14 @@ class Message extends React.Component {
         };
     }
     async onReplyClick() {
+        this.setState({
+            loading: true,
+        });
         const replyTargets = this.getReplyTargets();
         let reply = prompt(
             `Enter your reply (replying to ${replyTargets.join(", ")})`
         );
-        reply = reply + " " + replyTargets.join(" ");
+        // reply = reply + " " + replyTargets.join(" ");
 
         const content = {
             body: reply,
@@ -26,11 +29,10 @@ class Message extends React.Component {
             },
         };
 
-        this.setState({
-            loading: true,
-        });
+        let posted = false;
         try {
             await this.context.postToUsers([this.context.userId], content);
+            posted = true;
         } catch (err) {
             console.error(err);
             this.setState({
@@ -40,6 +42,9 @@ class Message extends React.Component {
             this.setState({
                 loading: false,
             });
+        }
+        if (posted && this.props.onPost) {
+            this.props.onPost();
         }
     }
 
@@ -67,7 +72,10 @@ class Message extends React.Component {
             return <div></div>;
         }
         return (
-            <div>
+            <div
+                className="MessageBody"
+                onClick={this.onMessageClick.bind(this)}
+            >
                 <span className="MessageHeader">
                     {event.sender} · {this.renderTime(event.origin_server_ts)}
                 </span>
@@ -77,7 +85,7 @@ class Message extends React.Component {
     }
 
     onMessageClick() {
-        if (!this.props.event) {
+        if (!this.props.event || this.state.loading) {
             return;
         }
         window.location.href = `/${this.props.event.sender}/status/${this.props.event.event_id}`;
@@ -90,7 +98,7 @@ class Message extends React.Component {
         }
 
         return (
-            <div className="Message" onClick={this.onMessageClick.bind(this)}>
+            <div className="Message">
                 {this.renderEvent()}
                 <button
                     onClick={this.onReplyClick.bind(this)}

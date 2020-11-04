@@ -16,6 +16,10 @@ class StatusPage extends React.Component {
     }
 
     async componentDidMount() {
+        await this.refresh();
+    }
+
+    async refresh() {
         // fetch the event we're supposed to display, along with a bunch of other events which are the replies
         // and the replies to those replies.
         const events = await this.props.client.getRelationships(
@@ -94,7 +98,11 @@ class StatusPage extends React.Component {
             if (isFirst) {
                 rendered.push(
                     <div className="firstChild" key={event.event_id}>
-                        <Message event={event} />
+                        <Message
+                            event={event}
+                            numReplies={children ? children.length : 0}
+                            onPost={this.onPost.bind(this)}
+                        />
                     </div>
                 );
                 isFirst = false;
@@ -104,6 +112,7 @@ class StatusPage extends React.Component {
                         <Message
                             event={event}
                             numReplies={children ? children.length : 0}
+                            onPost={this.onPost.bind(this)}
                         />
                     </div>
                 );
@@ -114,6 +123,10 @@ class StatusPage extends React.Component {
                 {rendered}
             </div>
         );
+    }
+
+    onPost() {
+        this.refresh();
     }
 
     render() {
@@ -133,7 +146,10 @@ class StatusPage extends React.Component {
         return (
             <div className="StatusPage">
                 {inReplyToBlock}
-                <Message event={this.state.parent} />
+                <Message
+                    event={this.state.parent}
+                    onPost={this.onPost.bind(this)}
+                />
                 <br />
                 {this.state.children.map((ev) => {
                     return this.renderChild(ev);

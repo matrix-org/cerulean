@@ -84,16 +84,30 @@ class Client {
     }
 
     async getRelationships(eventId) {
-        // TODO: Use /relationships
         const body = {
             event_id: eventId,
             max_depth: 4,
             max_breadth: 10,
+            limit: 50,
             depth_first: false,
             recent_first: true,
             include_parent: true,
+            include_children: true,
             direction: "down",
         };
+
+        if (eventId !== "$lv0") {
+            const data = await this.fetchJson(
+                `${this.serverUrl}/unstable/event_relationships`,
+                {
+                    method: "POST",
+                    body: JSON.stringify(body),
+                    headers: { Authorization: `Bearer ${this.accessToken}` },
+                }
+            );
+            return data.events;
+        }
+
         // Return stub data of the form:
         //     Parent
         //     /   \

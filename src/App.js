@@ -14,7 +14,6 @@ class App extends React.Component {
             /username
             /username/with_replies  --> timeline with replies
             /username/status/id  --> permalink
-            /hashtag/foo
         Examples:
         http://localhost:3000/@really:bigstuff.com/with_replies
         http://localhost:3000/@really:bigstuff.com
@@ -49,7 +48,7 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        // TODO: auto-register as a guest and allow people to login with their Matrix account
+        // TODO: auto-register as a guest if not logged in
     }
 
     async onLoginClick(ev) {

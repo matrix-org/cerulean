@@ -2,11 +2,11 @@
     color: darkgray;
 }
 
-.Message{
+.MessageBody{
     cursor: pointer;
 }
 
-.Message:hover {
+.MessageBody:hover {
     background-color: #9dd0fa;
 }
 
