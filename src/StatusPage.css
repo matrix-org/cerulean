@@ -4,12 +4,11 @@
 
 .child{
     margin-left: 20px;
-    border-left: 1px solid;
+    border-left: 1px solid #2952BE;
     padding-left: 10px;
 }
 
 .StatusPage{
-    margin-top: 16px;
     background: #F7F7F7;
     border-radius: 12px 12px 0px 0px;
     padding: 20px;
@@ -25,9 +24,9 @@
     /* Light / Element */
     background: rgba(141, 151, 165, 0.2);
     border-radius: 200px;
-}
-
-.BackChevron{
-    background: #737D8C;
-    transform: matrix(0.71, 0.71, -0.7, 0.71, 0, 0);
+    display: inline-block;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    padding: 5px 9px 5px 9px;
+    cursor: pointer;
 }

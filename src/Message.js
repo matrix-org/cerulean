@@ -76,11 +76,14 @@ class Message extends React.Component {
         if (!event) {
             return <div></div>;
         }
+        let handler;
+        let classes = " MessageBody";
+        if (!this.props.noLink) {
+            handler = this.onMessageClick.bind(this);
+            classes += " MessageBodyWithLink";
+        }
         return (
-            <div
-                className="MessageBody"
-                onClick={this.onMessageClick.bind(this)}
-            >
+            <div className={classes} onClick={handler}>
                 <span className="MessageHeader">
                     <span className="MessageAuthor">{event.sender} </span>
                     {this.renderTime(event.origin_server_ts)}

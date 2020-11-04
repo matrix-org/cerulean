@@ -72,6 +72,10 @@ class App extends React.Component {
         }
     }
 
+    onLogoClick() {
+        window.location.href = "/";
+    }
+
     loginLogoutButton() {
         if (this.props.client.accessToken) {
             return (
@@ -129,8 +133,11 @@ class App extends React.Component {
             <div className="App">
                 <header className="AppHeader">
                     <span />
-                    <div className="titleAndLogo">
-                        <img src="/icon.svg" />
+                    <div
+                        className="titleAndLogo"
+                        onClick={this.onLogoClick.bind(this)}
+                    >
+                        <img src="/icon.svg" alt="logo" />
                         <div className="title">CERULEAN</div>
                     </div>
                     {this.loginLogoutButton()}

@@ -130,27 +130,25 @@ class StatusPage extends React.Component {
     }
 
     render() {
-        let inReplyToBlock;
+        let backButton;
         if (this.state.parentOfParent) {
             const link = `/${this.state.parentOfParent.sender}/status/${this.state.parentOfParent.event_id}`;
-            inReplyToBlock = (
-                <div>
-                    <a href={link}>
-                        Replying to {this.state.parentOfParent.sender}
-                    </a>
-                </div>
+            backButton = (
+                <a href={link}>
+                    <img className="BackButton" src="/chevron.svg" alt="back" />
+                </a>
             );
         }
-
         // display the main event this hyperlink refers to then load level 1 children beneath
         return (
             <div className="StatusPageWrapper">
+                {backButton}
                 <div className="StatusPage">
-                    {inReplyToBlock}
                     <div className="StatusMessage">
                         <Message
                             event={this.state.parent}
                             onPost={this.onPost.bind(this)}
+                            noLink={true}
                         />
                     </div>
                     {this.state.children.map((ev) => {

@@ -49,6 +49,7 @@ body {
 .titleAndLogo{
     display: flex;
     align-items: center;
+    cursor: pointer;
 }
 
 .lightButton {
@@ -75,4 +76,8 @@ body {
     font-size: 12px;
     line-height: 15px;
     padding: 4px 8px 4px 8px;
+}
+
+button:hover{
+    cursor: pointer;
 }

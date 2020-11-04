@@ -8,10 +8,12 @@
     justify-content: space-between;
 }
 .MessageBody{
-    cursor: pointer;
     margin-left: 20px;
     margin-top: 16px;
     margin-bottom: 16px;
+}
+.MessageBodyWithLink{
+    cursor: pointer;
 }
 
 
@@ -49,6 +51,8 @@
 
     /* Light / Secondary content */
     color: #737D8C;
+
+    margin-left: 6px;
 }
 
 .MessageText {
