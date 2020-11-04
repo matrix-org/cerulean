@@ -52,12 +52,12 @@ class UserPage extends React.Component {
     }
 
     async onPostClick(ev) {
-        let msg = "Hello world";
+        let msg = prompt("Enter your message");
         await this.props.client.postToUsers([this.props.client.userId], {
             msgtype: "m.text",
             body: msg,
         });
-        this.forceUpdate();
+        await this.loadEvents();
     }
 
     postButton() {
