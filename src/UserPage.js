@@ -60,7 +60,7 @@ class UserPage extends React.Component {
     }
 
     async onPostClick(ev) {
-        await this.props.client.postToUsers([this.props.client.userId], {
+        await this.props.client.post({
             msgtype: "m.text",
             body: this.state.inputPost,
         });
@@ -94,6 +94,10 @@ class UserPage extends React.Component {
         });
     }
 
+    onReplied(parent, eventId) {
+        window.location.href = `/${this.props.client.userId}/status/${parent}`;
+    }
+
     render() {
         let timelineBlock;
         let errBlock;
@@ -123,7 +127,13 @@ class UserPage extends React.Component {
                                 return true;
                             })
                             .map((ev) => {
-                                return <Message key={ev.event_id} event={ev} />;
+                                return (
+                                    <Message
+                                        key={ev.event_id}
+                                        event={ev}
+                                        onPost={this.onReplied.bind(this)}
+                                    />
+                                );
                             })}
                     </div>
                 );

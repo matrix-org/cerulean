@@ -232,16 +232,12 @@ class Client {
     }
 
     /**
-     * Post to several user's timelines.
-     * @param {string[]} users a list of user IDs to post on their timeline
+     * Post a message.
      * @param {*} content the message to post
      */
-    async postToUsers(users, content) {
-        // @foo:bar => #@foo:bar
-        const promises = users.map((userId) => {
-            return this.sendMessage("#" + userId, content);
-        });
-        await Promise.all(promises);
+    async post(content) {
+        const eventId = await this.sendMessage("#" + this.userId, content);
+        return eventId;
     }
 
     /**

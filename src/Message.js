@@ -20,19 +20,16 @@ class Message extends React.Component {
         );
         // reply = reply + " " + replyTargets.join(" ");
 
-        const content = {
-            body: reply,
-            msgtype: "m.text",
-            "m.relationship": {
-                rel_type: "m.reference",
-                event_id: this.props.event.event_id,
-            },
-        };
-
-        let posted = false;
+        let postedEventId;
         try {
-            await this.context.postToUsers([this.context.userId], content);
-            posted = true;
+            postedEventId = await this.context.post({
+                body: reply,
+                msgtype: "m.text",
+                "m.relationship": {
+                    rel_type: "m.reference",
+                    event_id: this.props.event.event_id,
+                },
+            });
         } catch (err) {
             console.error(err);
             this.setState({
@@ -43,8 +40,8 @@ class Message extends React.Component {
                 loading: false,
             });
         }
-        if (posted && this.props.onPost) {
-            this.props.onPost();
+        if (postedEventId && this.props.onPost) {
+            this.props.onPost(this.props.event.event_id, postedEventId);
         }
     }
 
