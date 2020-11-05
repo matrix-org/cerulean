@@ -10,6 +10,8 @@ class UserPage extends React.Component {
             error: null,
             withReplies: this.props.withReplies,
             timeline: [],
+            isMe: props.userId === props.client.userId,
+            inputPost: "",
         };
     }
 
@@ -51,12 +53,18 @@ class UserPage extends React.Component {
         });
     }
 
+    handleKeyDown(event) {
+        if (event.key === "Enter") {
+            this.onPostClick(event);
+        }
+    }
+
     async onPostClick(ev) {
-        let msg = prompt("Enter your message");
         await this.props.client.postToUsers([this.props.client.userId], {
             msgtype: "m.text",
-            body: msg,
+            body: this.state.inputPost,
         });
+        this.setState({ inputPost: "" });
         await this.loadEvents();
     }
 
@@ -64,7 +72,14 @@ class UserPage extends React.Component {
         if (!this.props.client.accessToken) {
             return <div />;
         }
-        return <button onClick={this.onPostClick.bind(this)}>Post</button>;
+        return (
+            <img
+                src="/send.svg"
+                alt="send"
+                className="sendButton"
+                onClick={this.onPostClick.bind(this)}
+            />
+        );
     }
 
     render() {
@@ -83,7 +98,6 @@ class UserPage extends React.Component {
                 timelineBlock = (
                     <div>
                         <div className="UserPageHeader">
-                            {this.props.userId}'s' Page --
                             <label>
                                 With Replies:
                                 <input
@@ -117,11 +131,31 @@ class UserPage extends React.Component {
             }
         }
 
+        let userPageHeader = (
+            <div className="UserPageHeader">
+                <div className="userName">{this.props.userId}</div>
+                <div className="inputPostWithButton">
+                    <input
+                        name="inputPost"
+                        className="inputPost"
+                        type="text"
+                        placeholder="What's happening?"
+                        onKeyDown={this.handleKeyDown.bind(this)}
+                        onChange={this.handleInputChange.bind(this)}
+                        value={this.state.inputPost}
+                    ></input>
+                    {this.postButton()}
+                </div>
+                {errBlock}
+            </div>
+        );
+
+        let userPageBody = <div className="UserPageBody">{timelineBlock}</div>;
+
         return (
             <div className="UserPage">
-                {errBlock}
-                {this.postButton()}
-                {timelineBlock}
+                {userPageHeader}
+                {userPageBody}
             </div>
         );
     }

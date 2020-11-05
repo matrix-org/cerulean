@@ -6,3 +6,54 @@
 .UserPageHeader{
     padding-bottom: 15px;
 }
+
+.UserPage{
+    margin-top: 16px;
+}
+
+.UserPageHeader{
+    background: #F7F7F7;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.UserPageBody{
+    margin-top: 10px;
+    background: #F7F7F7;
+    border-radius: 12px;
+}
+
+.userName{
+    /* Body SemiBold */
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 18px;
+
+    /* Light / Primary content */
+    color: #17191C;
+
+    margin-bottom: 8px;
+}
+
+.inputPost{
+    background: #FFFFFF;
+    border: 0px;
+    border-radius: 200px;
+    flex-grow:2;
+    padding-left: 16px;
+}
+.inputPost:focus {
+    outline: none;
+}
+
+.sendButton{
+    cursor: pointer;
+    margin: 8px;
+}
+
+.inputPostWithButton{
+    display:flex;
+    flex-direction:row;
+}
