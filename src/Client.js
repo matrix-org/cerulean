@@ -269,57 +269,6 @@ class Client {
         }
     }
 
-    getMsgs(userId, withReplies, eventId) {
-        return [
-            {
-                foo: "bar",
-            },
-            {
-                baz: "quuz",
-            },
-        ];
-        if (!this.accessToken) {
-            console.error("No access token");
-            return;
-        }
-
-        const roomId = this.peekRoom(`#${userId}`);
-
-        let msgs = [];
-        if (eventId) {
-            fetch(`${this.serverUrl}/r0/rooms/${roomId}/context/${eventId}`, {
-                headers: { Authorization: `Bearer: ${this.accessToken}` },
-            })
-                .then((response) => response.json())
-                .then((data) => {
-                    msgs.push(data.event);
-                });
-        } else {
-            const filter = {
-                user_id: userId, // we just want this user's messages
-            };
-            // only grab unlabelled messages if we don't want the user's replies.
-            if (!withReplies) filter["m.label"] = "";
-
-            fetch(
-                `${
-                    this.serverUrl
-                }/r0/rooms/${roomId}/messages?filter=${JSON.stringify(filter)}`,
-                {
-                    headers: { Authorization: `Bearer: ${this.accessToken}` },
-                }
-            )
-                .then((response) => response.json())
-                .then((data) => {
-                    for (const event of data.chunk) {
-                        msgs.push(event);
-                    }
-                });
-        }
-
-        return msgs;
-    }
-
     async getTimeline(roomId) {
         if (!this.accessToken) {
             console.error("No access token");

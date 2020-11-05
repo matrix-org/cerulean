@@ -123,7 +123,7 @@ class UserPage extends React.Component {
                                 return true;
                             })
                             .map((ev) => {
-                                return <Message event={ev} />;
+                                return <Message key={ev.event_id} event={ev} />;
                             })}
                     </div>
                 );
