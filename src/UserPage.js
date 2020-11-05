@@ -82,6 +82,18 @@ class UserPage extends React.Component {
         );
     }
 
+    onPostsClick() {
+        this.setState({
+            withReplies: false,
+        });
+    }
+
+    onPostsAndRepliesClick() {
+        this.setState({
+            withReplies: true,
+        });
+    }
+
     render() {
         let timelineBlock;
         let errBlock;
@@ -97,35 +109,22 @@ class UserPage extends React.Component {
             } else {
                 timelineBlock = (
                     <div>
-                        <div className="UserPageHeader">
-                            <label>
-                                With Replies:
-                                <input
-                                    name="withReplies"
-                                    type="checkbox"
-                                    checked={this.state.withReplies}
-                                    onChange={this.handleInputChange.bind(this)}
-                                />
-                            </label>
-                        </div>
-                        <div>
-                            {this.state.timeline
-                                .filter((ev) => {
-                                    if (this.state.withReplies) {
-                                        return true;
-                                    }
-                                    if (
-                                        (ev.content["m.relationship"] || {})
-                                            .rel_type === "m.reference"
-                                    ) {
-                                        return false;
-                                    }
+                        {this.state.timeline
+                            .filter((ev) => {
+                                if (this.state.withReplies) {
                                     return true;
-                                })
-                                .map((ev) => {
-                                    return <Message event={ev} />;
-                                })}
-                        </div>
+                                }
+                                if (
+                                    (ev.content["m.relationship"] || {})
+                                        .rel_type === "m.reference"
+                                ) {
+                                    return false;
+                                }
+                                return true;
+                            })
+                            .map((ev) => {
+                                return <Message event={ev} />;
+                            })}
                     </div>
                 );
             }
@@ -150,7 +149,33 @@ class UserPage extends React.Component {
             </div>
         );
 
-        let userPageBody = <div className="UserPageBody">{timelineBlock}</div>;
+        let postTab = " tab";
+        let postAndReplyTab = " tab";
+        if (this.state.withReplies) {
+            postAndReplyTab += " tabSelected";
+        } else {
+            postTab += " tabSelected";
+        }
+
+        let userPageBody = (
+            <div>
+                <div className="tabGroup">
+                    <span
+                        className={postTab}
+                        onClick={this.onPostsClick.bind(this)}
+                    >
+                        Posts
+                    </span>
+                    <span
+                        className={postAndReplyTab}
+                        onClick={this.onPostsAndRepliesClick.bind(this)}
+                    >
+                        Posts and replies
+                    </span>
+                </div>
+                <div className=" UserPageBody">{timelineBlock}</div>
+            </div>
+        );
 
         return (
             <div className="UserPage">

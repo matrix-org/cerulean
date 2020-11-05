@@ -15,12 +15,13 @@
     background: #F7F7F7;
     border-radius: 12px;
     padding: 20px;
+    margin-bottom: 10px;
 }
 
 .UserPageBody{
-    margin-top: 10px;
     background: #F7F7F7;
-    border-radius: 12px;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
 }
 
 .userName{
@@ -56,4 +57,30 @@
 .inputPostWithButton{
     display:flex;
     flex-direction:row;
+}
+
+.tabGroup{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.tabSelected {
+    background: #F7F7F7;
+    border-radius: 12px 12px 0px 0px;
+}
+
+.tab{
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 18px;
+    text-align: center;
+    padding-top: 15px;
+    padding-bottom: 15px;
+
+    color: #2952BE;
+    flex-grow: 1;
+    cursor: pointer;
 }
