@@ -94,6 +94,7 @@ class Client {
             include_parent: true,
             include_children: true,
             direction: "down",
+            auto_join: true,
         };
 
         if (eventId !== "$lv0") {
