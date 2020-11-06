@@ -125,12 +125,13 @@ class StatusPage extends React.Component {
         );
     }
 
-    onPost() {
-        this.refresh();
+    onPost(parent, eventId) {
+        window.location.href = `/${this.props.client.userId}/status/${parent}`;
     }
 
     render() {
         let backButton;
+        let parent;
         if (this.state.parentOfParent) {
             const link = `/${this.state.parentOfParent.sender}/status/${this.state.parentOfParent.event_id}`;
             backButton = (
@@ -138,12 +139,19 @@ class StatusPage extends React.Component {
                     <img className="BackButton" src="/chevron.svg" alt="back" />
                 </a>
             );
+            parent = (
+                <Message
+                    event={this.state.parentOfParent}
+                    onPost={this.onPost.bind(this)}
+                />
+            );
         }
         // display the main event this hyperlink refers to then load level 1 children beneath
         return (
             <div className="StatusPageWrapper">
                 {backButton}
                 <div className="StatusPage">
+                    {parent}
                     <div className="StatusMessage">
                         <Message
                             event={this.state.parent}
