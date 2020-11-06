@@ -79,12 +79,17 @@ class App extends React.Component {
     loginLogoutButton() {
         if (this.props.client.accessToken) {
             return (
-                <button
-                    className=" headerButton lightButton"
-                    onClick={this.onLogoutClick.bind(this)}
-                >
-                    Logout
-                </button>
+                <div>
+                    <span className="loggedInUser">
+                        {this.props.client.userId}
+                    </span>
+                    <button
+                        className=" headerButton lightButton"
+                        onClick={this.onLogoutClick.bind(this)}
+                    >
+                        Logout
+                    </button>
+                </div>
             );
         }
         return (

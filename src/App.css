@@ -81,3 +81,7 @@ body {
 button:hover{
     cursor: pointer;
 }
+
+.loggedInUser{
+    margin-right: 16px;
+}
