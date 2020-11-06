@@ -2,6 +2,9 @@ import React from "react";
 import "./StatusPage.css";
 import Message from "./Message";
 
+const maxBreath = 5;
+const maxDepth = 10;
+
 class StatusPage extends React.Component {
     constructor(props) {
         super(props);
@@ -21,9 +24,12 @@ class StatusPage extends React.Component {
 
     async refresh() {
         // fetch the event we're supposed to display, along with a bunch of other events which are the replies
-        // and the replies to those replies.
+        // and the replies to those replies. We go up to 6 wide and 6 deep, and stop showing >5 items (instead having)
+        // a 'see more'.
         const events = await this.props.client.getRelationships(
-            this.props.eventId
+            this.props.eventId,
+            maxBreath + 1,
+            maxDepth + 1
         );
         // store in a map for easy references and to find the parent
         let eventMap = new Map();
@@ -76,57 +82,84 @@ class StatusPage extends React.Component {
     }
 
     renderChild(ev) {
-        // walk the graph depth first, so conversation threads begin to form.
-        // if we have more than 1 child (grandchild to the main event) we'll arbitrarily
-        // pick one to go down. In the future we could go for the longest chain (more convo)
-        // or the most recent or something.
-        const maxItems = 20;
-        const toProcess = [ev.event_id];
-        let isFirst = true;
+        // walk the graph depth first, we want to convert graphs like:
+        //   A
+        //  / \
+        // B   C
+        //     |
+        //     D
+        //     |
+        //     E
+        // into:
+        // [ Message A ]
+        //  | [ Message B ]
+        //  | [ Message C ]
+        //    | [ Message D ]
+        //      | [ Message E ]
+        const maxItems = 200;
+        // which item to render next, we store the event ID and the depth so we
+        // know how much to indent by
+        const toProcess = [
+            {
+                eventId: ev.event_id,
+                depth: 0,
+            },
+        ];
         const rendered = [];
         while (toProcess.length > 0 && rendered.length < maxItems) {
-            const eventId = toProcess.pop();
+            const procInfo = toProcess.pop();
+            const eventId = procInfo.eventId;
+            const depth = procInfo.depth;
+            const style = {
+                "margin-left": 20 * (1 + depth) + "px",
+            };
             const event = this.state.eventMap.get(eventId);
             if (!event) {
                 continue;
             }
+            if (procInfo.seeMore) {
+                rendered.push(
+                    <div className="child" style={style} key={event.event_id}>
+                        <a href={`/${event.sender}/status/${event.event_id}`}>
+                            See more...
+                        </a>
+                    </div>
+                );
+                continue;
+            }
+            // this array is in the order from POST /event_relationships which is
+            // recent first
             const children = this.state.parentToChildren.get(eventId);
             if (children) {
-                // arbitratily pick one
-                toProcess.push(children[0].event_id);
+                if (children.length > maxBreath) {
+                    // only show the first 5 then add a 'see more' link which permalinks you
+                    // to the parent which has so many children (we only display all children
+                    // on the permalink for the parent). We inject this first as it's a LIFO stack
+                    toProcess.push({
+                        eventId: eventId,
+                        depth: depth + 1,
+                        seeMore: true,
+                    });
+                }
+                for (let i = 0; i < children.length && i < maxBreath; i++) {
+                    toProcess.push({
+                        eventId: children[i].event_id,
+                        depth: depth + 1,
+                    });
+                }
             }
-            if (isFirst) {
-                rendered.push(
-                    <div className="firstChild" key={event.event_id}>
-                        <Message
-                            event={event}
-                            numReplies={children ? children.length : 0}
-                            onPost={this.onPost.bind(this)}
-                        />
-                    </div>
-                );
-                isFirst = false;
-            } else {
-                rendered.push(
-                    <div className="child" key={event.event_id}>
-                        <Message
-                            event={event}
-                            numReplies={children ? children.length : 0}
-                            onPost={this.onPost.bind(this)}
-                        />
-                    </div>
-                );
-            }
+            rendered.push(
+                <div className="child" style={style} key={event.event_id}>
+                    <Message event={event} onPost={this.onPost.bind(this)} />
+                </div>
+            );
         }
-        return (
-            <div className="replyBlock" key={ev.event_id}>
-                {rendered}
-            </div>
-        );
+        return <div key={ev.event_id}>{rendered}</div>;
     }
 
     onPost(parent, eventId) {
-        window.location.href = `/${this.props.client.userId}/status/${parent}`;
+        this.refresh();
+        //window.location.href = `/${this.props.client.userId}/status/${parent}`;
     }
 
     render() {
@@ -146,7 +179,7 @@ class StatusPage extends React.Component {
                 />
             );
         }
-        // display the main event this hyperlink refers to then load level 1 children beneath
+        // display the main event this hyperlink refers to then load ALL level 1 children beneath
         return (
             <div className="StatusPageWrapper">
                 {backButton}

@@ -115,6 +115,9 @@ class UserPage extends React.Component {
                     <div>
                         {this.state.timeline
                             .filter((ev) => {
+                                if (ev.type !== "m.room.message") {
+                                    return false;
+                                }
                                 if (this.state.withReplies) {
                                     return true;
                                 }

@@ -1,9 +1,4 @@
-.firstChild{
-
-}
-
 .child{
-    margin-left: 20px;
     border-left: 1px solid #2952BE;
     padding-left: 10px;
 }

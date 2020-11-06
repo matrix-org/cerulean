@@ -83,11 +83,11 @@ class Client {
         return data.event_id;
     }
 
-    async getRelationships(eventId) {
+    async getRelationships(eventId, maxBreadth, maxDepth) {
         const body = {
             event_id: eventId,
-            max_depth: 4,
-            max_breadth: 10,
+            max_depth: maxDepth || 6,
+            max_breadth: maxBreadth || 5,
             limit: 50,
             depth_first: false,
             recent_first: true,
