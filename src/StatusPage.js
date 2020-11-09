@@ -111,7 +111,7 @@ class StatusPage extends React.Component {
             const eventId = procInfo.eventId;
             const depth = procInfo.depth;
             const style = {
-                "margin-left": 20 * (1 + depth) + "px",
+                marginLeft: 20 * (1 + depth) + "px",
             };
             const event = this.state.eventMap.get(eventId);
             if (!event) {

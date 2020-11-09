@@ -79,7 +79,7 @@ class App extends React.Component {
     loginLogoutButton() {
         if (this.props.client.accessToken) {
             return (
-                <div>
+                <div className="topRightNav">
                     <span className="loggedInUser">
                         {this.props.client.userId}
                     </span>
@@ -94,7 +94,7 @@ class App extends React.Component {
         }
         return (
             <button
-                className=" headerButton lightButton"
+                className=" lightButton topRightNav"
                 onClick={this.onLoginClick.bind(this)}
             >
                 Login
@@ -137,7 +137,6 @@ class App extends React.Component {
         return (
             <div className="App">
                 <header className="AppHeader">
-                    <span />
                     <div
                         className="titleAndLogo"
                         onClick={this.onLogoClick.bind(this)}

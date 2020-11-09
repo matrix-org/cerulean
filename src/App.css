@@ -16,9 +16,6 @@ body {
 .AppHeader{
     color: #FFFFFF;
     background: #2952BE;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     width: 100%;
     height: 47px;
     left: 0px;
@@ -30,8 +27,11 @@ body {
     max-width: 960px;
 }
 
-.headerButton{
+.topRightNav{
+    margin-top: 23px; /* AppHeader.height / 2 */
     margin-right: 16px;
+    float: right;
+    transform: translate(0%, -50%);
 }
 
 .title {
@@ -50,6 +50,10 @@ body {
     display: flex;
     align-items: center;
     cursor: pointer;
+    position: fixed;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    top: 23px; /* AppHeader.height / 2 */
 }
 
 .lightButton {
