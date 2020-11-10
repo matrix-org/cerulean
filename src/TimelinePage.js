@@ -23,6 +23,9 @@ class TimelinePage extends React.Component {
         });
         try {
             let timeline = await this.props.client.getAggregatedTimeline();
+            if (timeline.length === 0) {
+                window.location.href = "/" + this.props.client.userId;
+            }
             this.setState({
                 timeline: timeline,
             });

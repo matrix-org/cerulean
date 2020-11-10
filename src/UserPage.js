@@ -115,7 +115,10 @@ class UserPage extends React.Component {
                     <div>
                         {this.state.timeline
                             .filter((ev) => {
-                                if (ev.type !== "m.room.message") {
+                                if (
+                                    ev.type !== "m.room.message" ||
+                                    ev.sender !== this.props.userId
+                                ) {
                                     return false;
                                 }
                                 if (this.state.withReplies) {
