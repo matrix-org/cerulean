@@ -8,7 +8,6 @@ body {
 }
 
 .App {
-    min-width: 920px;
     margin: 0 auto;
     font-family: Inter, Helvetica, arial, sans-serif;
 }
