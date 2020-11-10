@@ -9,35 +9,20 @@ It has no dependencies (other than create-react-app) and has no optimisations.
 It uses a naive View+Model architecture for legibility (although ideally it'd
 grow to be MVVM in future).
 
-**Cerulean does not currently work, or indeed build; this initial check-in is
-a snapshot WIP for future reference, which has been blindly written down without
-trying to build in order to get the below ideas onto disk as rapidly as possible.**
-
 ## Design
 
 The way Cerulean works is:
  * Messages are sent into the 'user timeline' rooms of their recipients.
     * For instance, my user timeline room would be #@matthew:matrix.org
-    * So a message sent by me which @-mentions @Amandine:matrix.org would
-      be sent by me in both #@matthew:matrix.org and #@Amandine:matrix.org.
-    * (Ideally the message contents would be factored out between the two rooms,
-      and an API would be available to send to both locations at the same time,
-      but that's just an optimisation which can be added in future if this overall
-      model looks plausible.)
  * Messages are viewed in the context of a given 'user timeline' room.
     * e.g. https://cerulean/#/@matthew:matrix.org/status/$nqeHq7lJyFp4UZNlE3rN4xPVsez0vZnIcaM6SQB9waw
       is a given message that I've sent in my timeline.
- * Messages are threaded using a combination of `m.reference` aggregations
-  (to indicate subthreads forking off the current thread)
-  and `m.label` fields (which contain the event ID of the head of the subthread).
-    * As such, walking threads is a question of following bundled `m.reference`
-      aggregations, and then filtering on the label for the subthread in question.
+ * Messages are threaded using MSC2836
  * Users should only `/join` other's timeline rooms to post in them; otherwise they should `/peek`.
  * Users start off as guests on their chosen homeserver, and then login if they want to post.
 
 Cerulean uses the following experimental [MSCs](https://matrix.org/docs/spec/proposals):
- * `m.reference` aggregations from [MSC1849](https://github.com/matrix-org/matrix-doc/pull/1849)
- * `m.label` label-based filtering from [MSC2326](https://github.com/matrix-org/matrix-doc/pull/2326)
+ * Threading from [MSC2836](https://github.com/matrix-org/matrix-doc/pull/2836)
  * `#@user:domain` user profile/timeline rooms from [MSC1769](https://github.com/matrix-org/matrix-doc/pull/1769)
  * peeking via `/sync` [MSC2753](https://github.com/matrix-org/matrix-doc/pull/2753) - optional
  * peeking over federation [MSC2444](https://github.com/matrix-org/matrix-doc/pull/2444) - optional
@@ -47,10 +32,8 @@ Cerulean uses the following experimental [MSCs](https://matrix.org/docs/spec/pro
  * [x] User timelines
  * [x] User timelines with replies
  * [x] Individual messages with surrounding threaded conversation
-
-Pending UI:
- * [ ] Ability to expand out threads to explore further
- * [ ] Ability to display parent rather than child threads if the parent started on a different timeline
+ * [x] Ability to expand out threads to explore further
+ * [x] Ability to display parent rather than child threads if the parent started on a different timeline
  * [ ] Live updates as messages arrive (i.e. a `/sync` loop)
  * [ ] HTML messages
  * [ ] Likes
