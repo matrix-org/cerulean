@@ -4,6 +4,7 @@ import "./App.css";
 // import MessageThread from "./MessageThread";
 import UserPage from "./UserPage";
 import StatusPage from "./StatusPage";
+import TimelinePage from "./TimelinePage";
 
 class App extends React.Component {
     constructor(props) {
@@ -11,9 +12,10 @@ class App extends React.Component {
 
         /*
         Possible Cerulean paths:
-            /username
+            /                       --> aggregated feed of all timelines followed
+            /username               --> user's timeline
             /username/with_replies  --> timeline with replies
-            /username/status/id  --> permalink
+            /username/status/id     --> permalink
         Examples:
         http://localhost:3000/@really:bigstuff.com/with_replies
         http://localhost:3000/@really:bigstuff.com
@@ -22,7 +24,7 @@ class App extends React.Component {
 
         // sensible defaults
         this.state = {
-            page: "user",
+            page: "timeline",
             viewingUserId: this.props.client.userId,
             withReplies: false,
             statusId: null,
@@ -32,13 +34,19 @@ class App extends React.Component {
         const path = window.location.pathname.split("/");
         console.log("input path: " + window.location.pathname);
         if (path.length < 2) {
+            console.log("viewing timeline");
             return;
         }
         const userId = path[1];
-        if (!userId.startsWith("@")) {
+        if (!userId) {
+            console.log("viewing timeline");
+            this.state.page = "timeline";
+            return;
+        } else if (!userId.startsWith("@")) {
             console.log("unknown user ID in path: " + path);
             return;
         }
+        this.state.page = "user";
         this.state.viewingUserId = userId;
         this.state.withReplies = path[2] === "with_replies";
         if (path[2] === "status" && path[3]) {
@@ -76,11 +84,18 @@ class App extends React.Component {
         window.location.href = "/";
     }
 
+    onUserClick() {
+        window.location.href = "/" + this.props.client.userId;
+    }
+
     loginLogoutButton() {
         if (this.props.client.accessToken) {
             return (
                 <div className="topRightNav">
-                    <span className="loggedInUser">
+                    <span
+                        className="loggedInUser"
+                        onClick={this.onUserClick.bind(this)}
+                    >
                         {this.props.client.userId}
                     </span>
                     <button
@@ -128,6 +143,8 @@ class App extends React.Component {
                     eventId={this.state.statusId}
                 />
             );
+        } else if (this.state.page === "timeline") {
+            return <TimelinePage client={this.props.client} />;
         } else {
             return <div>Whoops, how did you get here?</div>;
         }

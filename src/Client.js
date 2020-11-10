@@ -266,6 +266,61 @@ class Client {
         }
     }
 
+    async getAggregatedTimeline() {
+        if (!this.accessToken) {
+            console.error("No access token");
+            return [];
+        }
+        const filterJson = JSON.stringify({
+            room: {
+                timeline: {
+                    limit: 20,
+                },
+            },
+        });
+        let syncData = await this.fetchJson(
+            `${this.serverUrl}/r0/sync?filter=${filterJson}`,
+            {
+                headers: { Authorization: `Bearer ${this.accessToken}` },
+            }
+        );
+        // filter only @# rooms then add in all timeline events
+        const roomIds = Object.keys(syncData.rooms.join).filter((roomId) => {
+            // try to find an #@ alias
+            let foundAlias = false;
+            for (let ev of syncData.rooms.join[roomId].state.events) {
+                if (ev.type === "m.room.aliases" && ev.content.aliases) {
+                    for (let alias of ev.content.aliases) {
+                        if (alias.startsWith("#@")) {
+                            foundAlias = true;
+                            break;
+                        }
+                    }
+                }
+                if (foundAlias) {
+                    break;
+                }
+            }
+            return foundAlias;
+        });
+        let events = [];
+        for (let roomId of roomIds) {
+            for (let ev of syncData.rooms.join[roomId].timeline.events) {
+                events.push(ev);
+            }
+        }
+        // sort by origin_server_ts
+        return events.sort((a, b) => {
+            if (a.origin_server_ts === b.origin_server_ts) {
+                return 0;
+            }
+            if (a.origin_server_ts < b.origin_server_ts) {
+                return 1;
+            }
+            return -1;
+        });
+    }
+
     async getTimeline(roomId) {
         if (!this.accessToken) {
             console.error("No access token");
