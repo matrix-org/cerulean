@@ -56,6 +56,10 @@ class Message extends React.Component {
         return Object.keys(targetHash);
     }
 
+    onAuthorClick(author) {
+        window.location.href = `/${author}`;
+    }
+
     renderTime(ts) {
         if (!ts) {
             return <span className="dateString">Now</span>;
@@ -82,7 +86,12 @@ class Message extends React.Component {
         return (
             <div className={classes} onClick={handler}>
                 <span className="MessageHeader">
-                    <span className="MessageAuthor">{event.sender} </span>
+                    <span
+                        className="MessageAuthor"
+                        onClick={this.onAuthorClick.bind(this, event.sender)}
+                    >
+                        {event.sender}{" "}
+                    </span>
                     {this.renderTime(event.origin_server_ts)}
                 </span>
                 <div className="MessageText">{event.content.body}</div>

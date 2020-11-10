@@ -39,6 +39,8 @@
     /* identical to box height */
 
     color: #2952BE;
+
+    cursor: pointer;
 }
 
 .DateString {
