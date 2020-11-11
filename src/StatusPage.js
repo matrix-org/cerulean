@@ -2,7 +2,7 @@ import React from "react";
 import "./StatusPage.css";
 import Message from "./Message";
 
-const maxBreath = 5;
+const maxBreadth = 5;
 const maxDepth = 10;
 
 class StatusPage extends React.Component {
@@ -15,6 +15,7 @@ class StatusPage extends React.Component {
             eventMap: new Map(),
             children: [],
             error: null,
+            horizontalThreading: false,
         };
     }
 
@@ -28,7 +29,7 @@ class StatusPage extends React.Component {
         // a 'see more'.
         const events = await this.props.client.getRelationships(
             this.props.eventId,
-            maxBreath + 1,
+            maxBreadth + 1,
             maxDepth + 1
         );
         // store in a map for easy references and to find the parent
@@ -81,7 +82,7 @@ class StatusPage extends React.Component {
         });
     }
 
-    renderChild(ev) {
+    renderHorizontalChild(ev) {
         // walk the graph depth first, we want to convert graphs like:
         //   A
         //  / \
@@ -131,7 +132,7 @@ class StatusPage extends React.Component {
             // recent first
             const children = this.state.parentToChildren.get(eventId);
             if (children) {
-                if (children.length > maxBreath) {
+                if (children.length > maxBreadth) {
                     // only show the first 5 then add a 'see more' link which permalinks you
                     // to the parent which has so many children (we only display all children
                     // on the permalink for the parent). We inject this first as it's a LIFO stack
@@ -141,7 +142,7 @@ class StatusPage extends React.Component {
                         seeMore: true,
                     });
                 }
-                for (let i = 0; i < children.length && i < maxBreath; i++) {
+                for (let i = 0; i < children.length && i < maxBreadth; i++) {
                     toProcess.push({
                         eventId: children[i].event_id,
                         depth: depth + 1,
@@ -151,6 +152,120 @@ class StatusPage extends React.Component {
             rendered.push(
                 <div className="child" style={style} key={event.event_id}>
                     <Message event={event} onPost={this.onPost.bind(this)} />
+                </div>
+            );
+        }
+        return <div key={ev.event_id}>{rendered}</div>;
+    }
+
+    renderVerticalChild(ev, sibling, numSiblings) {
+        // walk the graph depth first, we want to convert graphs like:
+        //   A
+        //  / \
+        // B   C
+        //     |
+        //     D
+        //     |
+        //     E
+        // into:
+        // [ Message A ]
+        //  |-[ Message B ]
+        //  |-[ Message C ]
+        //    [ Message D ]
+        //    [ Message E ]
+        // Indentation and thread lines occur on events which have siblings.
+        const maxItems = 200;
+        // which item to render next, we store the event ID and the siblingNum so we
+        // know how much to indent by
+        const toProcess = [
+            {
+                eventId: ev.event_id,
+                siblingDepth: 0, // how many parents have siblings up to the root node
+                numSiblings: numSiblings,
+                sibling: sibling,
+            },
+        ];
+        const rendered = [];
+        while (toProcess.length > 0 && rendered.length < maxItems) {
+            const procInfo = toProcess.pop();
+            const eventId = procInfo.eventId;
+            const siblingDepth = procInfo.siblingDepth;
+            const numSiblings = procInfo.numSiblings;
+            const sibling = procInfo.sibling;
+            const isLastSibling = sibling === 0;
+            const style = {
+                marginLeft: 20 * (1 + siblingDepth) + "px",
+            };
+            // continue the thread line down to the next sibling
+            const msgStyle = {
+                borderLeft: !isLastSibling ? "1px solid #2952BE" : undefined,
+            };
+            const event = this.state.eventMap.get(eventId);
+            if (!event) {
+                continue;
+            }
+            let threadLines;
+            if (numSiblings > 1) {
+                threadLines = (
+                    <img
+                        src="/thread-corner.svg"
+                        alt="line"
+                        className="threadLine"
+                    />
+                );
+            }
+            console.log(event.content.body + " ", procInfo);
+            if (procInfo.seeMore) {
+                rendered.push(
+                    <div className="verticalChild" style={style} key="seeMore">
+                        <a href={`/${event.sender}/status/${event.event_id}`}>
+                            See more...
+                        </a>
+                    </div>
+                );
+                continue;
+            }
+            // this array is in the order from POST /event_relationships which is
+            // recent first
+            const children = this.state.parentToChildren.get(eventId);
+            if (children) {
+                if (children.length > maxBreadth) {
+                    // only show the first 5 then add a 'see more' link which permalinks you
+                    // to the parent which has so many children (we only display all children
+                    // on the permalink for the parent). We inject this first as it's a LIFO stack
+                    toProcess.push({
+                        eventId: eventId,
+                        siblingDepth:
+                            siblingDepth + (children.length > 1 ? 1 : 0),
+                        seeMore: true,
+                        numSiblings: children.length,
+                        sibling: maxBreadth,
+                    });
+                }
+                for (let i = 0; i < children.length && i < maxBreadth; i++) {
+                    toProcess.push({
+                        eventId: children[i].event_id,
+                        siblingDepth:
+                            siblingDepth + (children.length > 1 ? 1 : 0),
+                        numSiblings: children.length,
+                        sibling: i,
+                    });
+                }
+            }
+
+            rendered.push(
+                <div
+                    className="verticalChild"
+                    style={style}
+                    key={event.event_id}
+                >
+                    <div style={msgStyle}>
+                        {threadLines}
+                        <Message
+                            event={event}
+                            onPost={this.onPost.bind(this)}
+                        />
+                    </div>
                 </div>
             );
         }
@@ -192,8 +307,16 @@ class StatusPage extends React.Component {
                             noLink={true}
                         />
                     </div>
-                    {this.state.children.map((ev) => {
-                        return this.renderChild(ev);
+                    {this.state.children.map((ev, i) => {
+                        if (this.state.horizontalThreading) {
+                            return this.renderHorizontalChild(ev);
+                        } else {
+                            return this.renderVerticalChild(
+                                ev,
+                                this.state.children.length - 1 - i, // rendering relies on a stack so invert the sibling order
+                                this.state.children.length
+                            );
+                        }
                     })}
                 </div>
             </div>

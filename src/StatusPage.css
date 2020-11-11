@@ -3,6 +3,16 @@
     padding-left: 10px;
 }
 
+.verticalChild{
+    padding-left: 10px;
+}
+
+.threadLine{
+    float: left;
+    position: absolute;
+    margin-left: -1px; /* so border lines merge in correctly */
+}
+
 .StatusPage{
     background: #F7F7F7;
     border-radius: 12px 12px 0px 0px;
