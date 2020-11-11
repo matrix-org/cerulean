@@ -277,6 +277,12 @@ class StatusPage extends React.Component {
         //window.location.href = `/${this.props.client.userId}/status/${parent}`;
     }
 
+    onToggleClick() {
+        this.setState({
+            horizontalThreading: !this.state.horizontalThreading,
+        });
+    }
+
     render() {
         let backButton;
         let parent;
@@ -294,10 +300,17 @@ class StatusPage extends React.Component {
                 />
             );
         }
+        let threadButton = (
+            <input
+                type="button"
+                value="Toggle"
+                onClick={this.onToggleClick.bind(this)}
+            ></input>
+        );
         // display the main event this hyperlink refers to then load ALL level 1 children beneath
         return (
             <div className="StatusPageWrapper">
-                {backButton}
+                {backButton} {threadButton}
                 <div className="StatusPage">
                     {parent}
                     <div className="StatusMessage">

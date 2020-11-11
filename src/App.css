@@ -49,7 +49,7 @@ body {
     display: flex;
     align-items: center;
     cursor: pointer;
-    position: fixed;
+    position: absolute;
     left: 50%;
     transform: translate(-50%, -50%);
     top: 23px; /* AppHeader.height / 2 */
