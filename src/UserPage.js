@@ -146,9 +146,9 @@ class UserPage extends React.Component {
             }
         }
 
-        let userPageHeader = (
-            <div className="UserPageHeader">
-                <div className="userName">{this.props.userId}</div>
+        let inputMessage;
+        if (this.state.isMe) {
+            inputMessage = (
                 <div className="inputPostWithButton">
                     <input
                         name="inputPost"
@@ -161,6 +161,13 @@ class UserPage extends React.Component {
                     ></input>
                     {this.postButton()}
                 </div>
+            );
+        }
+
+        let userPageHeader = (
+            <div className="UserPageHeader">
+                <div className="userName">{this.props.userId}</div>
+                {inputMessage}
                 {errBlock}
             </div>
         );
