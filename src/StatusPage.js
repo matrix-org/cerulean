@@ -207,27 +207,19 @@ class StatusPage extends React.Component {
             if (!event) {
                 continue;
             }
-            let threadLines;
-            if (numSiblings > 1) {
-                let parentThreadLines = [];
-                for (let i = 0; i < siblingDepth; i++) {
-                    let cn = "blankThreadLine";
-                    if (depthsOfParentsWhoHaveMoreSiblings.indexOf(i) !== -1) {
-                        // add a thread line
-                        cn = "threadLine";
-                    }
-                    parentThreadLines.push(<span className={cn}></span>);
+
+            let parentThreadLines = [];
+            for (let i = 0; i <= siblingDepth; i++) {
+                let cn = "blankThreadLine";
+                if (depthsOfParentsWhoHaveMoreSiblings.indexOf(i) !== -1) {
+                    // add a thread line
+                    cn = "threadLine";
                 }
-                threadLines = (
-                    <div>
-                        <img
-                            src="/thread-corner.svg"
-                            alt="line"
-                            className="threadCorner"
-                        />
-                    </div>
-                );
+                parentThreadLines.push(<div className={cn}></div>);
             }
+            let threadLines = (
+                <div className="threadLineHolder">{parentThreadLines}</div>
+            );
             console.log(event.content.body + " ", procInfo);
             if (procInfo.seeMore) {
                 rendered.push(
@@ -275,14 +267,24 @@ class StatusPage extends React.Component {
                 }
             }
 
+            // if there's multiple siblings then they all get corners to fork off from the parent
+            // if there's only 1 sibling then we just put the reply directly beneath without a corner
+            let threadCorner;
+            if (numSiblings > 1) {
+                threadCorner = (
+                    <img
+                        src="/thread-corner.svg"
+                        alt="line"
+                        className="threadCorner"
+                    />
+                );
+            }
+
             rendered.push(
-                <div
-                    className="verticalChild"
-                    style={style}
-                    key={event.event_id}
-                >
-                    <div style={msgStyle}>
-                        {threadLines}
+                <div className="verticalChild" key={event.event_id}>
+                    {threadLines}
+                    <div style={msgStyle} className="messageHolder">
+                        {threadCorner}
                         <Message
                             event={event}
                             onPost={this.onPost.bind(this)}
