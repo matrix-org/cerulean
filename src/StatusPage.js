@@ -181,9 +181,9 @@ class StatusPage extends React.Component {
             {
                 eventId: ev.event_id,
                 siblingDepth: 0, // how many parents have siblings up to the root node
-                numSiblings: numSiblings,
-                sibling: sibling,
-                parentIsLastSibling: sibling === 0,
+                numSiblings: numSiblings, // total number of sibling this node has (incl. itself)
+                sibling: sibling, // the 0-based index of this sibling
+                depthsOfParentsWhoHaveMoreSiblings: [],
             },
         ];
         const rendered = [];
@@ -194,16 +194,14 @@ class StatusPage extends React.Component {
             const numSiblings = procInfo.numSiblings;
             const sibling = procInfo.sibling;
             const isLastSibling = sibling === 0;
-            const parentIsLastSibling = procInfo.parentIsLastSibling;
+            const depthsOfParentsWhoHaveMoreSiblings =
+                procInfo.depthsOfParentsWhoHaveMoreSiblings;
             const style = {
                 marginLeft: 20 * (1 + siblingDepth) + "px",
             };
-            // continue the thread line down to the next sibling
+            // continue the thread line down to the next sibling,
             const msgStyle = {
-                borderLeft:
-                    !isLastSibling || !parentIsLastSibling
-                        ? "1px solid #2952BE"
-                        : undefined,
+                borderLeft: !isLastSibling ? "1px solid #2952BE" : undefined,
             };
             const event = this.state.eventMap.get(eventId);
             if (!event) {
@@ -211,12 +209,23 @@ class StatusPage extends React.Component {
             }
             let threadLines;
             if (numSiblings > 1) {
+                let parentThreadLines = [];
+                for (let i = 0; i < siblingDepth; i++) {
+                    let cn = "blankThreadLine";
+                    if (depthsOfParentsWhoHaveMoreSiblings.indexOf(i) !== -1) {
+                        // add a thread line
+                        cn = "threadLine";
+                    }
+                    parentThreadLines.push(<span className={cn}></span>);
+                }
                 threadLines = (
-                    <img
-                        src="/thread-corner.svg"
-                        alt="line"
-                        className="threadLine"
-                    />
+                    <div>
+                        <img
+                            src="/thread-corner.svg"
+                            alt="line"
+                            className="threadCorner"
+                        />
+                    </div>
                 );
             }
             console.log(event.content.body + " ", procInfo);
@@ -234,28 +243,34 @@ class StatusPage extends React.Component {
             // recent first
             const children = this.state.parentToChildren.get(eventId);
             if (children) {
+                // Copy depthsOfParentsWhoHaveMoreSiblings and add in this depth if we have more
+                // siblings to render; this determines whether to draw outer thread lines
+                const newDepthsOfParents = isLastSibling
+                    ? [...depthsOfParentsWhoHaveMoreSiblings]
+                    : [siblingDepth, ...depthsOfParentsWhoHaveMoreSiblings];
+                const newSiblingDepth =
+                    siblingDepth + (children.length > 1 ? 1 : 0);
                 if (children.length > maxBreadth) {
                     // only show the first 5 then add a 'see more' link which permalinks you
                     // to the parent which has so many children (we only display all children
                     // on the permalink for the parent). We inject this first as it's a LIFO stack
                     toProcess.push({
                         eventId: eventId,
-                        siblingDepth:
-                            siblingDepth + (children.length > 1 ? 1 : 0),
+                        siblingDepth: newSiblingDepth,
                         seeMore: true,
                         numSiblings: children.length,
                         sibling: maxBreadth,
-                        parentIsLastSibling: isLastSibling,
+                        depthsOfParentsWhoHaveMoreSiblings: newDepthsOfParents,
                     });
                 }
                 for (let i = 0; i < children.length && i < maxBreadth; i++) {
                     toProcess.push({
                         eventId: children[i].event_id,
-                        siblingDepth:
-                            siblingDepth + (children.length > 1 ? 1 : 0),
+                        siblingDepth: newSiblingDepth,
                         numSiblings: children.length,
                         sibling: i,
                         parentIsLastSibling: isLastSibling,
+                        depthsOfParentsWhoHaveMoreSiblings: newDepthsOfParents,
                     });
                 }
             }

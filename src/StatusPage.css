@@ -7,10 +7,19 @@
     padding-left: 10px;
 }
 
-.threadLine{
+.threadCorner{
     float: left;
     position: absolute;
     margin-left: -1px; /* so border lines merge in correctly */
+}
+
+.threadLine{
+    border-left: 1px solid #2952BE;
+    margin-left: 20px;
+}
+
+.blankThreadLine{
+    margin-left: 20px;
 }
 
 .StatusPage{
