@@ -215,7 +215,7 @@ class StatusPage extends React.Component {
                     // add a thread line
                     cn = "threadLine";
                 }
-                parentThreadLines.push(<div className={cn}></div>);
+                parentThreadLines.push(<div className={cn} key={"" + i}></div>);
             }
             let threadLines = (
                 <div className="threadLineHolder">{parentThreadLines}</div>

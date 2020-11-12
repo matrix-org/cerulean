@@ -2,23 +2,48 @@ import React from "react";
 import "./Message.css";
 import { ClientContext } from "./ClientContext";
 
+const Modal = ({ handleClose, show, children }) => {
+    const showHideClassName = show
+        ? "modal-overlay display-block"
+        : "modal-overlay display-none";
+
+    return (
+        <div className={showHideClassName}>
+            <section className="modal">{children}</section>
+        </div>
+    );
+};
+
 class Message extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             loading: false,
             error: null,
+            showReplyModal: false,
+            inputReply: "",
         };
     }
     async onReplyClick() {
         this.setState({
-            loading: true,
+            showReplyModal: true,
         });
-        const replyTargets = this.getReplyTargets();
-        let reply = prompt(
-            `Enter your reply (replying to ${replyTargets.join(", ")})`
-        );
-        // reply = reply + " " + replyTargets.join(" ");
+    }
+
+    onReplyClose() {
+        this.setState({
+            inputReply: "",
+            showReplyModal: false,
+        });
+    }
+
+    async onSubmitReply() {
+        const reply = this.state.inputReply;
+        this.setState({
+            loading: true,
+            showReplyModal: false,
+            inputReply: "",
+        });
 
         let postedEventId;
         try {
@@ -45,17 +70,6 @@ class Message extends React.Component {
         }
     }
 
-    getReplyTargets() {
-        const body = this.props.event.content.body;
-        let targets = Array.from(body.matchAll(/(@.*?:.*?)\b/g));
-        const targetHash = {};
-        for (let target of targets) {
-            targetHash[target]++;
-        }
-        targetHash[this.props.event.sender]++;
-        return Object.keys(targetHash);
-    }
-
     onAuthorClick(author) {
         window.location.href = `/${author}`;
     }
@@ -72,14 +86,14 @@ class Message extends React.Component {
         return <span className="DateString">{dateStr}</span>;
     }
 
-    renderEvent() {
+    renderEvent(noLink) {
         const event = this.props.event;
         if (!event) {
             return <div></div>;
         }
         let handler;
         let classes = " MessageBody";
-        if (!this.props.noLink) {
+        if (!noLink) {
             handler = this.onMessageClick.bind(this);
             classes += " MessageBodyWithLink";
         }
@@ -94,7 +108,7 @@ class Message extends React.Component {
                     </span>
                     {this.renderTime(event.origin_server_ts)}
                 </span>
-                <div className="MessageText">{event.content.body}</div>
+                <div className="MessageText">{"" + event.content.body}</div>
             </div>
         );
     }
@@ -106,6 +120,22 @@ class Message extends React.Component {
         window.location.href = `/${this.props.event.sender}/status/${this.props.event.event_id}`;
     }
 
+    handleInputChange(event) {
+        const target = event.target;
+        const value =
+            target.type === "checkbox" ? target.checked : target.value;
+        const name = target.name;
+        this.setState({
+            [name]: value,
+        });
+    }
+
+    handleKeyDown(event) {
+        if (event.key === "Enter") {
+            this.onSubmitReply();
+        }
+    }
+
     render() {
         let replies;
         if (this.props.numReplies > 1) {
@@ -114,7 +144,30 @@ class Message extends React.Component {
 
         return (
             <div className="Message">
-                {this.renderEvent()}
+                <Modal
+                    show={this.state.showReplyModal}
+                    handleClose={this.onReplyClose.bind(this)}
+                >
+                    {this.renderEvent(true)}
+                    <div className="inputReplyWithButton">
+                        <input
+                            name="inputReply"
+                            className="inputReply"
+                            type="text"
+                            placeholder="Post your reply"
+                            onKeyDown={this.handleKeyDown.bind(this)}
+                            onChange={this.handleInputChange.bind(this)}
+                            value={this.state.inputReply}
+                        ></input>
+                        <img
+                            src="/send.svg"
+                            alt="send"
+                            className="sendButton"
+                            onClick={this.onSubmitReply.bind(this)}
+                        />
+                    </div>
+                </Modal>
+                {this.renderEvent(this.props.noLink)}
                 <div className="MessageButtons">
                     <span className="moreCommentsButton">{replies}</span>
                     <button

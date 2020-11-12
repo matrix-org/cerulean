@@ -73,3 +73,24 @@
 .MessageButtons{
     margin-right: 12px;
 }
+
+.inputReply{
+    background: #FFFFFF;
+    border: 0px;
+    border-radius: 200px;
+    flex-grow:2;
+    padding-left: 16px;
+}
+.inputReply:focus {
+    outline: none;
+}
+
+.sendButton{
+    cursor: pointer;
+    margin: 8px;
+}
+
+.inputReplyWithButton{
+    display:flex;
+    flex-direction:row;
+}
