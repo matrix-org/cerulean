@@ -120,7 +120,7 @@ class StatusPage extends React.Component {
             }
             if (procInfo.seeMore) {
                 rendered.push(
-                    <div className="child" style={style} key={event.event_id}>
+                    <div className="child" style={style} key="seeMore">
                         <a href={`/${event.sender}/status/${event.event_id}`}>
                             See more...
                         </a>
@@ -183,6 +183,7 @@ class StatusPage extends React.Component {
                 siblingDepth: 0, // how many parents have siblings up to the root node
                 numSiblings: numSiblings,
                 sibling: sibling,
+                parentIsLastSibling: sibling === 0,
             },
         ];
         const rendered = [];
@@ -193,12 +194,16 @@ class StatusPage extends React.Component {
             const numSiblings = procInfo.numSiblings;
             const sibling = procInfo.sibling;
             const isLastSibling = sibling === 0;
+            const parentIsLastSibling = procInfo.parentIsLastSibling;
             const style = {
                 marginLeft: 20 * (1 + siblingDepth) + "px",
             };
             // continue the thread line down to the next sibling
             const msgStyle = {
-                borderLeft: !isLastSibling ? "1px solid #2952BE" : undefined,
+                borderLeft:
+                    !isLastSibling || !parentIsLastSibling
+                        ? "1px solid #2952BE"
+                        : undefined,
             };
             const event = this.state.eventMap.get(eventId);
             if (!event) {
@@ -240,6 +245,7 @@ class StatusPage extends React.Component {
                         seeMore: true,
                         numSiblings: children.length,
                         sibling: maxBreadth,
+                        parentIsLastSibling: isLastSibling,
                     });
                 }
                 for (let i = 0; i < children.length && i < maxBreadth; i++) {
@@ -249,6 +255,7 @@ class StatusPage extends React.Component {
                             siblingDepth + (children.length > 1 ? 1 : 0),
                         numSiblings: children.length,
                         sibling: i,
+                        parentIsLastSibling: isLastSibling,
                     });
                 }
             }
