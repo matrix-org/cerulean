@@ -131,8 +131,15 @@ class Message extends React.Component {
             replies = "\uD83D\uDDE8" + (this.props.numReplies - 1);
         }
 
-        return (
-            <div className="Message">
+        let sendSrc = "/send.svg";
+        const hasEnteredText = this.state.inputReply.length > 0;
+        if (hasEnteredText) {
+            sendSrc = "/send-active.svg";
+        }
+
+        let modal;
+        if (this.state.showReplyModal) {
+            modal = (
                 <Modal
                     show={this.state.showReplyModal}
                     handleClose={this.onReplyClose.bind(this)}
@@ -150,13 +157,19 @@ class Message extends React.Component {
                             value={this.state.inputReply}
                         ></input>
                         <img
-                            src="/send.svg"
+                            src={sendSrc}
                             alt="send"
                             className="sendButton"
                             onClick={this.onSubmitReply.bind(this)}
                         />
                     </div>
                 </Modal>
+            );
+        }
+
+        return (
+            <div className="Message">
+                {modal}
                 {this.renderEvent(this.props.noLink)}
                 <div className="MessageButtons">
                     <span className="moreCommentsButton">{replies}</span>

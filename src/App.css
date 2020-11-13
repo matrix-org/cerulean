@@ -120,6 +120,7 @@ button:hover{
 .modalSignInButton{
     margin-top: 20px;
     float: right;
+    cursor: pointer;
 }
 
 .modal {
