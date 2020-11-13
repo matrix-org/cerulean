@@ -1,5 +1,5 @@
 .child{
-    border-left: 1px solid #2952BE;
+    border-left: 1px solid #8D99A5;
     padding-left: 10px;
 }
 
@@ -11,11 +11,17 @@
 .threadCorner{
     float: left;
     position: absolute;
-    margin-left: -1px;  /* so border lines merge in correctly */
+    margin-top: -1px;  /* so border lines merge in correctly */
+}
+
+.threadFork{
+    float: left;
+    position: absolute;
+    margin-top: 20px;  /* so border lines merge in correctly */
 }
 
 .threadLine{
-    border-left: 1px solid #2952BE;
+    border-left: 1px solid #8D99A5;
     margin-left: 20px;
 }
 

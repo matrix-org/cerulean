@@ -201,7 +201,7 @@ class StatusPage extends React.Component {
             };
             // continue the thread line down to the next sibling,
             const msgStyle = {
-                borderLeft: !isLastSibling ? "1px solid #2952BE" : undefined,
+                borderLeft: !isLastSibling ? "1px solid #8D99A5" : undefined,
             };
             const event = this.state.eventMap.get(eventId);
             if (!event) {
@@ -271,11 +271,17 @@ class StatusPage extends React.Component {
             // if there's only 1 sibling then we just put the reply directly beneath without a corner
             let threadCorner;
             if (numSiblings > 1) {
+                let threadCornerType = "/thread-line.svg";
+                let threadCornerClass = "threadFork";
+                if (isLastSibling) {
+                    threadCornerType = "/thread-corner.svg";
+                    threadCornerClass = "threadCorner";
+                }
                 threadCorner = (
                     <img
-                        src="/thread-corner.svg"
+                        src={threadCornerType}
                         alt="line"
-                        className="threadCorner"
+                        className={threadCornerClass}
                     />
                 );
             }
