@@ -1,10 +1,10 @@
 .child{
     border-left: 1px solid #8D99A5;
-    padding-left: 10px;
+    padding-left: 8px;
 }
 
 .verticalChild{
-    padding-left: 10px;
+    padding-left: 8px;
     display: flex;
 }
 
@@ -17,7 +17,7 @@
 .threadFork{
     float: left;
     position: absolute;
-    margin-top: 20px;  /* so border lines merge in correctly */
+    margin-top: 18px;  /* so border lines merge in correctly */
 }
 
 .threadLine{
