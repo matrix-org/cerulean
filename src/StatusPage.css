@@ -4,7 +4,6 @@
 }
 
 .verticalChild{
-    padding-left: 8px;
     display: flex;
 }
 
@@ -22,7 +21,7 @@
 
 .threadLine{
     border-left: 1px solid #8D99A5;
-    margin-left: 20px;
+    margin-left: 25px;
 }
 
 .threadLineHolder{
@@ -34,7 +33,7 @@
 }
 
 .blankThreadLine{
-    margin-left: 20px;
+    margin-left: 25px;
 }
 
 .StatusPage{
