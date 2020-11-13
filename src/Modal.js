@@ -7,7 +7,17 @@ const Modal = ({ handleClose, show, children }) => {
 
     return (
         <div className={showHideClassName}>
-            <section className="modal">{children}</section>
+            <section className="modal">
+                <div>
+                    <img
+                        src="/close.svg"
+                        alt="close"
+                        className="closeButton"
+                        onClick={handleClose}
+                    />
+                </div>
+                {children}
+            </section>
         </div>
     );
 };

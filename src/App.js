@@ -74,7 +74,9 @@ class App extends React.Component {
         });
     }
 
-    onLoginClose() {}
+    onLoginClose() {
+        this.setState({ showLoginModal: false });
+    }
 
     onLoginClick(ev) {
         this.setState({

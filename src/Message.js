@@ -144,6 +144,7 @@ class Message extends React.Component {
                             className="inputReply"
                             type="text"
                             placeholder="Post your reply"
+                            autoFocus
                             onKeyDown={this.handleKeyDown.bind(this)}
                             onChange={this.handleInputChange.bind(this)}
                             value={this.state.inputReply}
