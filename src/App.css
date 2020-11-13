@@ -90,6 +90,38 @@ button:hover{
     cursor: pointer;
 }
 
+.inputLogin{
+    background: #FFFFFF;
+    border: 0px;
+    border-radius: 200px;
+    padding-left: 16px;
+    width: 100%;
+    margin-top: 6px;
+    margin-bottom: 6px;
+    height: 36px;
+}
+.inputLogin:focus {
+    outline: none;
+}
+
+.modalSignIn{
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 18px;
+    text-align: center;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    color: #2952BE;
+    margin-bottom: 16px;
+}
+
+.modalSignInButton{
+    margin-top: 20px;
+    float: right;
+}
+
 .modal {
     position: fixed;
     top: 50%;

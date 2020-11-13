@@ -5,6 +5,7 @@ import "./App.css";
 import UserPage from "./UserPage";
 import StatusPage from "./StatusPage";
 import TimelinePage from "./TimelinePage";
+import Modal from "./Modal";
 
 class App extends React.Component {
     constructor(props) {
@@ -28,6 +29,10 @@ class App extends React.Component {
             viewingUserId: this.props.client.userId,
             withReplies: false,
             statusId: null,
+            showLoginModal: false,
+            inputLoginUrl: "",
+            inputLoginUsername: "",
+            inputLoginPassword: "",
         };
 
         // parse out state from path
@@ -59,12 +64,38 @@ class App extends React.Component {
         // TODO: auto-register as a guest if not logged in
     }
 
-    async onLoginClick(ev) {
-        let serverUrl = prompt("Homeserver URL?", "http://localhost:8008");
-        serverUrl += "/_matrix/client";
-        let username = prompt("User ID?", "@cerulean:localhost");
-        let password = prompt("Password?", "");
-        await this.props.client.login(serverUrl, username, password, true);
+    handleInputChange(event) {
+        const target = event.target;
+        const value =
+            target.type === "checkbox" ? target.checked : target.value;
+        const name = target.name;
+        this.setState({
+            [name]: value,
+        });
+    }
+
+    onLoginClose() {}
+
+    onLoginClick(ev) {
+        this.setState({
+            showLoginModal: true,
+            inputLoginUrl: "",
+            inputLoginUsername: "",
+            inputLoginPassword: "",
+        });
+    }
+
+    async onSubmitLogin() {
+        this.setState({
+            showLoginModal: false,
+        });
+        let serverUrl = this.state.inputLoginUrl + "/_matrix/client";
+        await this.props.client.login(
+            serverUrl,
+            this.state.inputLoginUsername,
+            this.state.inputLoginPassword,
+            true
+        );
         this.setState({
             page: "user",
             viewingUserId: this.props.client.userId,
@@ -164,6 +195,52 @@ class App extends React.Component {
                     {this.loginLogoutButton()}
                 </header>
                 <main className="AppMain">{this.renderPage()}</main>
+                <Modal
+                    show={this.state.showLoginModal}
+                    handleClose={this.onLoginClose.bind(this)}
+                >
+                    <span className="modalSignIn">Sign in</span>
+                    <form onSubmit={this.onSubmitLogin.bind(this)}>
+                        <div>
+                            <input
+                                name="inputLoginUrl"
+                                className="inputLogin"
+                                type="text"
+                                placeholder="Homeserver URL e.g https://matrix.org"
+                                onChange={this.handleInputChange.bind(this)}
+                                value={this.state.inputLoginUrl}
+                            ></input>
+                        </div>
+                        <div>
+                            <input
+                                name="inputLoginUsername"
+                                className="inputLogin"
+                                type="text"
+                                placeholder="Username e.g @cerulean:localhost"
+                                onChange={this.handleInputChange.bind(this)}
+                                value={this.state.inputLoginUsername}
+                            ></input>
+                        </div>
+                        <div>
+                            <input
+                                name="inputLoginPassword"
+                                className="inputLogin"
+                                type="password"
+                                placeholder="Password"
+                                onChange={this.handleInputChange.bind(this)}
+                                value={this.state.inputLoginPassword}
+                            ></input>
+                        </div>
+                        <div>
+                            <input
+                                type="button"
+                                className="darkButton modalSignInButton"
+                                onClick={this.onSubmitLogin.bind(this)}
+                                value="Login"
+                            ></input>
+                        </div>
+                    </form>
+                </Modal>
             </div>
         );
     }

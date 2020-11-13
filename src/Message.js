@@ -1,18 +1,7 @@
 import React from "react";
 import "./Message.css";
 import { ClientContext } from "./ClientContext";
-
-const Modal = ({ handleClose, show, children }) => {
-    const showHideClassName = show
-        ? "modal-overlay display-block"
-        : "modal-overlay display-none";
-
-    return (
-        <div className={showHideClassName}>
-            <section className="modal">{children}</section>
-        </div>
-    );
-};
+import Modal from "./Modal";
 
 class Message extends React.Component {
     constructor(props) {
