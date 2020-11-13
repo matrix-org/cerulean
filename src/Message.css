@@ -86,8 +86,11 @@
 }
 
 .sendButton{
-    cursor: pointer;
     margin: 8px;
+}
+
+.sendButtonActive{
+    cursor: pointer;
 }
 
 .inputReplyWithButton{

@@ -50,8 +50,12 @@
 }
 
 .sendButton{
-    cursor: pointer;
     margin: 8px;
+}
+
+.sendButtonActive{
+    margin: 8px;
+    cursor: pointer;
 }
 
 .inputPostWithButton{

@@ -60,10 +60,12 @@ class UserPage extends React.Component {
     }
 
     async onPostClick(ev) {
-        await this.props.client.post({
-            msgtype: "m.text",
-            body: this.state.inputPost,
-        });
+        if (this.state.inputPost.length > 0) {
+            await this.props.client.post({
+                msgtype: "m.text",
+                body: this.state.inputPost,
+            });
+        }
         this.setState({ inputPost: "" });
         await this.loadEvents();
     }
@@ -72,11 +74,17 @@ class UserPage extends React.Component {
         if (!this.props.client.accessToken) {
             return <div />;
         }
+        let imgSrc = "/send.svg";
+        let classes = "sendButton";
+        if (this.state.inputPost.length > 0) {
+            imgSrc = "/send-active.svg";
+            classes = "sendButtonActive";
+        }
         return (
             <img
-                src="/send.svg"
+                src={imgSrc}
                 alt="send"
-                className="sendButton"
+                className={classes}
                 onClick={this.onPostClick.bind(this)}
             />
         );
