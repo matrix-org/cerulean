@@ -314,16 +314,54 @@ class StatusPage extends React.Component {
         });
     }
 
-    render() {
-        let backButton;
-        let parent;
+    renderButtons() {
+        let backButton = <div />;
         if (this.state.parentOfParent) {
             const link = `/${this.state.parentOfParent.sender}/status/${this.state.parentOfParent.event_id}`;
             backButton = (
-                <a href={link}>
-                    <img className="BackButton" src="/chevron.svg" alt="back" />
-                </a>
+                <img
+                    className="BackButton"
+                    src="/chevron.svg"
+                    alt="back"
+                    onClick={() => {
+                        window.location.href = link;
+                    }}
+                />
             );
+        }
+
+        return (
+            <div className="statusButtons">
+                {backButton}
+                <div className="viewButtonWrapper">
+                    <div
+                        className={
+                            this.state.horizontalThreading
+                                ? "viewButton"
+                                : "darkButton"
+                        }
+                        onClick={this.onToggleClick.bind(this)}
+                    >
+                        Vertical view
+                    </div>
+                    <div
+                        className={
+                            this.state.horizontalThreading
+                                ? "darkButton"
+                                : "viewButton"
+                        }
+                        onClick={this.onToggleClick.bind(this)}
+                    >
+                        Horizontal view
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    render() {
+        let parent;
+        if (this.state.parentOfParent) {
             parent = (
                 <Message
                     event={this.state.parentOfParent}
@@ -331,18 +369,10 @@ class StatusPage extends React.Component {
                 />
             );
         }
-        let threadButton = (
-            <input
-                type="button"
-                value="Toggle"
-                onClick={this.onToggleClick.bind(this)}
-            ></input>
-        );
-
         // display the main event this hyperlink refers to then load ALL level 1 children beneath
         return (
             <div className="StatusPageWrapper">
-                {backButton} {threadButton}
+                {this.renderButtons()}
                 <div className="StatusPage">
                     {parent}
                     <div className="StatusMessage">

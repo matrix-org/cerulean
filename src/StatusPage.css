@@ -50,11 +50,34 @@
 
 .BackButton{
     /* Light / Element */
-    background: rgba(141, 151, 165, 0.2);
-    border-radius: 200px;
-    display: inline-block;
-    margin-top: 12px;
-    margin-bottom: 12px;
-    padding: 5px 9px 5px 9px;
     cursor: pointer;
+}
+
+.statusButtons{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.viewButtonWrapper{
+    border: 1px solid #8D99A5;
+    border-radius: 8px;
+    margin-top: 16px;
+    margin-bottom: 16px;
+    padding: 2px;
+    display: flex;
+    justify-content: flex-end;
+    cursor: pointer;
+    user-select: none;
+}
+.viewButton{
+    color: #737D8C;
+    background: #FFFFFF;
+    border-radius: 0px;
+    border: none;
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 15px;
+    padding: 4px 8px 4px 8px;
 }
