@@ -75,7 +75,8 @@ class StatusPage extends React.Component {
 
         this.setState({
             parent: parent,
-            children: parentToChildren.get(parent.event_id) || [],
+            // we want older messages on top (rendered first) so we need to flip the array at is recent_first
+            children: (parentToChildren.get(parent.event_id) || []).reverse(),
             parentToChildren: parentToChildren,
             parentOfParent: parentOfParent,
             eventMap: eventMap,
@@ -337,6 +338,7 @@ class StatusPage extends React.Component {
                 onClick={this.onToggleClick.bind(this)}
             ></input>
         );
+
         // display the main event this hyperlink refers to then load ALL level 1 children beneath
         return (
             <div className="StatusPageWrapper">
