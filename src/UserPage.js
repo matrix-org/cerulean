@@ -19,11 +19,26 @@ class UserPage extends React.Component {
             timeline: [],
             isMe: props.userId === props.client.userId,
             inputPost: "",
+            roomId: null,
         };
     }
 
-    componentDidMount() {
-        this.loadEvents();
+    async componentDidMount() {
+        await this.loadEvents();
+        this.listenForNewEvents();
+    }
+
+    listenForNewEvents(from) {
+        let f = from;
+        this.props.client
+            .waitForMessageEventInRoom(this.state.roomId, from)
+            .then((newFrom) => {
+                f = newFrom;
+                return this.loadEvents();
+            })
+            .then(() => {
+                this.listenForNewEvents(f);
+            });
     }
 
     async loadEvents() {
@@ -47,6 +62,7 @@ class UserPage extends React.Component {
         let timeline = await this.props.client.getTimeline(roomId);
         this.setState({
             timeline: timeline,
+            roomId: roomId,
         });
     }
 
