@@ -155,7 +155,7 @@ class Client {
         const filterJson = JSON.stringify({
             room: {
                 timeline: {
-                    limit: 20,
+                    limit: 100,
                 },
             },
         });
@@ -232,7 +232,7 @@ class Client {
         let recentMsg = room.timeline.events[0];
 
         let data = await this.fetchJson(
-            `${this.serverUrl}/r0/rooms/${roomId}/messages?from=${from}&dir=b`,
+            `${this.serverUrl}/r0/rooms/${roomId}/messages?from=${from}&dir=b&limit=100`,
             {
                 headers: { Authorization: `Bearer ${this.accessToken}` },
             }
