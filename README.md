@@ -16,7 +16,7 @@ The way Cerulean works is:
     * For instance, my user timeline room would be #@matthew:matrix.org
     * A thread room is created for each unique post. Replies to the thread are sent into this room.
  * Messages are viewed in the context of a given 'thread' room.
-    * e.g. https://cerulean/#/@matthew:matrix.org/!3ZQVDsZgx8SbUF:matrix.org/$nqeHq7lJyFp4UZNlE3rN4xPVsez0vZnIcaM6SQB9waw
+    * e.g. https://cerulean/#/@matthew:matrix.org/!cURbafjkfsMDVwdRDQ:matrix.org/$nqeHq7lJyFp4UZNlE3rN4xPVsez0vZnIcaM6SQB9waw
       is a given message that I've sent, and that is a permalink to the message with surrounding replies.
  * User timelines are viewed in the context of a given 'user timeline' room.
     * e.g https://cerulean/#/@matthew:matrix.org is my user timeline which has all my posts and all my replies.

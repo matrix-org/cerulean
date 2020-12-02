@@ -17,11 +17,11 @@ class App extends React.Component {
             /                       --> aggregated feed of all timelines followed
             /username               --> user's timeline
             /username/with_replies  --> timeline with replies
-            /username/status/id     --> permalink
+            /username/room_id/id     --> permalink
         Examples:
         http://localhost:3000/@really:bigstuff.com/with_replies
         http://localhost:3000/@really:bigstuff.com
-        http://localhost:3000/@really:bigstuff.com/status/$foobar
+        http://localhost:3000/@really:bigstuff.com/!cURbafjkfsMDVwdRDQ:matrix.org/$foobar
         */
 
         // sensible defaults
@@ -155,8 +155,8 @@ class App extends React.Component {
      * Render a main content page depending on this.state.page
      * Possible options are:
      *  - status: A permalink to a single event with replies beneath
-     *  - timeline: The logged in user's timeline page which has all messages by this user.
-     *  - user: An arbitrary user's timeline. Same as 'timeline' but without an input box to post a message.
+     *  - timeline: The aggregated feed of all users the logged in user is following.
+     *  - user: An arbitrary user's timeline. If the user is the logged in user, an input box to post a message is also displayed.
      */
     renderPage() {
         if (!this.props.client.accessToken) {

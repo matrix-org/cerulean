@@ -2,7 +2,7 @@ import React from "react";
 import "./TimelinePage.css";
 import Message from "./Message";
 
-// TimelinePage renders the logged in user's timeline room.
+// TimelinePage renders an aggregated feed of all timelines the logged in user is following.
 // Props:
 //  - withReplies: True to show replies in addition to posts.
 //  - client: Client

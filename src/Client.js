@@ -144,6 +144,8 @@ class Client {
         }
     }
 
+    // getAggregatedTimeline returns all events from all timeline rooms being followed.
+    // This is done by calling `/sync` and keeping messages for all rooms that have an #@ alias.
     async getAggregatedTimeline() {
         if (!this.accessToken) {
             console.error("No access token");
