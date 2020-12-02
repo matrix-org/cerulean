@@ -35,6 +35,20 @@ class StatusPage extends React.Component {
             await this.props.client.joinRoomById(this.props.roomId, domain);
         }
         await this.refresh();
+        this.listenForNewEvents();
+    }
+
+    listenForNewEvents(from) {
+        let f = from;
+        this.props.client
+            .waitForMessageEventInRoom(this.props.roomId, from)
+            .then((newFrom) => {
+                f = newFrom;
+                return this.refresh();
+            })
+            .then(() => {
+                this.listenForNewEvents(f);
+            });
     }
 
     async refresh() {

@@ -244,6 +244,44 @@ class Client {
         });
     }
 
+    async waitForMessageEventInRoom(roomId, from) {
+        const filterJson = JSON.stringify({
+            room: {
+                timeline: {
+                    limit: 5,
+                },
+            },
+        });
+        if (!from) {
+            let syncData = await this.fetchJson(
+                `${this.serverUrl}/r0/sync?filter=${filterJson}`,
+                {
+                    headers: { Authorization: `Bearer ${this.accessToken}` },
+                }
+            );
+            from = syncData.next_batch;
+        }
+        while (true) {
+            let syncData = await this.fetchJson(
+                `${this.serverUrl}/r0/sync?filter=${filterJson}&since=${from}&timeout=20000`,
+                {
+                    headers: { Authorization: `Bearer ${this.accessToken}` },
+                }
+            );
+            from = syncData.next_batch;
+            let room = syncData.rooms.join[roomId];
+            if (!room || !room.timeline || !room.timeline.events) {
+                continue;
+            }
+            for (let i = 0; i < room.timeline.events.length; i++) {
+                let ev = room.timeline.events[i];
+                if (ev.type === "m.room.message") {
+                    return from;
+                }
+            }
+        }
+    }
+
     peekRoom(roomAlias) {
         // For now join the room instead.
         // Once MSC2753 is available, to allow federated peeking
