@@ -1,3 +1,5 @@
+// Client contains functions for making Matrix Client-Server API requests
+// https://matrix.org/docs/spec/client_server/r0.6.0
 class Client {
     // we deliberately don't use js-sdk as we want flexibility on
     // how we model the data (i.e. not as normal rooms + timelines
@@ -94,141 +96,17 @@ class Client {
             include_parent: true,
             include_children: true,
             direction: "down",
-            auto_join: true,
         };
 
-        if (eventId !== "$lv0") {
-            const data = await this.fetchJson(
-                `${this.serverUrl}/unstable/event_relationships`,
-                {
-                    method: "POST",
-                    body: JSON.stringify(body),
-                    headers: { Authorization: `Bearer ${this.accessToken}` },
-                }
-            );
-            return data.events;
-        }
-
-        // Return stub data of the form:
-        //     Parent
-        //     /   \
-        //    A     B
-        //          |
-        //          A
-        //          |
-        //          A
-        //          |
-        //          B
-        return [
+        const data = await this.fetchJson(
+            `${this.serverUrl}/unstable/event_relationships`,
             {
-                content: {
-                    body: "Something completely outrageous",
-                },
-                type: "m.room.message",
-                event_id: "$lv0",
-                room_id: "!parent:event",
-                sender: "@parent:localhost",
-                origin_server_ts: 1603901763282,
-            },
-            {
-                content: {
-                    body: "How can you say that?!",
-                    "m.relationship": {
-                        rel_type: "m.reference",
-                        event_id: "$lv0",
-                    },
-                },
-                type: "m.room.message",
-                event_id: "$l1ra",
-                room_id: "!a",
-                sender: "@a:localhost",
-                origin_server_ts: 1603901793282,
-            },
-            {
-                content: {
-                    body: "HAHAHA yeah I totally agree!",
-                    "m.relationship": {
-                        rel_type: "m.reference",
-                        event_id: "$lv0",
-                    },
-                },
-                type: "m.room.message",
-                event_id: "$l1rb",
-                room_id: "!b",
-                sender: "@b:localhost",
-                origin_server_ts: 1603901799282,
-            },
-            {
-                content: {
-                    body: "How can you agree with this!?",
-                    "m.relationship": {
-                        rel_type: "m.reference",
-                        event_id: "$l1rb",
-                    },
-                },
-                type: "m.room.message",
-                event_id: "$l2ra",
-                room_id: "!a",
-                sender: "@a:localhost",
-                origin_server_ts: 1603901843282,
-            },
-            {
-                content: {
-                    body: "It's totally outrageous",
-                    "m.relationship": {
-                        rel_type: "m.reference",
-                        event_id: "$l2ra",
-                    },
-                },
-                type: "m.room.message",
-                event_id: "$l3ra",
-                room_id: "!a",
-                sender: "@a:localhost",
-                origin_server_ts: 1603901849282,
-            },
-            {
-                content: {
-                    body: "I know, that's why it's funny!",
-                    "m.relationship": {
-                        rel_type: "m.reference",
-                        event_id: "$l3ra",
-                    },
-                },
-                type: "m.room.message",
-                event_id: "$l4rb",
-                room_id: "!b",
-                sender: "@b:localhost",
-                origin_server_ts: 1603901993282,
-            },
-            {
-                content: {
-                    body: "You're a bad person",
-                    "m.relationship": {
-                        rel_type: "m.reference",
-                        event_id: "$l4rb",
-                    },
-                },
-                type: "m.room.message",
-                event_id: "$l5rc",
-                room_id: "!c",
-                sender: "@c:localhost",
-                origin_server_ts: 1603901999992,
-            },
-            {
-                content: {
-                    body: "This isn't funny!!!!!!",
-                    "m.relationship": {
-                        rel_type: "m.reference",
-                        event_id: "$l4rb",
-                    },
-                },
-                type: "m.room.message",
-                event_id: "$l5ra",
-                room_id: "!a",
-                sender: "@a:localhost",
-                origin_server_ts: 1603901999999,
-            },
-        ];
+                method: "POST",
+                body: JSON.stringify(body),
+                headers: { Authorization: `Bearer ${this.accessToken}` },
+            }
+        );
+        return data.events;
     }
 
     /**

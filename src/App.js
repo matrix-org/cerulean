@@ -1,12 +1,13 @@
 import React from "react";
-// import logo from './logo.svg';
 import "./App.css";
-// import MessageThread from "./MessageThread";
 import UserPage from "./UserPage";
 import StatusPage from "./StatusPage";
 import TimelinePage from "./TimelinePage";
 import Modal from "./Modal";
 
+// Main entry point for Cerulean.
+// - Reads the address bar and loads the correct page.
+// - Loads and handles the top bar which is present on every page.
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -153,8 +154,9 @@ class App extends React.Component {
     /**
      * Render a main content page depending on this.state.page
      * Possible options are:
-     *  - user: The user's timeline, with replies optionally hidden.
      *  - status: A permalink to a single event with replies beneath
+     *  - timeline: The logged in user's timeline page which has all messages by this user.
+     *  - user: An arbitrary user's timeline. Same as 'timeline' but without an input box to post a message.
      */
     renderPage() {
         if (!this.props.client.accessToken) {

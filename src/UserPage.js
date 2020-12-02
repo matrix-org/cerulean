@@ -2,6 +2,11 @@ import React from "react";
 import "./UserPage.css";
 import Message from "./Message";
 
+// UserPage renders an arbitrary user's timeline room.
+// Props:
+//  - userId: The user's timeline room to view.
+//  - withReplies: True to show replies in addition to posts.
+//  - client: Client
 class UserPage extends React.Component {
     constructor(props) {
         super(props);

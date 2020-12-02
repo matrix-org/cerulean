@@ -12,14 +12,18 @@ grow to be MVVM in future).
 ## Design
 
 The way Cerulean works is:
- * Messages are sent into the 'user timeline' rooms of their recipients.
+ * Messages are sent into 2 rooms: the 'user timeline' room and a 'thread' room.
     * For instance, my user timeline room would be #@matthew:matrix.org
- * Messages are viewed in the context of a given 'user timeline' room.
-    * e.g. https://cerulean/#/@matthew:matrix.org/status/$nqeHq7lJyFp4UZNlE3rN4xPVsez0vZnIcaM6SQB9waw
-      is a given message that I've sent in my timeline.
- * Messages are threaded using MSC2836
- * Users should only `/join` other's timeline rooms to post in them; otherwise they should `/peek`.
- * Users start off as guests on their chosen homeserver, and then login if they want to post.
+    * A thread room is created for each unique post. Replies to the thread are sent into this room.
+ * Messages are viewed in the context of a given 'thread' room.
+    * e.g. https://cerulean/#/@matthew:matrix.org/!3ZQVDsZgx8SbUF:matrix.org/$nqeHq7lJyFp4UZNlE3rN4xPVsez0vZnIcaM6SQB9waw
+      is a given message that I've sent, and that is a permalink to the message with surrounding replies.
+ * User timelines are viewed in the context of a given 'user timeline' room.
+    * e.g https://cerulean/#/@matthew:matrix.org is my user timeline which has all my posts and all my replies.
+ * Messages are threaded in 'thread' rooms using MSC2836.
+ * Users **should** only `/join` other's timeline rooms to 'follow' them and get updates whenever they make a post/reply.
+ * Users **should** only `/join` a thread room to reply to a post in that room, otherwise they should `/peek` to get a read-only view of the thread.
+ * Users **should** start off as guests on their chosen homeserver, and then login if they want to post.
 
 Cerulean uses the following experimental [MSCs](https://matrix.org/docs/spec/proposals):
  * Threading from [MSC2836](https://github.com/matrix-org/matrix-doc/pull/2836)

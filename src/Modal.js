@@ -1,5 +1,6 @@
 import React from "react";
 
+// Modal is a way to display dialog boxes
 const Modal = ({ handleClose, show, children }) => {
     const showHideClassName = show
         ? "modal-overlay display-block"

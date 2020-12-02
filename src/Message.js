@@ -3,6 +3,7 @@ import "./Message.css";
 import { ClientContext } from "./ClientContext";
 import Modal from "./Modal";
 
+// Message renders a single event and contains the reply Modal.
 class Message extends React.Component {
     constructor(props) {
         super(props);

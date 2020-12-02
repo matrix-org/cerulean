@@ -2,6 +2,10 @@ import React from "react";
 import "./TimelinePage.css";
 import Message from "./Message";
 
+// TimelinePage renders the logged in user's timeline room.
+// Props:
+//  - withReplies: True to show replies in addition to posts.
+//  - client: Client
 class TimelinePage extends React.Component {
     constructor(props) {
         super(props);

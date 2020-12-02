@@ -5,6 +5,10 @@ import Message from "./Message";
 const maxBreadth = 5;
 const maxDepth = 10;
 
+// StatusPage renders a thread of conversation based on a single anchor event.
+// Props:
+//  - eventId: The anchor event. The parent of this event and a tree of children will be obtained from this point.
+//  - client: Client
 class StatusPage extends React.Component {
     constructor(props) {
         super(props);
