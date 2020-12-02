@@ -69,8 +69,7 @@ class Client {
         }
     }
 
-    async sendMessage(roomAlias, content) {
-        const roomId = await this.joinRoom(roomAlias);
+    async sendMessage(roomId, content) {
         const txnId = Date.now();
         const data = await this.fetchJson(
             `${this.serverUrl}/r0/rooms/${encodeURIComponent(
@@ -85,9 +84,10 @@ class Client {
         return data.event_id;
     }
 
-    async getRelationships(eventId, maxBreadth, maxDepth) {
+    async getRelationships(eventId, roomId, maxBreadth, maxDepth) {
         const body = {
             event_id: eventId,
+            room_id: roomId,
             max_depth: maxDepth || 6,
             max_breadth: maxBreadth || 5,
             limit: 50,
@@ -113,8 +113,9 @@ class Client {
      * Post a message.
      * @param {*} content the message to post
      */
-    async post(content) {
-        const eventId = await this.sendMessage("#" + this.userId, content);
+    async postToMyTimeline(content) {
+        const roomId = await this.joinTimelineRoom("#" + this.userId);
+        const eventId = await this.sendMessage(roomId, content);
         return eventId;
     }
 
@@ -123,7 +124,7 @@ class Client {
      * @param {string} userId
      */
     followUser(userId) {
-        return this.joinRoom("#" + userId);
+        return this.joinTimelineRoom("#" + userId);
     }
 
     async logout() {
@@ -186,6 +187,7 @@ class Client {
         let events = [];
         for (let roomId of roomIds) {
             for (let ev of syncData.rooms.join[roomId].timeline.events) {
+                ev.room_id = roomId;
                 events.push(ev);
             }
         }
@@ -236,13 +238,112 @@ class Client {
             }
         );
         data.chunk.unshift(recentMsg);
-        return data.chunk;
+        return data.chunk.map((ev) => {
+            ev.room_id = roomId;
+            return ev;
+        });
     }
 
     peekRoom(roomAlias) {
         // For now join the room instead.
         // Once MSC2753 is available, to allow federated peeking
-        return this.joinRoom(roomAlias);
+        return this.joinTimelineRoom(roomAlias);
+    }
+
+    async joinRoomById(roomID, serverName) {
+        const cachedRoomId = this.joinedRooms.get(roomID);
+        if (cachedRoomId) {
+            return cachedRoomId;
+        }
+        let data = await this.fetchJson(
+            `${this.serverUrl}/r0/join/${encodeURIComponent(
+                roomID
+            )}?server_name=${encodeURIComponent(serverName)}`,
+            {
+                method: "POST",
+                body: "{}",
+                headers: { Authorization: `Bearer ${this.accessToken}` },
+            }
+        );
+        this.joinedRooms.set(roomID, data.room_id);
+        return data.room_id;
+    }
+
+    async postNewThread(text) {
+        // create a new room
+        let data = await this.fetchJson(`${this.serverUrl}/r0/createRoom`, {
+            method: "POST",
+            body: JSON.stringify({
+                preset: "public_chat",
+                name: `${this.userId}'s thread`,
+                topic: "Cerulean",
+            }),
+            headers: {
+                Authorization: `Bearer ${this.accessToken}`,
+            },
+        });
+        // post the message into this new room
+        const eventId = await this.sendMessage(data.room_id, {
+            msgtype: "m.text",
+            body: text,
+        });
+
+        // post a copy into our timeline
+        await this.postToMyTimeline({
+            msgtype: "m.text",
+            body: text,
+            "org.matrix.cerulean.room_id": data.room_id,
+            "org.matrix.cerulean.event_id": eventId,
+            "org.matrix.cerulean.root": true,
+        });
+    }
+
+    // replyToEvent replies to the given event by sending 2 events: one into the timeline room of the logged in user
+    // and one into the thread room for this event.
+    async replyToEvent(text, event, isTimelineEvent) {
+        let eventIdReplyingTo;
+        let roomIdReplyingIn;
+        if (isTimelineEvent) {
+            eventIdReplyingTo = event.content["org.matrix.cerulean.event_id"];
+            roomIdReplyingIn = event.content["org.matrix.cerulean.room_id"];
+        } else {
+            eventIdReplyingTo = event.event_id;
+            roomIdReplyingIn = event.room_id;
+        }
+        if (!eventIdReplyingTo || !roomIdReplyingIn) {
+            console.error(
+                "cannot reply to event, unknown event ID for parent:",
+                event
+            );
+            return;
+        }
+        // ensure we're joined to the room
+        // extract server name from sender who we know must be in the thread room:
+        // @alice:domain.com -> [@alice, domain.com] -> [domain.com] -> domain.com
+        // @bob:foobar.com:8448 -> [@bob, foobar.com, 8448] -> [foobar.com, 8448] -> foobar.com:8448
+        let domain = event.sender.split(":").splice(1).join(":");
+        await this.joinRoomById(roomIdReplyingIn, domain);
+
+        // TODO: should we be checking that the two events `event` and `eventIdReplyingTo` match content-wise?
+
+        const eventId = await this.sendMessage(roomIdReplyingIn, {
+            body: text,
+            msgtype: "m.text",
+            "m.relationship": {
+                rel_type: "m.reference",
+                event_id: eventIdReplyingTo,
+            },
+        });
+
+        // send another message into our timeline room
+        await this.postToMyTimeline({
+            msgtype: "m.text",
+            body: text,
+            "org.matrix.cerulean.event_id": eventId,
+            "org.matrix.cerulean.room_id": roomIdReplyingIn,
+        });
+
+        return eventId;
     }
 
     /**
@@ -251,7 +352,7 @@ class Client {
      * @param {string} roomAlias The room alias to join
      * @returns {string} The room ID of the joined room.
      */
-    async joinRoom(roomAlias) {
+    async joinTimelineRoom(roomAlias) {
         const roomId = this.joinedRooms.get(roomAlias);
         if (roomId) {
             return roomId;

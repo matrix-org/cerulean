@@ -2,8 +2,18 @@ import React from "react";
 import "./Message.css";
 import { ClientContext } from "./ClientContext";
 import Modal from "./Modal";
+import {
+    createPermalinkForTimelineEvent,
+    createPermalinkForThreadEvent,
+} from "./routing";
 
 // Message renders a single event and contains the reply Modal.
+// Props:
+//  - event: The matrix event to render.
+//  - isTimelineEvent: True if this event is in a timeline room. False if in a thread room.
+//  - numReplies: Optional number of replies to this event, to display on the UI.
+//  - noLink: Optional boolean whether to hyperlink to the event when clicked.
+//  - onPost: Optional callback invoked when a reply is sent. Called as onPost(parentEvent, childId)
 class Message extends React.Component {
     constructor(props) {
         super(props);
@@ -15,6 +25,12 @@ class Message extends React.Component {
         };
     }
     async onReplyClick() {
+        console.log(
+            "onReplyClick timeline=",
+            this.props.isTimelineEvent,
+            " for event ",
+            this.props.event
+        );
         this.setState({
             showReplyModal: true,
         });
@@ -37,14 +53,11 @@ class Message extends React.Component {
 
         let postedEventId;
         try {
-            postedEventId = await this.context.post({
-                body: reply,
-                msgtype: "m.text",
-                "m.relationship": {
-                    rel_type: "m.reference",
-                    event_id: this.props.event.event_id,
-                },
-            });
+            postedEventId = await this.context.replyToEvent(
+                reply,
+                this.props.event,
+                this.props.isTimelineEvent
+            );
         } catch (err) {
             console.error(err);
             this.setState({
@@ -56,7 +69,7 @@ class Message extends React.Component {
             });
         }
         if (postedEventId && this.props.onPost) {
-            this.props.onPost(this.props.event.event_id, postedEventId);
+            this.props.onPost(this.props.event, postedEventId);
         }
     }
 
@@ -107,7 +120,16 @@ class Message extends React.Component {
         if (!this.props.event || this.state.loading) {
             return;
         }
-        window.location.href = `/${this.props.event.sender}/status/${this.props.event.event_id}`;
+        let link;
+        if (this.props.isTimelineEvent) {
+            link = createPermalinkForTimelineEvent(this.props.event);
+        } else {
+            link = createPermalinkForThreadEvent(this.props.event);
+        }
+        if (!link) {
+            return;
+        }
+        window.location.href = link;
     }
 
     handleInputChange(event) {

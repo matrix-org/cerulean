@@ -33,10 +33,10 @@ it("join room works", async () => {
         password,
         false
     );
-    let roomId = await client.joinRoom(existingRoomAlias);
+    let roomId = await client.joinTimelineRoom(existingRoomAlias);
     expect(roomId).toBeDefined();
     // should be idempotent
-    roomId = await client.joinRoom(existingRoomAlias);
+    roomId = await client.joinTimelineRoom(existingRoomAlias);
     expect(roomId).toBeDefined();
 });
 
@@ -48,7 +48,7 @@ it("sendMessage works", async () => {
         password,
         false
     );
-    await client.joinRoom(existingRoomAlias);
+    await client.joinTimelineRoom(existingRoomAlias);
     const eventID = await client.sendMessage(existingRoomAlias, {
         msgtype: "m.text",
         body: "Hello World!",

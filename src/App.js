@@ -55,9 +55,10 @@ class App extends React.Component {
         this.state.page = "user";
         this.state.viewingUserId = userId;
         this.state.withReplies = path[2] === "with_replies";
-        if (path[2] === "status" && path[3]) {
+        if ((path[2] || "").startsWith("!") && path[3]) {
             this.state.page = "status";
             this.state.statusId = path[3];
+            this.state.roomId = path[2];
         }
     }
 
@@ -176,6 +177,7 @@ class App extends React.Component {
                     client={this.props.client}
                     userId={this.state.viewingUserId}
                     eventId={this.state.statusId}
+                    roomId={this.state.roomId}
                 />
             );
         } else if (this.state.page === "timeline") {

@@ -1,6 +1,7 @@
 import React from "react";
 import "./TimelinePage.css";
 import Message from "./Message";
+import { createPermalinkForTimelineEvent } from "./routing";
 
 // TimelinePage renders an aggregated feed of all timelines the logged in user is following.
 // Props:
@@ -44,45 +45,6 @@ class TimelinePage extends React.Component {
         }
     }
 
-    handleInputChange(event) {
-        const target = event.target;
-        const value =
-            target.type === "checkbox" ? target.checked : target.value;
-        const name = target.name;
-        this.setState({
-            [name]: value,
-        });
-    }
-
-    handleKeyDown(event) {
-        if (event.key === "Enter") {
-            this.onPostClick(event);
-        }
-    }
-
-    async onPostClick(ev) {
-        await this.props.client.post({
-            msgtype: "m.text",
-            body: this.state.inputPost,
-        });
-        this.setState({ inputPost: "" });
-        await this.loadEvents();
-    }
-
-    postButton() {
-        if (!this.props.client.accessToken) {
-            return <div />;
-        }
-        return (
-            <img
-                src="/send.svg"
-                alt="send"
-                className="sendButton"
-                onClick={this.onPostClick.bind(this)}
-            />
-        );
-    }
-
     onPostsClick() {
         this.setState({
             withReplies: false,
@@ -95,8 +57,12 @@ class TimelinePage extends React.Component {
         });
     }
 
-    onReplied(parent, eventId) {
-        window.location.href = `/${this.props.client.userId}/status/${parent}`;
+    onReplied(parentEvent, eventId) {
+        const link = createPermalinkForTimelineEvent(parentEvent);
+        if (!link) {
+            return;
+        }
+        window.location.href = link;
     }
 
     render() {
@@ -116,25 +82,32 @@ class TimelinePage extends React.Component {
                     <div>
                         {this.state.timeline
                             .filter((ev) => {
+                                // only messages
                                 if (ev.type !== "m.room.message") {
                                     return false;
                                 }
-                                if (this.state.withReplies) {
-                                    return true;
-                                }
+                                // only messages with cerulean fields
                                 if (
-                                    (ev.content["m.relationship"] || {})
-                                        .rel_type === "m.reference"
+                                    !ev.content["org.matrix.cerulean.event_id"]
                                 ) {
                                     return false;
                                 }
-                                return true;
+                                // all posts and replies
+                                if (this.state.withReplies) {
+                                    return true;
+                                }
+                                // only posts
+                                if (ev.content["org.matrix.cerulean.root"]) {
+                                    return true;
+                                }
+                                return false;
                             })
                             .map((ev) => {
                                 return (
                                     <Message
                                         key={ev.event_id}
                                         event={ev}
+                                        isTimelineEvent={true}
                                         onPost={this.onReplied.bind(this)}
                                     />
                                 );

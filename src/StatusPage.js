@@ -1,6 +1,7 @@
 import React from "react";
 import "./StatusPage.css";
 import Message from "./Message";
+import { createPermalinkForThreadEvent } from "./routing";
 
 const maxBreadth = 5;
 const maxDepth = 10;
@@ -8,6 +9,8 @@ const maxDepth = 10;
 // StatusPage renders a thread of conversation based on a single anchor event.
 // Props:
 //  - eventId: The anchor event. The parent of this event and a tree of children will be obtained from this point.
+//  - roomId: The room ID this event belongs to. Required in case the server doesn't have this event so it knows where to look.
+//  - userId: The user who posted the event. Required for the server name in case the logged in user needs to join the room.
 //  - client: Client
 class StatusPage extends React.Component {
     constructor(props) {
@@ -24,6 +27,13 @@ class StatusPage extends React.Component {
     }
 
     async componentDidMount() {
+        if (this.props.roomId) {
+            // extract server name from user being viewed:
+            // @alice:domain.com -> [@alice, domain.com] -> [domain.com] -> domain.com
+            // @bob:foobar.com:8448 -> [@bob, foobar.com, 8448] -> [foobar.com, 8448] -> foobar.com:8448
+            let domain = this.props.userId.split(":").splice(1).join(":");
+            await this.props.client.joinRoomById(this.props.roomId, domain);
+        }
         await this.refresh();
     }
 
@@ -33,6 +43,7 @@ class StatusPage extends React.Component {
         // a 'see more'.
         const events = await this.props.client.getRelationships(
             this.props.eventId,
+            this.props.roomId,
             maxBreadth + 1,
             maxDepth + 1
         );
@@ -124,11 +135,10 @@ class StatusPage extends React.Component {
                 continue;
             }
             if (procInfo.seeMore) {
+                const link = createPermalinkForThreadEvent(event);
                 rendered.push(
                     <div className="child" style={style} key="seeMore">
-                        <a href={`/${event.sender}/status/${event.event_id}`}>
-                            See more...
-                        </a>
+                        <a href={link}>See more...</a>
                     </div>
                 );
                 continue;
@@ -225,13 +235,12 @@ class StatusPage extends React.Component {
             let threadLines = (
                 <div className="threadLineHolder">{parentThreadLines}</div>
             );
-            console.log(event.content.body + " ", procInfo);
+            //console.log(event.content.body + " ", procInfo);
             if (procInfo.seeMore) {
+                const link = createPermalinkForThreadEvent(event);
                 rendered.push(
                     <div className="verticalChild" style={style} key="seeMore">
-                        <a href={`/${event.sender}/status/${event.event_id}`}>
-                            See more...
-                        </a>
+                        <a href={link}>See more...</a>
                     </div>
                 );
                 continue;
@@ -307,9 +316,8 @@ class StatusPage extends React.Component {
         return <div key={ev.event_id}>{rendered}</div>;
     }
 
-    onPost(parent, eventId) {
+    onPost(parentEvent, eventId) {
         this.refresh();
-        //window.location.href = `/${this.props.client.userId}/status/${parent}`;
     }
 
     onToggleClick() {
@@ -321,7 +329,9 @@ class StatusPage extends React.Component {
     renderButtons() {
         let backButton = <div />;
         if (this.state.parentOfParent) {
-            const link = `/${this.state.parentOfParent.sender}/status/${this.state.parentOfParent.event_id}`;
+            const link = createPermalinkForThreadEvent(
+                this.state.parentOfParent
+            );
             backButton = (
                 <img
                     className="BackButton"
