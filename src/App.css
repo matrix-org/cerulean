@@ -158,4 +158,5 @@ button:hover{
 .closeButton{
     cursor: pointer;
     margin: 8px;
+    float: right;
 }
