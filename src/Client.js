@@ -69,6 +69,25 @@ class Client {
         }
     }
 
+    async register(serverUrl, username, password) {
+        const data = await this.fetchJson(`${serverUrl}/r0/register`, {
+            method: "POST",
+            body: JSON.stringify({
+                auth: {
+                    type: "m.login.dummy",
+                },
+                username: username,
+                password: password,
+            }),
+        });
+        this.serverUrl = serverUrl;
+        this.userId = data.user_id;
+        this.accessToken = data.access_token;
+        this.guest = true;
+        this.serverName = data.home_server;
+        this.saveAuthState();
+    }
+
     async sendMessage(roomId, content) {
         const txnId = Date.now();
         const data = await this.fetchJson(

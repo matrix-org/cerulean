@@ -31,6 +31,7 @@ class App extends React.Component {
             withReplies: false,
             statusId: null,
             showLoginModal: false,
+            showRegisterModal: false,
             inputLoginUrl: "",
             inputLoginUsername: "",
             inputLoginPassword: "",
@@ -80,9 +81,24 @@ class App extends React.Component {
         this.setState({ showLoginModal: false });
     }
 
+    onRegisterClose() {
+        this.setState({ showRegisterModal: false });
+    }
+
     onLoginClick(ev) {
         this.setState({
             showLoginModal: true,
+            showRegisterModal: false,
+            inputLoginUrl: "",
+            inputLoginUsername: "",
+            inputLoginPassword: "",
+        });
+    }
+
+    onRegisterClick(ev) {
+        this.setState({
+            showLoginModal: false,
+            showRegisterModal: true,
             inputLoginUrl: "",
             inputLoginUsername: "",
             inputLoginPassword: "",
@@ -99,6 +115,22 @@ class App extends React.Component {
             this.state.inputLoginUsername,
             this.state.inputLoginPassword,
             true
+        );
+        this.setState({
+            page: "user",
+            viewingUserId: this.props.client.userId,
+        });
+    }
+
+    async onSubmitRegister() {
+        this.setState({
+            showRegisterModal: false,
+        });
+        let serverUrl = this.state.inputLoginUrl + "/_matrix/client";
+        await this.props.client.register(
+            serverUrl,
+            this.state.inputLoginUsername,
+            this.state.inputLoginPassword
         );
         this.setState({
             page: "user",
@@ -143,12 +175,20 @@ class App extends React.Component {
             );
         }
         return (
-            <button
-                className=" lightButton topRightNav"
-                onClick={this.onLoginClick.bind(this)}
-            >
-                Login
-            </button>
+            <div>
+                <button
+                    className=" lightButton topRightNav"
+                    onClick={this.onRegisterClick.bind(this)}
+                >
+                    Register
+                </button>
+                <button
+                    className=" lightButton topRightNav"
+                    onClick={this.onLoginClick.bind(this)}
+                >
+                    Login
+                </button>
+            </div>
         );
     }
 
@@ -222,7 +262,7 @@ class App extends React.Component {
                                 name="inputLoginUsername"
                                 className="inputLogin"
                                 type="text"
-                                placeholder="Username e.g @cerulean:localhost"
+                                placeholder="Username e.g alice"
                                 onChange={this.handleInputChange.bind(this)}
                                 value={this.state.inputLoginUsername}
                             ></input>
@@ -243,6 +283,52 @@ class App extends React.Component {
                                 className="darkButton modalSignInButton"
                                 onClick={this.onSubmitLogin.bind(this)}
                                 value="Login"
+                            ></input>
+                        </div>
+                    </form>
+                </Modal>
+                <Modal
+                    show={this.state.showRegisterModal}
+                    handleClose={this.onRegisterClose.bind(this)}
+                >
+                    <span className="modalSignIn">Register a new account</span>
+                    <form onSubmit={this.onSubmitRegister.bind(this)}>
+                        <div>
+                            <input
+                                name="inputLoginUrl"
+                                className="inputLogin"
+                                type="text"
+                                placeholder="Homeserver URL e.g https://matrix.org"
+                                onChange={this.handleInputChange.bind(this)}
+                                value={this.state.inputLoginUrl}
+                            ></input>
+                        </div>
+                        <div>
+                            <input
+                                name="inputLoginUsername"
+                                className="inputLogin"
+                                type="text"
+                                placeholder="Username e.g alice"
+                                onChange={this.handleInputChange.bind(this)}
+                                value={this.state.inputLoginUsername}
+                            ></input>
+                        </div>
+                        <div>
+                            <input
+                                name="inputLoginPassword"
+                                className="inputLogin"
+                                type="password"
+                                placeholder="Password"
+                                onChange={this.handleInputChange.bind(this)}
+                                value={this.state.inputLoginPassword}
+                            ></input>
+                        </div>
+                        <div>
+                            <input
+                                type="button"
+                                className="darkButton modalSignInButton"
+                                onClick={this.onSubmitRegister.bind(this)}
+                                value="Register"
                             ></input>
                         </div>
                     </form>
