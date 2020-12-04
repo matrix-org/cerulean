@@ -148,9 +148,13 @@ class Client {
     // getAggregatedTimeline returns all events from all timeline rooms being followed.
     // This is done by calling `/sync` and keeping messages for all rooms that have an #@ alias.
     async getAggregatedTimeline() {
+        let info = {
+            timeline: [],
+            from: null,
+        };
         if (!this.accessToken) {
             console.error("No access token");
-            return [];
+            return info;
         }
         const filterJson = JSON.stringify({
             room: {
@@ -192,7 +196,7 @@ class Client {
             }
         }
         // sort by origin_server_ts
-        return events.sort((a, b) => {
+        info.timeline = events.sort((a, b) => {
             if (a.origin_server_ts === b.origin_server_ts) {
                 return 0;
             }
@@ -201,6 +205,8 @@ class Client {
             }
             return -1;
         });
+        info.from = syncData.next_batch;
+        return info;
     }
 
     async getTimeline(roomId) {
@@ -244,7 +250,8 @@ class Client {
         });
     }
 
-    async waitForMessageEventInRoom(roomId, from) {
+    async waitForMessageEventInRoom(roomIds, from) {
+        console.log("waitForMessageEventInRoom", roomIds);
         const filterJson = JSON.stringify({
             room: {
                 timeline: {
@@ -269,14 +276,17 @@ class Client {
                 }
             );
             from = syncData.next_batch;
-            let room = syncData.rooms.join[roomId];
-            if (!room || !room.timeline || !room.timeline.events) {
-                continue;
-            }
-            for (let i = 0; i < room.timeline.events.length; i++) {
-                let ev = room.timeline.events[i];
-                if (ev.type === "m.room.message") {
-                    return from;
+            for (let i = 0; i < roomIds.length; i++) {
+                const roomId = roomIds[i];
+                let room = syncData.rooms.join[roomId];
+                if (!room || !room.timeline || !room.timeline.events) {
+                    continue;
+                }
+                for (let i = 0; i < room.timeline.events.length; i++) {
+                    let ev = room.timeline.events[i];
+                    if (ev.type === "m.room.message") {
+                        return from;
+                    }
                 }
             }
         }

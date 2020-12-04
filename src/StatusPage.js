@@ -41,7 +41,7 @@ class StatusPage extends React.Component {
     listenForNewEvents(from) {
         let f = from;
         this.props.client
-            .waitForMessageEventInRoom(this.props.roomId, from)
+            .waitForMessageEventInRoom([this.props.roomId], from)
             .then((newFrom) => {
                 f = newFrom;
                 return this.refresh();

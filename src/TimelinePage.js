@@ -15,11 +15,27 @@ class TimelinePage extends React.Component {
             error: null,
             withReplies: this.props.withReplies,
             timeline: [],
+            fromToken: null,
+            trackingRoomIds: [],
         };
     }
 
-    componentDidMount() {
-        this.loadEvents();
+    async componentDidMount() {
+        await this.loadEvents();
+        this.listenForNewEvents(this.state.fromToken);
+    }
+
+    listenForNewEvents(from) {
+        let f = from;
+        this.props.client
+            .waitForMessageEventInRoom(this.state.trackingRoomIds, from)
+            .then((newFrom) => {
+                f = newFrom;
+                return this.loadEvents();
+            })
+            .then(() => {
+                this.listenForNewEvents(f);
+            });
     }
 
     async loadEvents() {
@@ -27,12 +43,18 @@ class TimelinePage extends React.Component {
             loading: true,
         });
         try {
-            let timeline = await this.props.client.getAggregatedTimeline();
-            if (timeline.length === 0) {
+            let timelineInfo = await this.props.client.getAggregatedTimeline();
+            if (timelineInfo.timeline.length === 0) {
                 window.location.href = "/" + this.props.client.userId;
             }
+            let roomSet = new Set();
+            for (let ev of timelineInfo.timeline) {
+                roomSet.add(ev.room_id);
+            }
             this.setState({
-                timeline: timeline,
+                timeline: timelineInfo.timeline,
+                fromToken: timelineInfo.from,
+                trackingRoomIds: Array.from(roomSet),
             });
         } catch (err) {
             this.setState({

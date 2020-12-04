@@ -31,7 +31,7 @@ class UserPage extends React.Component {
     listenForNewEvents(from) {
         let f = from;
         this.props.client
-            .waitForMessageEventInRoom(this.state.roomId, from)
+            .waitForMessageEventInRoom([this.state.roomId], from)
             .then((newFrom) => {
                 f = newFrom;
                 return this.loadEvents();
