@@ -414,6 +414,32 @@ class Client {
     }
 
     /**
+     * Join a reputation room
+     * @param {string} roomAlias The alias to join e.g #cat-lovers:matrix.org
+     */
+    joinReputationRoom(roomAlias) {
+        // just join the room alias and cache it.
+        return this.joinTimelineRoom(roomAlias);
+    }
+
+    /**
+     * Get reputation state events from the given room ID.
+     * @param {string} roomId
+     */
+    async getReputationState(roomId) {
+        let roomData = await this.fetchJson(
+            `${this.serverUrl}/r0/rooms/${encodeURIComponent(roomId)}/state`,
+            {
+                headers: { Authorization: `Bearer ${this.accessToken}` },
+            }
+        );
+        // Keep only reputation events
+        return roomData.filter((ev) => {
+            return ev.type === "org.matrix.fama.rule.basic" && ev.state_key;
+        });
+    }
+
+    /**
      * Join a room by alias. If already joined, no-ops. If joining our own timeline room,
      * attempts to create it.
      * @param {string} roomAlias The room alias to join
