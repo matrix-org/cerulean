@@ -119,7 +119,7 @@ it("Reputation combines lists and weightings correctly when calling getScore", (
         })
     ).toBe(0);
 
-    // a single zero value should not ignore other filters from matching
+    // a single zero value should not prevent other filters from matching
     rep.modifyWeight("#cat-lovers:localhost", 0);
     // sender contributes nothing,  room ID contributes 50*1
     expect(

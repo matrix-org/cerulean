@@ -4,6 +4,7 @@ import UserPage from "./UserPage";
 import StatusPage from "./StatusPage";
 import TimelinePage from "./TimelinePage";
 import Modal from "./Modal";
+import ReputationPane from "./ReputationPane";
 
 // Main entry point for Cerulean.
 // - Reads the address bar and loads the correct page.
@@ -32,6 +33,7 @@ class App extends React.Component {
             statusId: null,
             showLoginModal: false,
             showRegisterModal: false,
+            showFilterPane: false,
             inputLoginUrl: "",
             inputLoginUsername: "",
             inputLoginPassword: "",
@@ -105,6 +107,12 @@ class App extends React.Component {
         });
     }
 
+    onFilterClick(ev) {
+        this.setState({
+            showFilterPane: !this.state.showFilterPane,
+        });
+    }
+
     async onSubmitLogin() {
         this.setState({
             showLoginModal: false,
@@ -165,6 +173,12 @@ class App extends React.Component {
                     >
                         {this.props.client.userId}
                     </span>
+                    <img
+                        src="/filter.svg"
+                        alt="filter"
+                        className="filterButton"
+                        onClick={this.onFilterClick.bind(this)}
+                    />
                     <button
                         className=" headerButton lightButton"
                         onClick={this.onLogoutClick.bind(this)}
@@ -228,6 +242,12 @@ class App extends React.Component {
     }
 
     render() {
+        let filterPane;
+        if (this.state.showFilterPane) {
+            filterPane = (
+                <ReputationPane onClose={this.onFilterClick.bind(this)} />
+            );
+        }
         return (
             <div className="App">
                 <header className="AppHeader">
@@ -241,6 +261,7 @@ class App extends React.Component {
                     {this.loginLogoutButton()}
                 </header>
                 <main className="AppMain">{this.renderPage()}</main>
+                {filterPane}
                 <Modal
                     show={this.state.showLoginModal}
                     handleClose={this.onLoginClose.bind(this)}

@@ -27,10 +27,9 @@ body {
 }
 
 .topRightNav{
-    margin-top: 23px; /* AppHeader.height / 2 */
     margin-right: 16px;
     float: right;
-    transform: translate(0%, -50%);
+    transform: translate(0%, 50%);
 }
 
 .title {
@@ -88,6 +87,11 @@ button:hover{
 .loggedInUser{
     margin-right: 16px;
     cursor: pointer;
+    vertical-align: middle;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .inputLogin{
@@ -159,4 +163,10 @@ button:hover{
     cursor: pointer;
     margin: 8px;
     float: right;
+}
+
+.filterButton{
+    margin-right: 20px;
+    vertical-align: middle;
+    cursor: pointer;
 }
