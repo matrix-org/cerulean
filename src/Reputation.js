@@ -16,6 +16,7 @@ class Reputation {
                 let list = await ReputationList.loadFromAlias(client, tag);
                 this.listWeightings.set(tag, weights[tag]);
                 this.lists.set(tag, list);
+                console.log("Adding list:", list);
             } catch (err) {
                 console.error("failed to load weights for list", tag, err);
             }

@@ -82,17 +82,24 @@ class ReputationPane extends React.Component {
         });
     }
 
-    onCreateFilterClick(ev) {
+    async onCreateFilterClick(ev) {
         const val = this.state.addFilterInput;
-        // join the room
 
-        // persist the new weighting
-        console.log(val);
-
-        const list = new ReputationList(val);
-        list.addRule("@alice:localhost", -10, "nope");
-        this.context.reputation.addList(list, 100);
-        this.loadWeightings();
+        console.log("adding filter:", val);
+        try {
+            // join the room
+            await this.context.client.joinReputationRoom(val);
+            const list = await ReputationList.loadFromAlias(
+                this.context.client,
+                val
+            );
+            // persist the new weighting
+            this.context.reputation.addList(list, 100);
+            this.context.reputation.saveWeights(window.localStorage);
+            this.loadWeightings();
+        } catch (err) {
+            console.error("failed to add filter: ", err);
+        }
 
         this.setState({
             addingFilter: false,
