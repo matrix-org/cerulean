@@ -39,3 +39,78 @@
     margin-top: 12px;
     margin-bottom: 12px;
 }
+
+.addFilter {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    background: #8D99A5;
+    border-radius: 6px;
+    border: none;
+    font-family: Inter;
+    color: #FFFFFF;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 15px;
+    padding: 4px 8px 4px 8px;
+    cursor: pointer;
+}
+
+.saveChanges {
+    float: right;
+    margin-right: 16px;
+}
+
+.listTitle {
+    font-style: normal;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 18px;
+
+    /* Light / Primary content */
+    color: #17191C;
+}
+
+.listEntry {
+    border-top: 1px solid #E3E8F0;
+    margin-right: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.listDelete {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-right: 16px;
+    cursor: pointer;
+}
+
+.listEntryLeft{
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.listEntryRight{
+}
+
+.range {
+    width: 224px;
+    max-width: 100%;
+}
+
+.rangeLabels{
+    display: flex;
+    justify-content: space-between;
+}
+
+.rangeLabel {
+    font-style: normal;
+    font-weight: normal;
+    font-size: 10px;
+    line-height: 12px;
+
+}
