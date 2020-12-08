@@ -25,7 +25,7 @@ xit("login works", async () => {
     expect(client.accessToken).toBeDefined();
 });
 
-it("join room works", async () => {
+xit("join room works", async () => {
     const client = new Client({});
     await client.login(
         "http://localhost:8008/_matrix/client",
@@ -40,7 +40,7 @@ it("join room works", async () => {
     expect(roomId).toBeDefined();
 });
 
-it("sendMessage works", async () => {
+xit("sendMessage works", async () => {
     const client = new Client({});
     await client.login(
         "http://localhost:8008/_matrix/client",

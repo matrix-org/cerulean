@@ -1,9 +1,39 @@
+import ReputationList from "./ReputationList";
+
 class Reputation {
     constructor() {
         // map of list tag -> filter weightings between -1 and +1.
         this.listWeightings = new Map();
         // map of list tag -> ReputationList
         this.lists = new Map();
+    }
+
+    async loadWeights(localStorage, client) {
+        let ser = localStorage.getItem("weights") || "{}";
+        let weights = JSON.parse(ser);
+        for (const tag in weights) {
+            try {
+                let list = await ReputationList.loadFromAlias(client, tag);
+                this.listWeightings.set(tag, weights[tag]);
+                this.lists.set(tag, list);
+            } catch (err) {
+                console.error("failed to load weights for list", tag, err);
+            }
+        }
+        console.log("Finished loading weightings:", weights);
+    }
+
+    saveWeights(localStorage) {
+        let ser = {};
+        for (let [tag] of this.lists) {
+            ser[tag] = this.listWeightings.get(tag) || 0;
+        }
+        localStorage.setItem("weights", JSON.stringify(ser));
+    }
+
+    deleteList(tag) {
+        this.lists.delete(tag);
+        this.listWeightings.delete(tag);
     }
 
     /**
@@ -20,12 +50,13 @@ class Reputation {
      */
     getWeightings() {
         let weights = [];
-        for (let [tag, list] of this.lists) {
+        for (let [tag] of this.lists) {
             weights.push({
                 name: tag,
                 weight: this.listWeightings.get(tag) || 0,
             });
         }
+        return weights;
     }
 
     /**
@@ -59,6 +90,4 @@ class Reputation {
     }
 }
 
-const ReputationState = new Reputation();
-
-export { Reputation, ReputationState };
+export default Reputation;

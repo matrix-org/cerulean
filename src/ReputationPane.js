@@ -1,6 +1,7 @@
 import React from "react";
 import ReputationList from "./ReputationList";
 import "./ReputationPane.css";
+import { ClientContext } from "./ClientContext";
 
 // ReputationPane renders the filter list popup.
 // Props:
@@ -13,10 +14,20 @@ class ReputationPane extends React.Component {
             addingFilter: false,
             addFilterInput: "",
         };
-        this._list = new ReputationList(
-            "#hello-world:possibly.a.long.domain.name"
-        );
-        this._list.addRule("@alice:localhost", -10, "nope");
+    }
+
+    componentDidMount() {
+        this.loadWeightings();
+    }
+
+    loadWeightings() {
+        let w = this.state.weightings;
+        this.context.reputation.getWeightings().forEach((obj) => {
+            w.set(obj.name, obj.weight);
+        });
+        this.setState({
+            weightings: w,
+        });
     }
 
     handleWeightChange(event) {
@@ -39,17 +50,21 @@ class ReputationPane extends React.Component {
         });
     }
 
-    onDeleteClick(list, ev) {
+    onDeleteClick(tag, ev) {
         // leave the room
         // persist the new list
-        console.log("delete ", list);
+        console.log("delete ", tag);
+        this.context.reputation.deleteList(tag);
+        this.loadWeightings();
     }
 
     onSaveClick(ev) {
         // persist new weightings
         for (let [tag, weight] of this.state.weightings) {
             console.log(tag, weight);
+            this.context.reputation.modifyWeight(tag, weight);
         }
+        this.context.reputation.saveWeights(window.localStorage);
 
         this.props.onClose();
     }
@@ -69,35 +84,49 @@ class ReputationPane extends React.Component {
 
     onCreateFilterClick(ev) {
         const val = this.state.addFilterInput;
+        // join the room
+
         // persist the new weighting
         console.log(val);
+
+        const list = new ReputationList(val);
+        list.addRule("@alice:localhost", -10, "nope");
+        this.context.reputation.addList(list, 100);
+        this.loadWeightings();
+
         this.setState({
             addingFilter: false,
             addFilterInput: "",
         });
     }
 
-    renderFilterList(list) {
+    renderFilterLists() {
+        return this.context.reputation.getWeightings().map((obj) => {
+            return this.renderFilterList(obj.name);
+        });
+    }
+
+    renderFilterList(tag) {
         return (
-            <div key={list.tag} className="listEntry">
+            <div key={tag} className="listEntry">
                 <div className="listEntryLeft">
                     <img
                         src="/delete.svg"
                         alt="delete"
                         className="listDelete"
-                        onClick={this.onDeleteClick.bind(this, list)}
+                        onClick={this.onDeleteClick.bind(this, tag)}
                     />
-                    <div className="listTitle">{list.tag}</div>
+                    <div className="listTitle">{tag}</div>
                 </div>
                 <div className="listEntryRight">
                     <input
                         type="range"
                         className="range"
-                        name={list.tag}
+                        name={tag}
                         min="-100"
                         max="100"
                         step="1"
-                        value={this.state.weightings.get(list.tag) || "100"}
+                        value={this.state.weightings.get(tag) || "100"}
                         onChange={this.handleWeightChange.bind(this)}
                     />
                     <div className="rangeLabels">
@@ -151,7 +180,6 @@ class ReputationPane extends React.Component {
     }
 
     render() {
-        let entries = [this.renderFilterList(this._list)];
         return (
             <div className="ReputationPane">
                 <div>
@@ -166,7 +194,7 @@ class ReputationPane extends React.Component {
                 <div className="repDescription">
                     Filter lists and decide on the importance of each one
                 </div>
-                {entries}
+                {this.renderFilterLists()}
                 {this.renderAddFilter()}
                 <button
                     className="darkButton saveChanges"
@@ -178,5 +206,6 @@ class ReputationPane extends React.Component {
         );
     }
 }
+ReputationPane.contextType = ClientContext;
 
 export default ReputationPane;

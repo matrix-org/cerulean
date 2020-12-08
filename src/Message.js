@@ -53,7 +53,7 @@ class Message extends React.Component {
 
         let postedEventId;
         try {
-            postedEventId = await this.context.replyToEvent(
+            postedEventId = await this.context.client.replyToEvent(
                 reply,
                 this.props.event,
                 this.props.isTimelineEvent
