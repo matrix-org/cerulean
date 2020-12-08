@@ -1,5 +1,5 @@
 import React from "react";
-import "./Message.css";
+import "./ReputationPane.css";
 
 class ReputationPane extends React.Component {
     constructor(props) {
@@ -30,7 +30,7 @@ class ReputationPane extends React.Component {
     render() {
         let entries = [];
         return (
-            <div>
+            <div className="ReputationPane">
                 <div>
                     <img
                         src="/close.svg"
@@ -39,8 +39,10 @@ class ReputationPane extends React.Component {
                         onClick={this.props.onClose}
                     />
                 </div>
-                <div>Filter List</div>
-                <div>Filter lists and decide on the importance of each one</div>
+                <div className="repTitle">Filter List</div>
+                <div className="repDescription">
+                    Filter lists and decide on the importance of each one
+                </div>
                 {entries}
                 <div>
                     <input type="button" value="Add Filter" />
