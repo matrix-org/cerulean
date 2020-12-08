@@ -1,7 +1,7 @@
 import React from "react";
 import { render } from "@testing-library/react";
 import ReputationList from "./ReputationList";
-import Reputation from "./Reputation";
+import { Reputation } from "./Reputation";
 
 it("ReputationList combines rules", () => {
     let list = new ReputationList("test");

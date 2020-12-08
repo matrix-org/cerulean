@@ -59,4 +59,6 @@ class Reputation {
     }
 }
 
-export default Reputation;
+const ReputationState = new Reputation();
+
+export { Reputation, ReputationState };

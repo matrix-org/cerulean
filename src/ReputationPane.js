@@ -10,6 +10,8 @@ class ReputationPane extends React.Component {
         super(props);
         this.state = {
             weightings: new Map(), // tag => number
+            addingFilter: false,
+            addFilterInput: "",
         };
         this._list = new ReputationList(
             "#hello-world:possibly.a.long.domain.name"
@@ -27,16 +29,52 @@ class ReputationPane extends React.Component {
         });
     }
 
+    handleInputChange(event) {
+        const target = event.target;
+        const value =
+            target.type === "checkbox" ? target.checked : target.value;
+        const name = target.name;
+        this.setState({
+            [name]: value,
+        });
+    }
+
     onDeleteClick(list, ev) {
+        // leave the room
+        // persist the new list
         console.log("delete ", list);
     }
 
     onSaveClick(ev) {
+        // persist new weightings
         for (let [tag, weight] of this.state.weightings) {
             console.log(tag, weight);
         }
 
         this.props.onClose();
+    }
+
+    onAddFilterClick(ev) {
+        this.setState({
+            addingFilter: true,
+        });
+    }
+
+    onCancelAddFilterClick(ev) {
+        this.setState({
+            addingFilter: false,
+            addFilterInput: "",
+        });
+    }
+
+    onCreateFilterClick(ev) {
+        const val = this.state.addFilterInput;
+        // persist the new weighting
+        console.log(val);
+        this.setState({
+            addingFilter: false,
+            addFilterInput: "",
+        });
     }
 
     renderFilterList(list) {
@@ -73,9 +111,41 @@ class ReputationPane extends React.Component {
     }
 
     renderAddFilter() {
+        if (this.state.addingFilter) {
+            return (
+                <div key="add" className="listEntry listEntryBottom">
+                    <input
+                        type="input"
+                        name="addFilterInput"
+                        placeholder="Enter room alias"
+                        value={this.state.addFilterInput}
+                        onChange={this.handleInputChange.bind(this)}
+                    />
+                    <div>
+                        <input
+                            className="cancelButton"
+                            type="button"
+                            value="Cancel"
+                            onClick={this.onCancelAddFilterClick.bind(this)}
+                        />
+                        <input
+                            className="darkButton"
+                            type="button"
+                            value="Create"
+                            onClick={this.onCreateFilterClick.bind(this)}
+                        />
+                    </div>
+                </div>
+            );
+        }
         return (
             <div key="add" className="listEntry">
-                <input className="addFilter" type="button" value="Add Filter" />
+                <input
+                    className="addFilter"
+                    type="button"
+                    value="Add Filter"
+                    onClick={this.onAddFilterClick.bind(this)}
+                />
             </div>
         );
     }
