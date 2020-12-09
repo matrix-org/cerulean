@@ -21,23 +21,41 @@ class UserPage extends React.Component {
             inputPost: "",
             roomId: null,
         };
+        this._cancelPromise = new Promise((resolve, reject) => {
+            this._stopListening = resolve;
+        });
     }
 
     async componentDidMount() {
-        await this.loadEvents();
-        this.listenForNewEvents();
+        try {
+            await this.loadEvents();
+            this.listenForNewEvents();
+        } catch (err) {
+            console.error("failed to loadEvents: ", err);
+        }
+    }
+
+    componentWillUnmount() {
+        this._stopListening();
     }
 
     listenForNewEvents(from) {
         let f = from;
         this.props.client
-            .waitForMessageEventInRoom([this.state.roomId], from)
+            .waitForMessageEventInRoom(
+                [this.state.roomId],
+                from,
+                this._cancelPromise
+            )
             .then((newFrom) => {
                 f = newFrom;
                 return this.loadEvents();
             })
             .then(() => {
                 this.listenForNewEvents(f);
+            })
+            .catch((err) => {
+                console.warn("stopping live update: ", err);
             });
     }
 

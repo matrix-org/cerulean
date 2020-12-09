@@ -18,6 +18,9 @@ class TimelinePage extends React.Component {
             fromToken: null,
             trackingRoomIds: [],
         };
+        this._cancelPromise = new Promise((resolve, reject) => {
+            this._stopListening = resolve;
+        });
     }
 
     async componentDidMount() {
@@ -25,16 +28,27 @@ class TimelinePage extends React.Component {
         this.listenForNewEvents(this.state.fromToken);
     }
 
+    componentWillUnmount() {
+        this._stopListening();
+    }
+
     listenForNewEvents(from) {
         let f = from;
         this.props.client
-            .waitForMessageEventInRoom(this.state.trackingRoomIds, from)
+            .waitForMessageEventInRoom(
+                this.state.trackingRoomIds,
+                from,
+                this._cancelPromise
+            )
             .then((newFrom) => {
                 f = newFrom;
                 return this.loadEvents();
             })
             .then(() => {
                 this.listenForNewEvents(f);
+            })
+            .catch((err) => {
+                console.warn("stopping live update: ", err);
             });
     }
 
@@ -45,7 +59,7 @@ class TimelinePage extends React.Component {
         try {
             let timelineInfo = await this.props.client.getAggregatedTimeline();
             if (timelineInfo.timeline.length === 0) {
-                window.location.href = "/" + this.props.client.userId;
+                window.location.href = "/#/" + this.props.client.userId;
             }
             let roomSet = new Set();
             for (let ev of timelineInfo.timeline) {

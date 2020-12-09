@@ -42,6 +42,20 @@ class Message extends React.Component {
         );
     }
 
+    componentDidUpdate(prevProps) {
+        if (!prevProps.event && this.props.event) {
+            this.context.reputation.trackScore(
+                this.props.event,
+                (eventId, score) => {
+                    this.setState({
+                        reputationScore: score,
+                        hidden: score < 0,
+                    });
+                }
+            );
+        }
+    }
+
     componentWillUnmount() {
         if (!this.props.event) {
             return;
@@ -101,7 +115,7 @@ class Message extends React.Component {
     }
 
     onAuthorClick(author) {
-        window.location.href = `/${author}`;
+        window.location.href = `/#/${author}`;
     }
 
     onUnhideClick() {

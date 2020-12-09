@@ -269,8 +269,11 @@ class Client {
         });
     }
 
-    async waitForMessageEventInRoom(roomIds, from) {
+    async waitForMessageEventInRoom(roomIds, from, cancelPromise) {
         console.log("waitForMessageEventInRoom", roomIds);
+        if (roomIds[0] === null) {
+            throw new Error("waitForMessageEventInRoom with no room IDs");
+        }
         const filterJson = JSON.stringify({
             room: {
                 timeline: {
@@ -287,11 +290,22 @@ class Client {
             );
             from = syncData.next_batch;
         }
+        const controller = new AbortController();
+        const signal = controller.signal;
+        let aborted = false;
+        cancelPromise.then(() => {
+            controller.abort();
+            aborted = true;
+        });
         while (true) {
+            if (aborted) {
+                break;
+            }
             let syncData = await this.fetchJson(
                 `${this.serverUrl}/r0/sync?filter=${filterJson}&since=${from}&timeout=20000`,
                 {
                     headers: { Authorization: `Bearer ${this.accessToken}` },
+                    signal: signal,
                 }
             );
             from = syncData.next_batch;
@@ -309,6 +323,7 @@ class Client {
                 }
             }
         }
+        return from;
     }
 
     peekRoom(roomAlias) {

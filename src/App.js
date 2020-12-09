@@ -20,9 +20,9 @@ class App extends React.Component {
             /username/with_replies  --> timeline with replies
             /username/room_id/id     --> permalink
         Examples:
-        http://localhost:3000/@really:bigstuff.com/with_replies
-        http://localhost:3000/@really:bigstuff.com
-        http://localhost:3000/@really:bigstuff.com/!cURbafjkfsMDVwdRDQ:matrix.org/$foobar
+        http://localhost:3000/#/@really:bigstuff.com/with_replies
+        http://localhost:3000/#/@really:bigstuff.com
+        http://localhost:3000/#/@really:bigstuff.com/!cURbafjkfsMDVwdRDQ:matrix.org/$foobar
         */
 
         // sensible defaults
@@ -40,8 +40,8 @@ class App extends React.Component {
         };
 
         // parse out state from path
-        const path = window.location.pathname.split("/");
-        console.log("input path: " + window.location.pathname);
+        const path = window.location.hash.split("/");
+        console.log("input path: " + window.location.hash);
         if (path.length < 2) {
             console.log("viewing timeline");
             return;
@@ -65,7 +65,49 @@ class App extends React.Component {
         }
     }
 
+    onHashChange() {
+        const path = window.location.hash.split("/");
+        console.log("input path: " + window.location.hash);
+        if (path.length < 2) {
+            console.log("viewing timeline");
+            this.setState({
+                page: "timeline",
+            });
+            return;
+        }
+        const userId = path[1];
+        if (!userId) {
+            console.log("viewing timeline");
+            this.setState({
+                page: "timeline",
+            });
+            return;
+        } else if (!userId.startsWith("@")) {
+            console.log("unknown user ID in path: " + path);
+            this.setState({
+                page: "timeline",
+            });
+            return;
+        }
+        let page = "user";
+        this.setState({
+            viewingUserId: userId,
+            withReplies: path[2] === "with_replies",
+        });
+        if ((path[2] || "").startsWith("!") && path[3]) {
+            page = "status";
+            this.setState({
+                statusId: path[3],
+                roomId: path[2],
+            });
+        }
+        this.setState({
+            page: page,
+        });
+    }
+
     componentDidMount() {
+        window.onhashchange = this.onHashChange.bind(this);
         // TODO: auto-register as a guest if not logged in
     }
 
@@ -156,11 +198,11 @@ class App extends React.Component {
     }
 
     onLogoClick() {
-        window.location.href = "/";
+        window.location.href = "/#/";
     }
 
     onUserClick() {
-        window.location.href = "/" + this.props.client.userId;
+        window.location.href = "/#/" + this.props.client.userId;
     }
 
     loginLogoutButton() {

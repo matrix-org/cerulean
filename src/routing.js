@@ -11,7 +11,7 @@ function createPermalinkForTimelineEvent(event) {
         );
         return;
     }
-    return `/${sender}/${roomId}/${eventId}`;
+    return `/#/${sender}/${roomId}/${eventId}`;
 }
 
 // createPermalinkForThreadEvent links to the thread event given.
@@ -20,7 +20,7 @@ function createPermalinkForThreadEvent(event) {
         console.log("event missing fields, cannot create hyperlink:", event);
         return;
     }
-    return `/${event.sender}/${event.room_id}/${event.event_id}`;
+    return `/#/${event.sender}/${event.room_id}/${event.event_id}`;
 }
 
 export { createPermalinkForTimelineEvent, createPermalinkForThreadEvent };

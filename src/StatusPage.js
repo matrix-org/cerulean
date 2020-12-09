@@ -26,7 +26,21 @@ class StatusPage extends React.Component {
         };
     }
 
-    async componentDidMount() {
+    componentDidMount() {
+        this.reload();
+    }
+
+    async reload(prevRoomId) {
+        if (prevRoomId === this.props.roomId) {
+            await this.refresh();
+            return;
+        }
+        if (this._stopListening) {
+            this._stopListening();
+        }
+        this._cancelPromise = new Promise((resolve, reject) => {
+            this._stopListening = resolve;
+        });
         if (this.props.roomId) {
             // extract server name from user being viewed:
             // @alice:domain.com -> [@alice, domain.com] -> [domain.com] -> domain.com
@@ -38,16 +52,34 @@ class StatusPage extends React.Component {
         this.listenForNewEvents();
     }
 
+    componentDidUpdate(prevProps) {
+        if (prevProps.eventId !== this.props.eventId) {
+            console.log("reloading...");
+            this.reload();
+        }
+    }
+
+    componentWillUnmount() {
+        this._stopListening();
+    }
+
     listenForNewEvents(from) {
         let f = from;
         this.props.client
-            .waitForMessageEventInRoom([this.props.roomId], from)
+            .waitForMessageEventInRoom(
+                [this.props.roomId],
+                from,
+                this._cancelPromise
+            )
             .then((newFrom) => {
                 f = newFrom;
                 return this.refresh();
             })
             .then(() => {
                 this.listenForNewEvents(f);
+            })
+            .catch((err) => {
+                console.warn("stopping live update: ", err);
             });
     }
 
