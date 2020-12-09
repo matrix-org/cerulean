@@ -6,6 +6,8 @@ class Reputation {
         this.listWeightings = new Map();
         // map of list tag -> ReputationList
         this.lists = new Map();
+        // event ID -> { event: $event, callback: function(eventId, score), prevScore: number }
+        this.callbacks = new Map();
     }
 
     async loadWeights(localStorage, client) {
@@ -22,6 +24,7 @@ class Reputation {
             }
         }
         console.log("Finished loading weightings:", weights);
+        this.updateScores();
     }
 
     saveWeights(localStorage) {
@@ -35,6 +38,7 @@ class Reputation {
     deleteList(tag) {
         this.lists.delete(tag);
         this.listWeightings.delete(tag);
+        this.updateScores();
     }
 
     /**
@@ -44,6 +48,7 @@ class Reputation {
      */
     modifyWeight(tag, weight) {
         this.listWeightings.set(tag, weight);
+        this.updateScores();
     }
 
     /**
@@ -67,9 +72,50 @@ class Reputation {
      * @param {number} weighting The weighting for this list. Between -100 and +100.
      */
     addList(list, weighting) {
-        // store weight between -1 and +1 as they are %s.
-        this.listWeightings.set(list.tag, weighting / 100);
+        this.listWeightings.set(list.tag, weighting);
         this.lists.set(list.tag, list);
+        this.updateScores();
+    }
+
+    updateScores() {
+        for (let [eventId, info] of this.callbacks) {
+            let score = this.getScore(info.event);
+            if (score !== info.prevScore) {
+                info.prevScore = score;
+                info.callback(eventId, score);
+            }
+        }
+    }
+
+    /**
+     * Track the score of this event. The callback is immediately invoked with the current score.
+     * @param {object} event  the matrix event
+     * @param {function} fn the callback, invoked with the event ID and the new score.
+     */
+    trackScore(event, fn) {
+        if (this.callbacks.has(event.event_id)) {
+            console.warn("trackScore called twice for event ID ", event);
+        }
+        let score = this.getScore(event);
+        this.callbacks.set(event.event_id, {
+            event: event,
+            callback: fn,
+            prevScore: score,
+        });
+        fn(event.event_id, score);
+    }
+
+    /**
+     * Remove a score listener.
+     * @param {string} eventId The event ID to stop listening for updates to.
+     */
+    removeTrackScoreListener(eventId) {
+        if (!this.callbacks.delete(eventId)) {
+            console.warn(
+                "removeTrackScoreListener called on event not being tracked:",
+                eventId
+            );
+        }
     }
 
     /**
@@ -85,7 +131,7 @@ class Reputation {
                 weight = 0;
             }
             let score = list.getReputationScore(event);
-            sum += score * weight;
+            sum += score * (weight / 100); // weight as a percentage between -1 and +1
         }
         return sum;
     }

@@ -22,9 +22,34 @@ class Message extends React.Component {
             error: null,
             showReplyModal: false,
             inputReply: "",
+            reputationScore: 0,
         };
     }
-    async onReplyClick() {
+
+    componentDidMount() {
+        if (!this.props.event) {
+            return;
+        }
+        this.context.reputation.trackScore(
+            this.props.event,
+            (eventId, score) => {
+                this.setState({
+                    reputationScore: score,
+                });
+            }
+        );
+    }
+
+    componentWillUnmount() {
+        if (!this.props.event) {
+            return;
+        }
+        this.context.reputation.removeTrackScoreListener(
+            this.props.event.event_id
+        );
+    }
+
+    onReplyClick() {
         console.log(
             "onReplyClick timeline=",
             this.props.isTimelineEvent,
@@ -85,7 +110,7 @@ class Message extends React.Component {
         const dateStr = `${d.getDate()}/${d.getMonth()}/${d.getFullYear()} · ${d.toLocaleTimeString(
             [],
             { hour: "2-digit", minute: "2-digit", hour12: false }
-        )}`;
+        )} (score: ${this.state.reputationScore.toFixed(1)})`;
         return <span className="DateString">{dateStr}</span>;
     }
 

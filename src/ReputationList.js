@@ -91,11 +91,14 @@ class ReputationList {
         }
 
         // extract server name from user:
-        // @alice:domain.com -> [@alice, domain.com] -> [domain.com] -> domain.com
-        // @bob:foobar.com:8448 -> [@bob, foobar.com, 8448] -> [foobar.com, 8448] -> foobar.com:8448
-        let domain = event.sender.split(":").splice(1).join(":");
+        if (!event._domain) {
+            // @alice:domain.com -> [@alice, domain.com] -> [domain.com] -> domain.com
+            // @bob:foobar.com:8448 -> [@bob, foobar.com, 8448] -> [foobar.com, 8448] -> foobar.com:8448
+            let domain = event.sender.split(":").splice(1).join(":");
+            event._domain = domain;
+        }
 
-        let serverRep = this.rules.get(domain);
+        let serverRep = this.rules.get(event._domain);
         if (!serverRep) {
             serverRep = 0;
         }
