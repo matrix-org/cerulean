@@ -65,6 +65,11 @@
     color: #17191C;
 }
 
+.MessageTextHidden {
+    opacity: 0.5;
+    filter: blur(5px);
+}
+
 .MessageButtons{
     margin-right: 12px;
 }

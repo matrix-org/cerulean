@@ -23,6 +23,7 @@ class Message extends React.Component {
             showReplyModal: false,
             inputReply: "",
             reputationScore: 0,
+            hidden: false,
         };
     }
 
@@ -35,6 +36,7 @@ class Message extends React.Component {
             (eventId, score) => {
                 this.setState({
                     reputationScore: score,
+                    hidden: score < 0,
                 });
             }
         );
@@ -102,6 +104,12 @@ class Message extends React.Component {
         window.location.href = `/${author}`;
     }
 
+    onUnhideClick() {
+        this.setState({
+            hidden: false,
+        });
+    }
+
     renderTime(ts) {
         if (!ts) {
             return <span className="dateString">Now</span>;
@@ -125,6 +133,13 @@ class Message extends React.Component {
             handler = this.onMessageClick.bind(this);
             classes += " MessageBodyWithLink";
         }
+        let bodyClasses = " MessageText";
+        let hiddenTooltip;
+        if (this.state.hidden) {
+            bodyClasses += " MessageTextHidden";
+            handler = this.onUnhideClick.bind(this);
+            hiddenTooltip = "Reveal filtered message";
+        }
         return (
             <div className={classes} onClick={handler}>
                 <span className="MessageHeader">
@@ -136,7 +151,9 @@ class Message extends React.Component {
                     </span>
                     {this.renderTime(event.origin_server_ts)}
                 </span>
-                <div className="MessageText">{"" + event.content.body}</div>
+                <div className={bodyClasses} title={hiddenTooltip}>
+                    {"" + event.content.body}
+                </div>
             </div>
         );
     }
