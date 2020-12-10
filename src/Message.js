@@ -129,6 +129,7 @@ class Message extends React.Component {
         } finally {
             this.setState({
                 loading: false,
+                uploadFile: null,
             });
         }
         if (postedEventId && this.props.onPost) {
