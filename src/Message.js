@@ -180,6 +180,7 @@ class Message extends React.Component {
             }
             blurStyle = {
                 filter: "blur(" + blur + "px)",
+                opacity: 0.8,
             };
             handler = this.onUnhideClick.bind(this);
             hiddenTooltip = "Reveal filtered message";
