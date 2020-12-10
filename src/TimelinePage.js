@@ -100,6 +100,7 @@ class TimelinePage extends React.Component {
             if (this.state.loading) {
                 timelineBlock = <div> Loading timeline.... </div>;
             } else {
+                let hasEntries = false;
                 timelineBlock = (
                     <div>
                         {this.state.timeline
@@ -125,6 +126,7 @@ class TimelinePage extends React.Component {
                                 return false;
                             })
                             .map((ev) => {
+                                hasEntries = true;
                                 return (
                                     <Message
                                         key={ev.event_id}
@@ -136,6 +138,11 @@ class TimelinePage extends React.Component {
                             })}
                     </div>
                 );
+                if (!hasEntries) {
+                    timelineBlock = (
+                        <div className="emptyList">Nothing to see yet.</div>
+                    );
+                }
             }
         }
 

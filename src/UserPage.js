@@ -143,6 +143,7 @@ class UserPage extends React.Component {
             if (this.state.loading) {
                 timelineBlock = <div> Loading timeline.... </div>;
             } else {
+                let hasEntries = false;
                 timelineBlock = (
                     <div>
                         {this.state.timeline
@@ -171,6 +172,7 @@ class UserPage extends React.Component {
                                 return false;
                             })
                             .map((ev) => {
+                                hasEntries = true;
                                 return (
                                     <Message
                                         key={ev.event_id}
@@ -182,6 +184,13 @@ class UserPage extends React.Component {
                             })}
                     </div>
                 );
+                if (!hasEntries) {
+                    timelineBlock = (
+                        <div className="emptyList">
+                            This user hasn't posted anything yet.
+                        </div>
+                    );
+                }
             }
         }
 

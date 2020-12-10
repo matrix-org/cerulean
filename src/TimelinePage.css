@@ -84,3 +84,8 @@
     flex-grow: 1;
     cursor: pointer;
 }
+
+.emptyList {
+    padding: 8px;
+    text-align: center;
+}
