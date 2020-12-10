@@ -288,25 +288,35 @@ class Client {
             from = syncData.next_batch;
         }
         while (true) {
-            let syncData = await this.fetchJson(
-                `${this.serverUrl}/r0/sync?filter=${filterJson}&since=${from}&timeout=20000`,
-                {
-                    headers: { Authorization: `Bearer ${this.accessToken}` },
-                }
-            );
-            from = syncData.next_batch;
-            for (let i = 0; i < roomIds.length; i++) {
-                const roomId = roomIds[i];
-                let room = syncData.rooms.join[roomId];
-                if (!room || !room.timeline || !room.timeline.events) {
-                    continue;
-                }
-                for (let i = 0; i < room.timeline.events.length; i++) {
-                    let ev = room.timeline.events[i];
-                    if (ev.type === "m.room.message") {
-                        return from;
+            try {
+                let syncData = await this.fetchJson(
+                    `${this.serverUrl}/r0/sync?filter=${filterJson}&since=${from}&timeout=20000`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${this.accessToken}`,
+                        },
+                    }
+                );
+                from = syncData.next_batch;
+                for (let i = 0; i < roomIds.length; i++) {
+                    const roomId = roomIds[i];
+                    let room = syncData.rooms.join[roomId];
+                    if (!room || !room.timeline || !room.timeline.events) {
+                        continue;
+                    }
+                    for (let i = 0; i < room.timeline.events.length; i++) {
+                        let ev = room.timeline.events[i];
+                        if (ev.type === "m.room.message") {
+                            return from;
+                        }
                     }
                 }
+            } catch (err) {
+                console.warn(
+                    "waitForMessageEventInRoom: request failed, waiting then retrying: ",
+                    err
+                );
+                await sleep(10 * 1000); // wait before retrying
             }
         }
     }
@@ -510,6 +520,10 @@ function setOrDelete(storage, key, value) {
     } else {
         storage.removeItem(key, value);
     }
+}
+
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export default Client;
