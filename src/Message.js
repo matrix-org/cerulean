@@ -43,12 +43,19 @@ class Message extends React.Component {
     }
 
     componentDidUpdate(oldProps) {
-        if (oldProps.event) {
+        if (
+            oldProps.event &&
+            this.props.event &&
+            oldProps.event.event_id !== this.props.event.event_id
+        ) {
             this.context.reputation.removeTrackScoreListener(
                 oldProps.event.event_id
             );
         }
-        if (this.props.event) {
+        if (
+            this.props.event &&
+            (oldProps.event || {}).event_id !== this.props.event.event_id
+        ) {
             this.context.reputation.trackScore(
                 this.props.event,
                 (eventId, score) => {
