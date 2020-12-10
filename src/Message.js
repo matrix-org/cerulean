@@ -42,6 +42,25 @@ class Message extends React.Component {
         );
     }
 
+    componentDidUpdate(oldProps) {
+        if (oldProps.event) {
+            this.context.reputation.removeTrackScoreListener(
+                oldProps.event.event_id
+            );
+        }
+        if (this.props.event) {
+            this.context.reputation.trackScore(
+                this.props.event,
+                (eventId, score) => {
+                    this.setState({
+                        reputationScore: score,
+                        hidden: score < 0,
+                    });
+                }
+            );
+        }
+    }
+
     componentWillUnmount() {
         if (!this.props.event) {
             return;
