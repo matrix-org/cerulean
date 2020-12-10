@@ -6,6 +6,8 @@ import TimelinePage from "./TimelinePage";
 import Modal from "./Modal";
 import ReputationPane from "./ReputationPane";
 
+const constDendriteServer = "https://dendrite.matrix.org";
+
 // Main entry point for Cerulean.
 // - Reads the address bar and loads the correct page.
 // - Loads and handles the top bar which is present on every page.
@@ -34,7 +36,7 @@ class App extends React.Component {
             showLoginModal: false,
             showRegisterModal: false,
             showFilterPane: false,
-            inputLoginUrl: "",
+            inputLoginUrl: constDendriteServer,
             inputLoginUsername: "",
             inputLoginPassword: "",
             error: null,
@@ -92,7 +94,7 @@ class App extends React.Component {
         this.setState({
             showLoginModal: true,
             showRegisterModal: false,
-            inputLoginUrl: "",
+            inputLoginUrl: constDendriteServer,
             inputLoginUsername: "",
             inputLoginPassword: "",
         });
@@ -102,7 +104,7 @@ class App extends React.Component {
         this.setState({
             showLoginModal: false,
             showRegisterModal: true,
-            inputLoginUrl: "",
+            inputLoginUrl: constDendriteServer,
             inputLoginUsername: "",
             inputLoginPassword: "",
         });
@@ -351,7 +353,7 @@ class App extends React.Component {
                                 name="inputLoginUrl"
                                 className="inputLogin"
                                 type="text"
-                                placeholder="Homeserver URL e.g https://matrix.org"
+                                placeholder="Dendrite Homeserver URL e.g https://dendrite.matrix.org"
                                 onChange={this.handleInputChange.bind(this)}
                                 onKeyDown={this.onKeyDown.bind(
                                     this,
