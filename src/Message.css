@@ -92,3 +92,8 @@
     display:flex;
     flex-direction:row;
 }
+
+.userImage{
+    max-width: 800px;
+    margin: 5px;
+}

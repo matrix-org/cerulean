@@ -202,6 +202,8 @@ class Message extends React.Component {
             image = (
                 <img
                     alt="user upload"
+                    style={blurStyle}
+                    className="userImage"
                     src={this.context.client.downloadLink(event.content.url)}
                 />
             );
