@@ -405,7 +405,7 @@ class Client {
 
     // replyToEvent replies to the given event by sending 2 events: one into the timeline room of the logged in user
     // and one into the thread room for this event.
-    async replyToEvent(text, event, isTimelineEvent) {
+    async replyToEvent(text, event, isTimelineEvent, dataUri) {
         let eventIdReplyingTo;
         let roomIdReplyingIn;
         if (isTimelineEvent) {
@@ -431,6 +431,31 @@ class Client {
 
         // TODO: should we be checking that the two events `event` and `eventIdReplyingTo` match content-wise?
 
+        // we're uploading an image and some text
+        if (dataUri) {
+            const eventId = await this.sendMessage(roomIdReplyingIn, {
+                body: text,
+                msgtype: "m.image",
+                url: dataUri,
+                "m.relationship": {
+                    rel_type: "m.reference",
+                    event_id: eventIdReplyingTo,
+                },
+            });
+
+            // send another message into our timeline room
+            await this.postToMyTimeline({
+                msgtype: "m.image",
+                body: text,
+                url: dataUri,
+                "org.matrix.cerulean.event_id": eventId,
+                "org.matrix.cerulean.room_id": roomIdReplyingIn,
+            });
+
+            return eventId;
+        }
+
+        // text only upload
         const eventId = await this.sendMessage(roomIdReplyingIn, {
             body: text,
             msgtype: "m.text",
@@ -525,6 +550,39 @@ class Client {
                 throw err;
             }
         }
+    }
+
+    async uploadFile(file) {
+        const fileName = file.name;
+        const mediaUrl = this.serverUrl.slice(0, -1 * "/client".length);
+        const res = await fetch(
+            `${mediaUrl}/media/r0/upload?filename=${encodeURIComponent(
+                fileName
+            )}`,
+            {
+                method: "POST",
+                body: file,
+                headers: {
+                    Authorization: `Bearer ${this.accessToken}`,
+                },
+            }
+        );
+        const data = await res.json();
+        if (!res.ok) {
+            throw data;
+        }
+        return data.content_uri;
+    }
+
+    downloadLink(mxcUri) {
+        if (!mxcUri) {
+            return;
+        }
+        if (mxcUri.indexOf("mxc://") !== 0) {
+            return;
+        }
+        const mediaUrl = this.serverUrl.slice(0, -1 * "/client".length);
+        return mediaUrl + "/media/r0/download/" + mxcUri.split("mxc://")[1];
     }
 
     async fetchJson(fullUrl, fetchParams) {

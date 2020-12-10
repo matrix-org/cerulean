@@ -24,6 +24,7 @@ class Message extends React.Component {
             inputReply: "",
             reputationScore: 0,
             hidden: false,
+            uploadFile: null,
         };
     }
 
@@ -104,12 +105,21 @@ class Message extends React.Component {
             inputReply: "",
         });
 
+        let dataUri;
+        if (this.state.uploadFile) {
+            dataUri = await this.context.client.uploadFile(
+                this.state.uploadFile
+            );
+            console.log(dataUri);
+        }
+
         let postedEventId;
         try {
             postedEventId = await this.context.client.replyToEvent(
                 reply,
                 this.props.event,
-                this.props.isTimelineEvent
+                this.props.isTimelineEvent,
+                dataUri
             );
         } catch (err) {
             console.error(err);
@@ -185,6 +195,16 @@ class Message extends React.Component {
             handler = this.onUnhideClick.bind(this);
             hiddenTooltip = "Reveal filtered message";
         }
+
+        let image;
+        if (event.content.msgtype === "m.image" && event.content.url) {
+            image = (
+                <img
+                    alt="user upload"
+                    src={this.context.client.downloadLink(event.content.url)}
+                />
+            );
+        }
         return (
             <div className={classes} onClick={handler}>
                 <span className="MessageHeader">
@@ -203,6 +223,7 @@ class Message extends React.Component {
                 >
                     {"" + event.content.body}
                 </div>
+                {image}
             </div>
         );
     }
@@ -237,6 +258,14 @@ class Message extends React.Component {
         if (event.key === "Enter") {
             this.onSubmitReply();
         }
+    }
+
+    async onUploadFileClick(event) {
+        const file = event.target.files[0];
+        console.log(file);
+        this.setState({
+            uploadFile: file,
+        });
     }
 
     render() {
@@ -277,6 +306,12 @@ class Message extends React.Component {
                             onClick={this.onSubmitReply.bind(this)}
                         />
                     </div>
+                    <input
+                        type="file"
+                        name="file"
+                        accept="image/*"
+                        onChange={this.onUploadFileClick.bind(this)}
+                    />
                 </Modal>
             );
         }
