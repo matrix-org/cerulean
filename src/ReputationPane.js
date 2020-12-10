@@ -38,6 +38,11 @@ class ReputationPane extends React.Component {
         this.setState({
             weightings: weightings,
         });
+        // persist new weightings
+        for (let [tag, weight] of this.state.weightings) {
+            this.context.reputation.modifyWeight(tag, weight);
+        }
+        this.context.reputation.saveWeights(window.localStorage);
     }
 
     handleInputChange(event) {
@@ -56,17 +61,6 @@ class ReputationPane extends React.Component {
         console.log("delete ", tag);
         this.context.reputation.deleteList(tag);
         this.loadWeightings();
-    }
-
-    onSaveClick(ev) {
-        // persist new weightings
-        for (let [tag, weight] of this.state.weightings) {
-            console.log(tag, weight);
-            this.context.reputation.modifyWeight(tag, weight);
-        }
-        this.context.reputation.saveWeights(window.localStorage);
-
-        this.props.onClose();
     }
 
     onAddFilterClick(ev) {
@@ -203,12 +197,6 @@ class ReputationPane extends React.Component {
                 </div>
                 {this.renderFilterLists()}
                 {this.renderAddFilter()}
-                <button
-                    className="darkButton saveChanges"
-                    onClick={this.onSaveClick.bind(this)}
-                >
-                    Save Changes
-                </button>
             </div>
         );
     }
