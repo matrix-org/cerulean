@@ -159,10 +159,28 @@ class Message extends React.Component {
             handler = this.onMessageClick.bind(this);
             classes += " MessageBodyWithLink";
         }
-        let bodyClasses = " MessageText";
+        let blurStyle = {};
         let hiddenTooltip;
         if (this.state.hidden) {
-            bodyClasses += " MessageTextHidden";
+            // 0 -> -10 = 1px blur
+            // -10 -> -20 = 2px blur
+            // -20 -> -30 = 3px blur, etc
+            let blur = 5;
+            // it should be
+            if (this.state.reputationScore < 0) {
+                // make score positive, look at 10s and add 1.
+                // we expect -100 to be the highest value, resulting in:
+                //   -100 * -1 = 100
+                //   100 / 10 = 10
+                //    10 + 1 = 11px blur
+                blur = Math.round((this.state.reputationScore * -1) / 10) + 1;
+                if (blur > 11) {
+                    blur = 11;
+                }
+            }
+            blurStyle = {
+                filter: "blur(" + blur + "px)",
+            };
             handler = this.onUnhideClick.bind(this);
             hiddenTooltip = "Reveal filtered message";
         }
@@ -177,7 +195,11 @@ class Message extends React.Component {
                     </span>
                     {this.renderTime(event.origin_server_ts)}
                 </span>
-                <div className={bodyClasses} title={hiddenTooltip}>
+                <div
+                    className="MessageText"
+                    style={blurStyle}
+                    title={hiddenTooltip}
+                >
                     {"" + event.content.body}
                 </div>
             </div>
