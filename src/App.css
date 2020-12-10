@@ -171,3 +171,8 @@ button:hover{
     vertical-align: middle;
     cursor: pointer;
 }
+
+.errblock {
+    background-color: lightcoral;
+    padding: 15px;
+}

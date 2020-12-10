@@ -13,6 +13,7 @@ class ReputationPane extends React.Component {
             weightings: new Map(), // tag => number
             addingFilter: false,
             addFilterInput: "",
+            error: null,
         };
     }
 
@@ -66,6 +67,7 @@ class ReputationPane extends React.Component {
     onAddFilterClick(ev) {
         this.setState({
             addingFilter: true,
+            error: null,
         });
     }
 
@@ -93,6 +95,9 @@ class ReputationPane extends React.Component {
             this.loadWeightings();
         } catch (err) {
             console.error("failed to add filter: ", err);
+            this.setState({
+                error: "Unable to add filter: " + JSON.stringify(err),
+            });
         }
 
         this.setState({
@@ -181,6 +186,10 @@ class ReputationPane extends React.Component {
     }
 
     render() {
+        let errorBox;
+        if (this.state.error) {
+            errorBox = <div className="errblock">{this.state.error}</div>;
+        }
         return (
             <div className="ReputationPane">
                 <div>
@@ -197,6 +206,7 @@ class ReputationPane extends React.Component {
                 </div>
                 {this.renderFilterLists()}
                 {this.renderAddFilter()}
+                {errorBox}
             </div>
         );
     }

@@ -37,6 +37,7 @@ class App extends React.Component {
             inputLoginUrl: "",
             inputLoginUsername: "",
             inputLoginPassword: "",
+            error: null,
         };
 
         // parse out state from path
@@ -80,11 +81,11 @@ class App extends React.Component {
     }
 
     onLoginClose() {
-        this.setState({ showLoginModal: false });
+        this.setState({ showLoginModal: false, error: null });
     }
 
     onRegisterClose() {
-        this.setState({ showRegisterModal: false });
+        this.setState({ showRegisterModal: false, error: null });
     }
 
     onLoginClick(ev) {
@@ -113,37 +114,60 @@ class App extends React.Component {
         });
     }
 
+    onKeyDown(formType, event) {
+        if (event.key !== "Enter") {
+            return;
+        }
+        if (formType === "login") {
+            this.onSubmitLogin();
+        } else if (formType === "register") {
+            this.onSubmitRegister();
+        } else {
+            console.warn("onKeyDown for unknown form type:", formType);
+        }
+    }
+
     async onSubmitLogin() {
-        this.setState({
-            showLoginModal: false,
-        });
         let serverUrl = this.state.inputLoginUrl + "/_matrix/client";
-        await this.props.client.login(
-            serverUrl,
-            this.state.inputLoginUsername,
-            this.state.inputLoginPassword,
-            true
-        );
-        this.setState({
-            page: "user",
-            viewingUserId: this.props.client.userId,
-        });
+        try {
+            await this.props.client.login(
+                serverUrl,
+                this.state.inputLoginUsername,
+                this.state.inputLoginPassword,
+                true
+            );
+            this.setState({
+                page: "user",
+                viewingUserId: this.props.client.userId,
+                showLoginModal: false,
+            });
+        } catch (err) {
+            console.error("Failed to login:", err);
+            this.setState({
+                error: "Failed to login: " + JSON.stringify(err),
+            });
+        }
     }
 
     async onSubmitRegister() {
-        this.setState({
-            showRegisterModal: false,
-        });
-        let serverUrl = this.state.inputLoginUrl + "/_matrix/client";
-        await this.props.client.register(
-            serverUrl,
-            this.state.inputLoginUsername,
-            this.state.inputLoginPassword
-        );
-        this.setState({
-            page: "user",
-            viewingUserId: this.props.client.userId,
-        });
+        try {
+            let serverUrl = this.state.inputLoginUrl + "/_matrix/client";
+            await this.props.client.register(
+                serverUrl,
+                this.state.inputLoginUsername,
+                this.state.inputLoginPassword
+            );
+            this.setState({
+                page: "user",
+                viewingUserId: this.props.client.userId,
+                showRegisterModal: false,
+            });
+        } catch (err) {
+            console.error("Failed to register:", err);
+            this.setState({
+                error: "Failed to register: " + JSON.stringify(err),
+            });
+        }
     }
 
     async onLogoutClick(ev) {
@@ -248,6 +272,10 @@ class App extends React.Component {
                 <ReputationPane onClose={this.onFilterClick.bind(this)} />
             );
         }
+        let errMsg;
+        if (this.state.error) {
+            errMsg = <div className="errblock">{this.state.error}</div>;
+        }
         return (
             <div className="App">
                 <header className="AppHeader">
@@ -275,6 +303,7 @@ class App extends React.Component {
                                 type="text"
                                 placeholder="Homeserver URL e.g https://matrix.org"
                                 onChange={this.handleInputChange.bind(this)}
+                                onKeyDown={this.onKeyDown.bind(this, "login")}
                                 value={this.state.inputLoginUrl}
                             ></input>
                         </div>
@@ -285,6 +314,7 @@ class App extends React.Component {
                                 type="text"
                                 placeholder="Username e.g alice"
                                 onChange={this.handleInputChange.bind(this)}
+                                onKeyDown={this.onKeyDown.bind(this, "login")}
                                 value={this.state.inputLoginUsername}
                             ></input>
                         </div>
@@ -295,9 +325,11 @@ class App extends React.Component {
                                 type="password"
                                 placeholder="Password"
                                 onChange={this.handleInputChange.bind(this)}
+                                onKeyDown={this.onKeyDown.bind(this, "login")}
                                 value={this.state.inputLoginPassword}
                             ></input>
                         </div>
+                        {errMsg}
                         <div>
                             <input
                                 type="button"
@@ -321,6 +353,10 @@ class App extends React.Component {
                                 type="text"
                                 placeholder="Homeserver URL e.g https://matrix.org"
                                 onChange={this.handleInputChange.bind(this)}
+                                onKeyDown={this.onKeyDown.bind(
+                                    this,
+                                    "register"
+                                )}
                                 value={this.state.inputLoginUrl}
                             ></input>
                         </div>
@@ -331,6 +367,10 @@ class App extends React.Component {
                                 type="text"
                                 placeholder="Username e.g alice"
                                 onChange={this.handleInputChange.bind(this)}
+                                onKeyDown={this.onKeyDown.bind(
+                                    this,
+                                    "register"
+                                )}
                                 value={this.state.inputLoginUsername}
                             ></input>
                         </div>
@@ -341,9 +381,14 @@ class App extends React.Component {
                                 type="password"
                                 placeholder="Password"
                                 onChange={this.handleInputChange.bind(this)}
+                                onKeyDown={this.onKeyDown.bind(
+                                    this,
+                                    "register"
+                                )}
                                 value={this.state.inputLoginPassword}
                             ></input>
                         </div>
+                        {errMsg}
                         <div>
                             <input
                                 type="button"
