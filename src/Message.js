@@ -281,19 +281,26 @@ class Message extends React.Component {
             );
         }
 
+        let replyButton;
+        if (!this.context.client.isGuest) {
+            replyButton = (
+                <button
+                    className="darkButton"
+                    onClick={this.onReplyClick.bind(this)}
+                    disabled={this.state.loading}
+                >
+                    Reply
+                </button>
+            );
+        }
+
         return (
             <div className="Message">
                 {modal}
                 {this.renderEvent(this.props.noLink)}
                 <div className="MessageButtons">
                     <span className="moreCommentsButton">{replies}</span>
-                    <button
-                        className="darkButton"
-                        onClick={this.onReplyClick.bind(this)}
-                        disabled={this.state.loading}
-                    >
-                        Reply
-                    </button>
+                    {replyButton}
 
                     {this.state.error ? (
                         <div>Error: {JSON.stringify(this.state.error)}</div>

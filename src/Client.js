@@ -14,7 +14,7 @@ class Client {
         this.serverUrl = storage.getItem("serverUrl");
         this.userId = storage.getItem("userId");
         this.accessToken = storage.getItem("accessToken");
-        this.guest = storage.getItem("guest");
+        this.isGuest = (this.userId || "").indexOf("@cerulean_guest_") === 0;
         this.serverName = storage.getItem("serverName");
     }
 
@@ -26,10 +26,38 @@ class Client {
         setOrDelete(this.storage, "userId", this.userId);
         setOrDelete(this.storage, "accessToken", this.accessToken);
         setOrDelete(this.storage, "serverName", this.serverName);
-        setOrDelete(this.storage, "guest", this.guest);
     }
 
-    async loginAsGuest(serverUrl, saveToStorage) {
+    async registerAsGuest(serverUrl) {
+        function generateToken(len) {
+            var arr = new Uint8Array(len / 2);
+            window.crypto.getRandomValues(arr);
+            return Array.from(arr, (num) => {
+                return num.toString(16).padStart(2, "0");
+            }).join("");
+        }
+        let username = "cerulean_guest_" + Date.now();
+        let password = generateToken(32);
+
+        const data = await this.fetchJson(`${serverUrl}/r0/register`, {
+            method: "POST",
+            body: JSON.stringify({
+                auth: {
+                    type: "m.login.dummy",
+                },
+                username: username,
+                password: password,
+            }),
+        });
+        this.serverUrl = serverUrl;
+        this.userId = data.user_id;
+        this.accessToken = data.access_token;
+        this.serverName = data.home_server;
+        this.isGuest = true;
+        this.saveAuthState();
+        console.log("Registered as guest ", username);
+
+        /*
         const data = await this.fetchJson(
             `${serverUrl}/r0/register?kind=guest`,
             {
@@ -44,7 +72,7 @@ class Client {
         this.serverName = data.home_server;
         if (saveToStorage) {
             this.saveAuthState();
-        }
+        } */
     }
 
     async login(serverUrl, username, password, saveToStorage) {
@@ -62,7 +90,7 @@ class Client {
         this.serverUrl = serverUrl;
         this.userId = data.user_id;
         this.accessToken = data.access_token;
-        this.guest = true;
+        this.isGuest = false;
         this.serverName = data.home_server;
         if (saveToStorage) {
             this.saveAuthState();
@@ -83,7 +111,7 @@ class Client {
         this.serverUrl = serverUrl;
         this.userId = data.user_id;
         this.accessToken = data.access_token;
-        this.guest = true;
+        this.isGuest = false;
         this.serverName = data.home_server;
         this.saveAuthState();
     }
@@ -158,7 +186,7 @@ class Client {
             this.serverUrl = undefined;
             this.userId = undefined;
             this.accessToken = undefined;
-            this.guest = undefined;
+            this.isGuest = undefined;
             this.serverName = undefined;
             this.saveAuthState();
         }

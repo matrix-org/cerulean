@@ -69,7 +69,23 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        // TODO: auto-register as a guest if not logged in
+        // auto-register as a guest if not logged in
+        if (!this.props.client.accessToken) {
+            this.registerAsGuest();
+        }
+    }
+
+    async registerAsGuest() {
+        try {
+            let serverUrl = this.state.inputLoginUrl + "/_matrix/client";
+            await this.props.client.registerAsGuest(serverUrl);
+            window.location.reload();
+        } catch (err) {
+            console.error("Failed to register as guest:", err);
+            this.setState({
+                error: "Failed to register as guest: " + JSON.stringify(err),
+            });
+        }
     }
 
     handleInputChange(event) {
@@ -177,7 +193,9 @@ class App extends React.Component {
             await this.props.client.logout();
         } finally {
             // regardless of whether the HTTP hit worked, we'll remove creds so UI needs a kick
-            this.forceUpdate();
+            this.forceUpdate(() => {
+                this.registerAsGuest();
+            });
         }
     }
 
@@ -191,26 +209,55 @@ class App extends React.Component {
 
     loginLogoutButton() {
         if (this.props.client.accessToken) {
-            return (
-                <div className="topRightNav">
+            let logoutButton = (
+                <button
+                    className=" headerButton lightButton"
+                    onClick={this.onLogoutClick.bind(this)}
+                >
+                    Logout
+                </button>
+            );
+            let loginButton;
+            let myUser;
+            if (this.props.client.isGuest) {
+                logoutButton = (
+                    <button
+                        className=" lightButton headerButton"
+                        onClick={this.onRegisterClick.bind(this)}
+                    >
+                        Register
+                    </button>
+                );
+                loginButton = (
+                    <button
+                        className=" lightButton headerButton spacer"
+                        onClick={this.onLoginClick.bind(this)}
+                    >
+                        Login
+                    </button>
+                );
+            } else {
+                myUser = (
                     <span
                         className="loggedInUser"
                         onClick={this.onUserClick.bind(this)}
                     >
                         {this.props.client.userId}
                     </span>
+                );
+            }
+
+            return (
+                <div className="topRightNav">
+                    {myUser}
                     <img
                         src="/filter.svg"
                         alt="filter"
                         className="filterButton"
                         onClick={this.onFilterClick.bind(this)}
                     />
-                    <button
-                        className=" headerButton lightButton"
-                        onClick={this.onLogoutClick.bind(this)}
-                    >
-                        Logout
-                    </button>
+                    {logoutButton}
+                    {loginButton}
                 </div>
             );
         }
@@ -241,7 +288,7 @@ class App extends React.Component {
      */
     renderPage() {
         if (!this.props.client.accessToken) {
-            return <div>You need to login first for now!</div>;
+            return <div>Please wait....</div>;
         }
         if (this.state.page === "user") {
             return (

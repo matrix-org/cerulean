@@ -32,6 +32,10 @@ body {
     transform: translate(0%, 50%);
 }
 
+.spacer {
+    margin-left: 8px;
+}
+
 .title {
     font-family: Inter;
     font-style: normal;

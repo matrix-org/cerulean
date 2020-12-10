@@ -185,17 +185,34 @@ class UserPage extends React.Component {
                     </div>
                 );
                 if (!hasEntries) {
+                    // the default page is / which is TimelinePage which then directs them to
+                    // their UserPage if there are no events, so we want to suggest some content
+                    let emptyListText;
+                    if (this.state.isMe) {
+                        emptyListText = (
+                            <span>
+                                No posts yet. Try following{" "}
+                                <a href={"/@matthew:dendrite.matrix.org"}>
+                                    Matthew
+                                </a>
+                                .
+                            </span>
+                        );
+                    } else {
+                        emptyListText = (
+                            <span>This user hasn't posted anything yet.</span>
+                        );
+                    }
+
                     timelineBlock = (
-                        <div className="emptyList">
-                            This user hasn't posted anything yet.
-                        </div>
+                        <div className="emptyList">{emptyListText}</div>
                     );
                 }
             }
         }
 
         let inputMessage;
-        if (this.state.isMe) {
+        if (this.state.isMe && !this.props.client.isGuest) {
             inputMessage = (
                 <div className="inputPostWithButton">
                     <input
@@ -212,13 +229,17 @@ class UserPage extends React.Component {
             );
         }
 
-        let userPageHeader = (
-            <div className="UserPageHeader">
-                <div className="userName">{this.props.userId}</div>
-                {inputMessage}
-                {errBlock}
-            </div>
-        );
+        let userPageHeader;
+
+        if (!this.props.client.isGuest) {
+            userPageHeader = (
+                <div className="UserPageHeader">
+                    <div className="userName">{this.props.userId}</div>
+                    {inputMessage}
+                    {errBlock}
+                </div>
+            );
+        }
 
         let postTab = " tab";
         let postAndReplyTab = " tab";
