@@ -36,6 +36,10 @@
     color: #17191C;
 
     margin-bottom: 8px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .inputPost{
