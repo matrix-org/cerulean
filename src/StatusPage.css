@@ -29,6 +29,7 @@
 }
 
 .messageHolder{
+    min-width: 0;
     flex-grow: 2;
 }
 
