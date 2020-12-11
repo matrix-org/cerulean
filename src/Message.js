@@ -156,7 +156,7 @@ class Message extends React.Component {
             [],
             { hour: "2-digit", minute: "2-digit", hour12: false }
         )} (score: ${this.state.reputationScore.toFixed(1)})`;
-        return <span className="DateString">{dateStr}</span>;
+        return <div className="DateString">{dateStr}</div>;
     }
 
     renderEvent(noLink) {
@@ -210,15 +210,15 @@ class Message extends React.Component {
         }
         return (
             <div className={classes} onClick={handler}>
-                <span className="MessageHeader">
-                    <span
+                <div className="MessageHeader">
+                    <div
                         className="MessageAuthor"
                         onClick={this.onAuthorClick.bind(this, event.sender)}
                     >
                         {event.sender}{" "}
-                    </span>
+                    </div>
                     {this.renderTime(event.origin_server_ts)}
-                </span>
+                </div>
                 <div
                     className="MessageText"
                     style={blurStyle}

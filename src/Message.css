@@ -1,5 +1,9 @@
 .MessageHeader{
     color: darkgray;
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .Message{
@@ -35,7 +39,13 @@
 
     color: #2952BE;
 
+    order: 1;
+
     cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    box-sizing: border-box;
 }
 
 .DateString {
@@ -49,7 +59,10 @@
     /* Light / Secondary content */
     color: #737D8C;
 
+    order: 2;
+
     margin-left: 6px;
+    box-sizing: border-box;
 }
 
 .MessageText {
