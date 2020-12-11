@@ -158,16 +158,16 @@ class ReputationPane extends React.Component {
                     />
                     <div>
                         <input
-                            className="cancelButton"
-                            type="button"
-                            value="Cancel"
-                            onClick={this.onCancelAddFilterClick.bind(this)}
-                        />
-                        <input
                             className="darkButton"
                             type="button"
                             value="Create"
                             onClick={this.onCreateFilterClick.bind(this)}
+                        />
+                        <input
+                            className="cancelButton"
+                            type="button"
+                            value="Cancel"
+                            onClick={this.onCancelAddFilterClick.bind(this)}
                         />
                     </div>
                 </div>
