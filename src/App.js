@@ -238,12 +238,12 @@ class App extends React.Component {
                 );
             } else {
                 myUser = (
-                    <span
+                    <div
                         className="loggedInUser"
                         onClick={this.onUserClick.bind(this)}
                     >
                         {this.props.client.userId}
-                    </span>
+                    </div>
                 );
             }
 

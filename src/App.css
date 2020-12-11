@@ -30,6 +30,9 @@ body {
     margin-right: 16px;
     float: right;
     transform: translate(0%, 50%);
+    min-width: 0;
+    max-width: 40%;
+    display: flex;
 }
 
 .spacer {
@@ -96,7 +99,6 @@ button:hover{
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 500px;
 }
 
 .inputLogin{
@@ -179,4 +181,16 @@ button:hover{
 .errblock {
     background-color: lightcoral;
     padding: 15px;
+}
+
+@media screen and (max-width: 960px) {
+    .titleAndLogo {
+        margin-left: 8px;
+        margin-right: 8px;
+        left: 0%;
+        transform: translate(0%, -50%);
+    }
+    .topRightNav {
+        max-width: 60%;
+    }
 }
