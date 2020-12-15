@@ -1,0 +1,29 @@
+.inputPostWithButton {
+    display:flex;
+    flex-direction:row;
+}
+
+.inputPostUploadButton {
+    margin-top: 8px;
+    margin-left: 8px;
+}
+
+.inputPost{
+    background: #FFFFFF;
+    border: 0px;
+    border-radius: 200px;
+    flex-grow:2;
+    padding-left: 16px;
+}
+.inputPost:focus {
+    outline: none;
+}
+
+.inputPostSendButton{
+    margin: 8px;
+}
+
+.inputPostSendButtonActive{
+    margin: 8px;
+    cursor: pointer;
+}

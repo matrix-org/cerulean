@@ -42,31 +42,6 @@
     white-space: nowrap;
 }
 
-.inputPost{
-    background: #FFFFFF;
-    border: 0px;
-    border-radius: 200px;
-    flex-grow:2;
-    padding-left: 16px;
-}
-.inputPost:focus {
-    outline: none;
-}
-
-.sendButton{
-    margin: 8px;
-}
-
-.sendButtonActive{
-    margin: 8px;
-    cursor: pointer;
-}
-
-.inputPostWithButton{
-    display:flex;
-    flex-direction:row;
-}
-
 .tabGroup{
     display: flex;
     align-items: center;

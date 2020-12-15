@@ -374,7 +374,7 @@ class Client {
         return data.room_id;
     }
 
-    async postNewThread(text) {
+    async postNewThread(text, dataUri) {
         // create a new room
         let data = await this.fetchJson(`${this.serverUrl}/r0/createRoom`, {
             method: "POST",
@@ -387,20 +387,28 @@ class Client {
                 Authorization: `Bearer ${this.accessToken}`,
             },
         });
-        // post the message into this new room
-        const eventId = await this.sendMessage(data.room_id, {
+        text = text || "";
+        let content = {
             msgtype: "m.text",
             body: text,
-        });
+        };
+        if (dataUri) {
+            content = {
+                msgtype: "m.image",
+                body: text,
+                url: dataUri,
+            };
+        }
+        // post the message into this new room
+        const eventId = await this.sendMessage(data.room_id, content);
+
+        // add metadata for linking to thread room
+        content["org.matrix.cerulean.room_id"] = data.room_id;
+        content["org.matrix.cerulean.event_id"] = eventId;
+        content["org.matrix.cerulean.root"] = true;
 
         // post a copy into our timeline
-        await this.postToMyTimeline({
-            msgtype: "m.text",
-            body: text,
-            "org.matrix.cerulean.room_id": data.room_id,
-            "org.matrix.cerulean.event_id": eventId,
-            "org.matrix.cerulean.root": true,
-        });
+        await this.postToMyTimeline(content);
     }
 
     // replyToEvent replies to the given event by sending 2 events: one into the timeline room of the logged in user

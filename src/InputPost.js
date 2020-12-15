@@ -1,4 +1,5 @@
 import React from "react";
+import "./InputPost.css";
 
 // Input box for posts
 // Props:
@@ -9,6 +10,7 @@ class InputPost extends React.Component {
         super(props);
         this.state = {
             inputPost: "",
+            uploadFile: null,
         };
     }
 
@@ -29,8 +31,20 @@ class InputPost extends React.Component {
     }
 
     async onPostClick(ev) {
+        let dataUri;
+        if (this.state.uploadFile) {
+            dataUri = await this.props.client.uploadFile(this.state.uploadFile);
+            console.log(dataUri);
+        }
+        this.setState({
+            uploadFile: null,
+        });
+
         if (this.state.inputPost.length > 0) {
-            await this.props.client.postNewThread(this.state.inputPost);
+            await this.props.client.postNewThread(
+                this.state.inputPost,
+                dataUri
+            );
         }
         this.setState({ inputPost: "" });
         if (this.props.onPost) {
@@ -38,15 +52,23 @@ class InputPost extends React.Component {
         }
     }
 
+    onUploadFileClick(event) {
+        const file = event.target.files[0];
+        console.log(file);
+        this.setState({
+            uploadFile: file,
+        });
+    }
+
     postButton() {
         if (!this.props.client.accessToken) {
             return <div />;
         }
         let imgSrc = "/send.svg";
-        let classes = "sendButton";
+        let classes = "inputPostSendButton";
         if (this.state.inputPost.length > 0) {
             imgSrc = "/send-active.svg";
-            classes = "sendButtonActive";
+            classes = "inputPostSendButtonActive";
         }
         return (
             <img
@@ -60,17 +82,26 @@ class InputPost extends React.Component {
 
     render() {
         return (
-            <div className="inputPostWithButton">
+            <div>
+                <div className="inputPostWithButton">
+                    <input
+                        name="inputPost"
+                        className="inputPost"
+                        type="text"
+                        placeholder="What's happening?"
+                        onKeyDown={this.handleKeyDown.bind(this)}
+                        onChange={this.handleInputChange.bind(this)}
+                        value={this.state.inputPost}
+                    ></input>
+                    {this.postButton()}
+                </div>
                 <input
-                    name="inputPost"
-                    className="inputPost"
-                    type="text"
-                    placeholder="What's happening?"
-                    onKeyDown={this.handleKeyDown.bind(this)}
-                    onChange={this.handleInputChange.bind(this)}
-                    value={this.state.inputPost}
-                ></input>
-                {this.postButton()}
+                    className="inputPostUploadButton"
+                    type="file"
+                    name="file"
+                    accept="image/*"
+                    onChange={this.onUploadFileClick.bind(this)}
+                />
             </div>
         );
     }

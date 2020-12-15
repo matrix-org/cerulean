@@ -33,25 +33,9 @@
     margin-bottom: 8px;
 }
 
-.inputPost{
-    background: #FFFFFF;
-    border: 0px;
-    border-radius: 200px;
-    flex-grow:2;
-    padding-left: 16px;
-}
-.inputPost:focus {
-    outline: none;
-}
-
 .sendButton{
     cursor: pointer;
     margin: 8px;
-}
-
-.inputPostWithButton{
-    display:flex;
-    flex-direction:row;
 }
 
 .tabGroup{
@@ -88,4 +72,8 @@
 .timelineTitle{
     padding: 8px;
     text-align: center;
+}
+
+.inputPostTimeline {
+    padding: 20px;
 }

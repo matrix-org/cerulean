@@ -145,10 +145,12 @@ class TimelinePage extends React.Component {
         let inputPost;
         if (!this.props.client.isGuest) {
             inputPost = (
-                <InputPost
-                    client={this.props.client}
-                    onPost={this.onPost.bind(this)}
-                />
+                <div className="inputPostTimeline">
+                    <InputPost
+                        client={this.props.client}
+                        onPost={this.onPost.bind(this)}
+                    />
+                </div>
             );
         }
 
