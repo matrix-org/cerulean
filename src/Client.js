@@ -298,6 +298,11 @@ class Client {
     }
 
     async waitForMessageEventInRoom(roomIds, from) {
+        if (this.isGuest) {
+            // don't live poll for guests
+            await sleep(24 * 60 * 60 * 1000);
+            return from;
+        }
         console.log("waitForMessageEventInRoom", roomIds);
         const filterJson = JSON.stringify({
             room: {
