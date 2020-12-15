@@ -101,7 +101,6 @@ class Message extends React.Component {
         const reply = this.state.inputReply;
         this.setState({
             loading: true,
-            showReplyModal: false,
             inputReply: "",
         });
 
@@ -129,6 +128,7 @@ class Message extends React.Component {
         } finally {
             this.setState({
                 loading: false,
+                showReplyModal: false,
                 uploadFile: null,
             });
         }
@@ -285,12 +285,12 @@ class Message extends React.Component {
 
         let modal;
         if (this.state.showReplyModal) {
-            modal = (
-                <Modal
-                    show={this.state.showReplyModal}
-                    handleClose={this.onReplyClose.bind(this)}
-                >
-                    {this.renderEvent(true)}
+            let inputBox;
+            let uploadBox;
+            if (this.state.loading) {
+                inputBox = <div className="loader">Loading...</div>;
+            } else {
+                inputBox = (
                     <div className="inputReplyWithButton">
                         <input
                             name="inputReply"
@@ -309,12 +309,24 @@ class Message extends React.Component {
                             onClick={this.onSubmitReply.bind(this)}
                         />
                     </div>
+                );
+                uploadBox = (
                     <input
                         type="file"
                         name="file"
                         accept="image/*"
                         onChange={this.onUploadFileClick.bind(this)}
                     />
+                );
+            }
+            modal = (
+                <Modal
+                    show={this.state.showReplyModal}
+                    handleClose={this.onReplyClose.bind(this)}
+                >
+                    {this.renderEvent(true)}
+                    {inputBox}
+                    {uploadBox}
                 </Modal>
             );
         }

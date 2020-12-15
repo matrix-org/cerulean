@@ -11,6 +11,7 @@ class InputPost extends React.Component {
         this.state = {
             inputPost: "",
             uploadFile: null,
+            loading: false,
         };
     }
 
@@ -31,24 +32,35 @@ class InputPost extends React.Component {
     }
 
     async onPostClick(ev) {
-        let dataUri;
-        if (this.state.uploadFile) {
-            dataUri = await this.props.client.uploadFile(this.state.uploadFile);
-            console.log(dataUri);
-        }
         this.setState({
-            uploadFile: null,
+            loading: true,
         });
+        try {
+            let dataUri;
+            if (this.state.uploadFile) {
+                dataUri = await this.props.client.uploadFile(
+                    this.state.uploadFile
+                );
+                console.log(dataUri);
+            }
+            this.setState({
+                uploadFile: null,
+            });
 
-        if (this.state.inputPost.length > 0) {
-            await this.props.client.postNewThread(
-                this.state.inputPost,
-                dataUri
-            );
-        }
-        this.setState({ inputPost: "" });
-        if (this.props.onPost) {
-            this.props.onPost();
+            if (this.state.inputPost.length > 0) {
+                await this.props.client.postNewThread(
+                    this.state.inputPost,
+                    dataUri
+                );
+            }
+            this.setState({ inputPost: "" });
+            if (this.props.onPost) {
+                this.props.onPost();
+            }
+        } finally {
+            this.setState({
+                loading: false,
+            });
         }
     }
 
@@ -81,6 +93,10 @@ class InputPost extends React.Component {
     }
 
     render() {
+        let loader;
+        if (this.state.loading) {
+            return <div className="loader">Loading...</div>;
+        }
         return (
             <div>
                 <div className="inputPostWithButton">
