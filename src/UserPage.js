@@ -1,6 +1,7 @@
 import React from "react";
 import "./UserPage.css";
 import Message from "./Message";
+import InputPost from "./InputPost";
 import { createPermalinkForTimelineEvent } from "./routing";
 
 // UserPage renders an arbitrary user's timeline room. If the user is the logged-in user
@@ -18,7 +19,6 @@ class UserPage extends React.Component {
             withReplies: this.props.withReplies,
             timeline: [],
             isMe: props.userId === props.client.userId,
-            inputPost: "",
             roomId: null,
         };
     }
@@ -64,50 +64,6 @@ class UserPage extends React.Component {
             timeline: timeline,
             roomId: roomId,
         });
-    }
-
-    handleInputChange(event) {
-        const target = event.target;
-        const value =
-            target.type === "checkbox" ? target.checked : target.value;
-        const name = target.name;
-        this.setState({
-            [name]: value,
-        });
-    }
-
-    handleKeyDown(event) {
-        if (event.key === "Enter") {
-            this.onPostClick(event);
-        }
-    }
-
-    async onPostClick(ev) {
-        if (this.state.inputPost.length > 0) {
-            await this.props.client.postNewThread(this.state.inputPost);
-        }
-        this.setState({ inputPost: "" });
-        await this.loadEvents();
-    }
-
-    postButton() {
-        if (!this.props.client.accessToken) {
-            return <div />;
-        }
-        let imgSrc = "/send.svg";
-        let classes = "sendButton";
-        if (this.state.inputPost.length > 0) {
-            imgSrc = "/send-active.svg";
-            classes = "sendButtonActive";
-        }
-        return (
-            <img
-                src={imgSrc}
-                alt="send"
-                className={classes}
-                onClick={this.onPostClick.bind(this)}
-            />
-        );
     }
 
     onPostsClick() {
@@ -214,18 +170,10 @@ class UserPage extends React.Component {
         let inputMessage;
         if (this.state.isMe && !this.props.client.isGuest) {
             inputMessage = (
-                <div className="inputPostWithButton">
-                    <input
-                        name="inputPost"
-                        className="inputPost"
-                        type="text"
-                        placeholder="What's happening?"
-                        onKeyDown={this.handleKeyDown.bind(this)}
-                        onChange={this.handleInputChange.bind(this)}
-                        value={this.state.inputPost}
-                    ></input>
-                    {this.postButton()}
-                </div>
+                <InputPost
+                    client={this.props.client}
+                    onPost={this.loadEvents.bind(this)}
+                />
             );
         }
 

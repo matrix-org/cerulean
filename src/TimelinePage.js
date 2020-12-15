@@ -1,11 +1,11 @@
 import React from "react";
 import "./TimelinePage.css";
 import Message from "./Message";
+import InputPost from "./InputPost";
 import { createPermalinkForTimelineEvent } from "./routing";
 
 // TimelinePage renders an aggregated feed of all timelines the logged in user is following.
 // Props:
-//  - withReplies: True to show replies in addition to posts.
 //  - client: Client
 class TimelinePage extends React.Component {
     constructor(props) {
@@ -13,7 +13,6 @@ class TimelinePage extends React.Component {
         this.state = {
             loading: true,
             error: null,
-            withReplies: this.props.withReplies,
             timeline: [],
             fromToken: null,
             trackingRoomIds: [],
@@ -36,6 +35,11 @@ class TimelinePage extends React.Component {
             .then(() => {
                 this.listenForNewEvents(f);
             });
+    }
+
+    onPost() {
+        // direct them to their own page so they see their message
+        window.location.href = "/" + this.props.client.userId;
     }
 
     async loadEvents() {
@@ -67,18 +71,6 @@ class TimelinePage extends React.Component {
         }
     }
 
-    onPostsClick() {
-        this.setState({
-            withReplies: false,
-        });
-    }
-
-    onPostsAndRepliesClick() {
-        this.setState({
-            withReplies: true,
-        });
-    }
-
     onReplied(parentEvent, eventId) {
         const link = createPermalinkForTimelineEvent(parentEvent);
         if (!link) {
@@ -90,6 +82,7 @@ class TimelinePage extends React.Component {
     render() {
         let timelineBlock;
         let errBlock;
+        let hasEntries = false;
         if (this.state.error) {
             errBlock = (
                 <div className="errblock">
@@ -98,9 +91,10 @@ class TimelinePage extends React.Component {
             );
         } else {
             if (this.state.loading) {
-                timelineBlock = <div> Loading timeline.... </div>;
+                timelineBlock = (
+                    <div className="emptyList"> Loading timeline.... </div>
+                );
             } else {
-                let hasEntries = false;
                 timelineBlock = (
                     <div>
                         {this.state.timeline
@@ -115,15 +109,7 @@ class TimelinePage extends React.Component {
                                 ) {
                                     return false;
                                 }
-                                // all posts and replies
-                                if (this.state.withReplies) {
-                                    return true;
-                                }
-                                // only posts
-                                if (ev.content["org.matrix.cerulean.root"]) {
-                                    return true;
-                                }
-                                return false;
+                                return true;
                             })
                             .map((ev) => {
                                 hasEntries = true;
@@ -151,31 +137,28 @@ class TimelinePage extends React.Component {
             }
         }
 
-        let postTab = " tab";
-        let postAndReplyTab = " tab";
-        if (this.state.withReplies) {
-            postAndReplyTab += " tabSelected";
-        } else {
-            postTab += " tabSelected";
+        let title;
+        if (hasEntries) {
+            title = <div className="timelineTitle">What's going on</div>;
+        }
+
+        let inputPost;
+        if (!this.props.client.isGuest) {
+            inputPost = (
+                <InputPost
+                    client={this.props.client}
+                    onPost={this.onPost.bind(this)}
+                />
+            );
         }
 
         let userPageBody = (
             <div>
-                <div className="tabGroup">
-                    <span
-                        className={postTab}
-                        onClick={this.onPostsClick.bind(this)}
-                    >
-                        Posts
-                    </span>
-                    <span
-                        className={postAndReplyTab}
-                        onClick={this.onPostsAndRepliesClick.bind(this)}
-                    >
-                        Posts and replies
-                    </span>
+                <div className=" UserPageBody">
+                    {inputPost}
+                    {title}
+                    {timelineBlock}
                 </div>
-                <div className=" UserPageBody">{timelineBlock}</div>
             </div>
         );
 
