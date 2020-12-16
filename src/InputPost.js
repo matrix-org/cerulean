@@ -93,7 +93,6 @@ class InputPost extends React.Component {
     }
 
     render() {
-        let loader;
         if (this.state.loading) {
             return <div className="loader">Loading...</div>;
         }
