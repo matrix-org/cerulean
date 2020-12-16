@@ -262,35 +262,12 @@ class Client {
             return [];
         }
 
-        // get a pagination token
-        const filterJson = JSON.stringify({
-            room: {
-                timeline: {
-                    limit: 1,
-                },
-            },
-        });
-        let syncData = await this.fetchJson(
-            `${this.serverUrl}/r0/sync?filter=${filterJson}`,
-            {
-                headers: { Authorization: `Bearer ${this.accessToken}` },
-            }
-        );
-        let room = syncData.rooms.join[roomId];
-        if (!room) {
-            console.error("not joined to room " + roomId);
-            return [];
-        }
-        let from = room.timeline.prev_batch;
-        let recentMsg = room.timeline.events[0];
-
         let data = await this.fetchJson(
-            `${this.serverUrl}/r0/rooms/${roomId}/messages?from=${from}&dir=b&limit=100`,
+            `${this.serverUrl}/r0/rooms/${roomId}/messages?dir=b&limit=100`,
             {
                 headers: { Authorization: `Bearer ${this.accessToken}` },
             }
         );
-        data.chunk.unshift(recentMsg);
         return data.chunk.map((ev) => {
             ev.room_id = roomId;
             return ev;
@@ -304,6 +281,7 @@ class Client {
             return from;
         }
         console.log("waitForMessageEventInRoom", roomIds);
+
         const filterJson = JSON.stringify({
             room: {
                 timeline: {
@@ -312,13 +290,30 @@ class Client {
             },
         });
         if (!from) {
-            let syncData = await this.fetchJson(
-                `${this.serverUrl}/r0/sync?filter=${filterJson}`,
-                {
-                    headers: { Authorization: `Bearer ${this.accessToken}` },
-                }
-            );
-            from = syncData.next_batch;
+            if (roomIds && roomIds.length > 0) {
+                // use /messages to snaffle an event rather than /sync which is slow
+                let data = await this.fetchJson(
+                    `${this.serverUrl}/r0/rooms/${roomIds[0]}/messages?dir=b&limit=1`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${this.accessToken}`,
+                        },
+                    }
+                );
+                from = data.start_stream; // NOTSPEC
+            }
+            if (!from) {
+                // fallback to slow /sync
+                let syncData = await this.fetchJson(
+                    `${this.serverUrl}/r0/sync?filter=${filterJson}`,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${this.accessToken}`,
+                        },
+                    }
+                );
+                from = syncData.next_batch;
+            }
         }
         while (true) {
             try {
