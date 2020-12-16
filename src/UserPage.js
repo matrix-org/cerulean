@@ -50,6 +50,13 @@ class UserPage extends React.Component {
         let roomId;
         try {
             roomId = await this.props.client.followUser(this.props.userId);
+
+            let timeline = await this.props.client.getTimeline(roomId);
+            console.log("Set timeline with ", timeline.length, " items");
+            this.setState({
+                timeline: timeline,
+                roomId: roomId,
+            });
         } catch (err) {
             this.setState({
                 error: JSON.stringify(err),
@@ -59,11 +66,6 @@ class UserPage extends React.Component {
                 loading: false,
             });
         }
-        let timeline = await this.props.client.getTimeline(roomId);
-        this.setState({
-            timeline: timeline,
-            roomId: roomId,
-        });
     }
 
     onPostsClick() {
@@ -97,7 +99,7 @@ class UserPage extends React.Component {
             );
         } else {
             if (this.state.loading) {
-                timelineBlock = <div> Loading timeline.... </div>;
+                timelineBlock = <div className="loader">Loading posts...</div>;
             } else {
                 let hasEntries = false;
                 timelineBlock = (
