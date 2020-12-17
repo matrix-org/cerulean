@@ -20,6 +20,7 @@ class UserPage extends React.Component {
             timeline: [],
             isMe: props.userId === props.client.userId,
             roomId: null,
+            userProfile: null,
         };
     }
 
@@ -50,6 +51,17 @@ class UserPage extends React.Component {
         let roomId;
         try {
             roomId = await this.props.client.followUser(this.props.userId);
+            try {
+                const userProfile = await this.props.client.getProfile(this.props.userId);
+                this.setState({
+                    userProfile,
+                });
+                if (userProfile.avatar_url) {
+                    userProfile.avatar_url = this.props.client.thumbnailLink(userProfile.avatar_url, "scale", 64, 64);
+                }
+            } catch (ex) {
+                console.warn(`Failed to fetch user profile, might not be set yet`, ex);
+            }
 
             let timeline = await this.props.client.getTimeline(roomId);
             console.log("Set timeline with ", timeline.length, " items");
@@ -184,6 +196,8 @@ class UserPage extends React.Component {
         if (!this.props.client.isGuest) {
             userPageHeader = (
                 <div className="UserPageHeader">
+                    { this.state.userProfile?.avatar_url && <img alt="User avatar" className="userAvatar" src={this.state.userProfile?.avatar_url}></img>}
+                    { this.state.userProfile?.displayname && <div className="displayName">{this.state.userProfile?.displayname}</div> }
                     <div className="userName">{this.props.userId}</div>
                     {inputMessage}
                     {errBlock}
