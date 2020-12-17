@@ -616,7 +616,7 @@ class Client {
             return;
         }
         const mediaUrl = this.serverUrl.slice(0, -1 * "/client".length);
-        return `${mediaUrl}/media/r0/thumbnail/${mxcUri.split("mxc://")[1]}?method=${method}&width=${width}&height=${height}`;
+        return `${mediaUrl}/media/r0/thumbnail/${mxcUri.split("mxc://")[1]}?method=${encodeURIComponent(method)}&width=${encodeURIComponent(width)}&height=${encodeURIComponent(height)}`;
     }
 
     async fetchJson(fullUrl, fetchParams) {
