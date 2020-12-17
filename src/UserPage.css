@@ -4,7 +4,9 @@
 }
 
 .UserPageHeader{
+    line-height: 18px;
     padding-bottom: 15px;
+    font-family: Inter;
 }
 
 .UserPage{
@@ -24,13 +26,28 @@
     border-bottom-right-radius: 12px;
 }
 
-.userName{
+.displayName{
     /* Body SemiBold */
-    font-family: Inter;
     font-style: normal;
     font-weight: 600;
     font-size: 15px;
     line-height: 18px;
+
+    /* Light / Primary content */
+    color: #17191C;
+
+    margin-bottom: 8px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.userName{
+    /* Body SemiBold */
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
 
     /* Light / Primary content */
     color: #17191C;
@@ -71,4 +88,9 @@
 .emptyList {
     padding: 8px;
     text-align: center;
+}
+
+.userAvatar{
+    float: left;
+    margin-right: 1em;
 }

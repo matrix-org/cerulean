@@ -116,6 +116,19 @@ class Client {
         this.saveAuthState();
     }
 
+    async getProfile(userId) {
+        const data = await this.fetchJson(
+            `${this.serverUrl}/r0/profile/${encodeURIComponent(
+                userId
+            )}`,
+            {
+                method: "GET",
+                headers: { Authorization: `Bearer ${this.accessToken}` },
+            }
+        );
+        return data;
+    }
+
     async sendMessage(roomId, content) {
         const txnId = Date.now();
         const data = await this.fetchJson(
@@ -593,6 +606,17 @@ class Client {
         }
         const mediaUrl = this.serverUrl.slice(0, -1 * "/client".length);
         return mediaUrl + "/media/r0/download/" + mxcUri.split("mxc://")[1];
+    }
+
+    thumbnailLink(mxcUri, method, width, height) {
+        if (!mxcUri) {
+            return;
+        }
+        if (mxcUri.indexOf("mxc://") !== 0) {
+            return;
+        }
+        const mediaUrl = this.serverUrl.slice(0, -1 * "/client".length);
+        return `${mediaUrl}/media/r0/thumbnail/${mxcUri.split("mxc://")[1]}?method=${encodeURIComponent(method)}&width=${encodeURIComponent(width)}&height=${encodeURIComponent(height)}`;
     }
 
     async fetchJson(fullUrl, fetchParams) {
