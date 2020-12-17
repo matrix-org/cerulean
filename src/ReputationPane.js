@@ -200,9 +200,9 @@ class ReputationPane extends React.Component {
                         onClick={this.props.onClose}
                     />
                 </div>
-                <div className="repTitle">Filter List</div>
+                <div className="repTitle">Filter your view</div>
                 <div className="repDescription">
-                    Filter lists and decide on the importance of each one
+                    Apply these filters to your view of Matrix
                 </div>
                 {this.renderFilterLists()}
                 {this.renderAddFilter()}

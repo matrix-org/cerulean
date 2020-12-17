@@ -174,13 +174,15 @@ class Client {
         return this.joinTimelineRoom("#" + userId);
     }
 
-    async logout() {
+    async logout(suppressLogout) {
         try {
-            await this.fetchJson(`${this.serverUrl}/r0/logout`, {
-                method: "POST",
-                body: "{}",
-                headers: { Authorization: `Bearer ${this.accessToken}` },
-            });
+            if (!suppressLogout) {
+                await this.fetchJson(`${this.serverUrl}/r0/logout`, {
+                    method: "POST",
+                    body: "{}",
+                    headers: { Authorization: `Bearer ${this.accessToken}` },
+                });
+            }
         } finally {
             console.log("Removing login credentials");
             this.serverUrl = undefined;
@@ -597,6 +599,11 @@ class Client {
         const response = await fetch(fullUrl, fetchParams);
         const data = await response.json();
         if (!response.ok) {
+            if (data.errcode === "M_UNKNOWN_TOKEN") {
+                console.log("unknown token, logging user out: ", data);
+                // suppressLogout so we don't recursively call fetchJson
+                await this.logout(true);
+            }
             throw data;
         }
         return data;
