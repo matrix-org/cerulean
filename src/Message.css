@@ -73,6 +73,7 @@
     font-weight: normal;
     font-size: 15px;
     line-height: 24px;
+    word-break: break-word;
 
     /* or 160% */
 
