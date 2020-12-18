@@ -9,6 +9,8 @@ It has no dependencies (other than create-react-app) and has no optimisations.
 It uses a naive View+Model architecture for legibility (although ideally it'd
 grow to be MVVM in future).
 
+For more info, see https://matrix.org/blog/2020/12/18/introducing-cerulean
+
 ## Design
 
 The way Cerulean works is:
@@ -38,7 +40,7 @@ Cerulean uses the following experimental [MSCs](https://matrix.org/docs/spec/pro
  * [x] Individual messages with surrounding threaded conversation
  * [x] Ability to expand out threads to explore further
  * [x] Ability to display parent rather than child threads if the parent started on a different timeline
- * [ ] Live updates as messages arrive (i.e. a `/sync` loop)
+ * [x] Live updates as messages arrive (i.e. a `/sync` loop)
  * [ ] HTML messages
  * [ ] Likes
  * [ ] RTs
