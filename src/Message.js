@@ -14,6 +14,7 @@ import {
 //  - numReplies: Optional number of replies to this event, to display on the UI.
 //  - noLink: Optional boolean whether to hyperlink to the event when clicked.
 //  - onPost: Optional callback invoked when a reply is sent. Called as onPost(parentEvent, childId)
+//  - noReply: Optional boolean whether to show reply button or not.
 class Message extends React.Component {
     constructor(props) {
         super(props);
@@ -25,6 +26,7 @@ class Message extends React.Component {
             reputationScore: 0,
             hidden: false,
             uploadFile: null,
+            noReply: this.props.noReply,
         };
     }
 
@@ -332,7 +334,7 @@ class Message extends React.Component {
         }
 
         let replyButton;
-        if (!this.context.client.isGuest) {
+        if (!this.context.client.isGuest && !this.state.noReply) {
             replyButton = (
                 <button
                     className="darkButton"

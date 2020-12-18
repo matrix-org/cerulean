@@ -104,8 +104,7 @@ class StatusPage extends React.Component {
 
         this.setState({
             parent: parent,
-            // we want older messages on top (rendered first) so we need to flip the array at is recent_first
-            children: (parentToChildren.get(parent.event_id) || []).reverse(),
+            children: parentToChildren.get(parent.event_id) || [],
             parentToChildren: parentToChildren,
             parentOfParent: parentOfParent,
             eventMap: eventMap,
@@ -171,7 +170,14 @@ class StatusPage extends React.Component {
                         seeMore: true,
                     });
                 }
-                for (let i = 0; i < children.length && i < maxBreadth; i++) {
+                // The array is recent first, but we want to display the most recent message at the top of the screen
+                // so loop backwards from our cut-off to 0
+                for (
+                    let i = Math.min(children.length, maxBreadth) - 1;
+                    i >= 0;
+                    i--
+                ) {
+                    //for (let i = 0; i < children.length && i < maxBreadth; i++) {
                     toProcess.push({
                         eventId: children[i].event_id,
                         depth: depth + 1,
@@ -283,12 +289,21 @@ class StatusPage extends React.Component {
                         depthsOfParentsWhoHaveMoreSiblings: newDepthsOfParents,
                     });
                 }
-                for (let i = 0; i < children.length && i < maxBreadth; i++) {
+
+                // The array is recent first, but we want to display the most recent message at the top of the screen
+                // so loop backwards from our cut-off to 0
+                for (
+                    let i = Math.min(children.length, maxBreadth) - 1;
+                    i >= 0;
+                    i--
+                ) {
+                    //for (let i = 0; i < children.length && i < maxBreadth; i++) {
                     toProcess.push({
                         eventId: children[i].event_id,
                         siblingDepth: newSiblingDepth,
                         numSiblings: children.length,
-                        sibling: i,
+                        // rendering relies on a stack so invert the sibling order, pretending the middle of the array is sibling 0
+                        sibling: Math.min(children.length, maxBreadth) - 1 - i,
                         parentIsLastSibling: isLastSibling,
                         depthsOfParentsWhoHaveMoreSiblings: newDepthsOfParents,
                     });
@@ -394,6 +409,7 @@ class StatusPage extends React.Component {
                 <Message
                     event={this.state.parentOfParent}
                     onPost={this.onPost.bind(this)}
+                    noReply={true}
                 />
             );
         }
