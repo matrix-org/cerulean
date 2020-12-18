@@ -127,9 +127,13 @@ class TimelinePage extends React.Component {
                 if (!hasEntries) {
                     timelineBlock = (
                         <div className="emptyList">
-                            Nothing to see yet. Try following{" "}
-                            <a href={"/@matthew:dendrite.matrix.org"}>
-                                Matthew
+                            Nothing to see yet. Check the{" "}
+                            <a
+                                href={
+                                    "/@matthew:dendrite.matrix.org/!k1vs5pdsUeTpGOYd:dendrite.matrix.org/$OFpdqr-ZMaCRN68pcNaAZULhR-MOTi7f8_9fUxTHpKg"
+                                }
+                            >
+                                welcome post
                             </a>
                         </div>
                     );

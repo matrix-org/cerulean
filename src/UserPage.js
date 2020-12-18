@@ -171,9 +171,13 @@ class UserPage extends React.Component {
                     if (this.state.isMe) {
                         emptyListText = (
                             <span>
-                                No posts yet. Try following{" "}
-                                <a href={"/@matthew:dendrite.matrix.org"}>
-                                    Matthew
+                                No posts yet. Check the{" "}
+                                <a
+                                    href={
+                                        "/@matthew:dendrite.matrix.org/!k1vs5pdsUeTpGOYd:dendrite.matrix.org/$OFpdqr-ZMaCRN68pcNaAZULhR-MOTi7f8_9fUxTHpKg"
+                                    }
+                                >
+                                    welcome post
                                 </a>
                                 .
                             </span>
