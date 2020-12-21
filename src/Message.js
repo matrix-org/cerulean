@@ -154,7 +154,7 @@ class Message extends React.Component {
             return <span className="dateString">Now</span>;
         }
         const d = new Date(ts);
-        const dateStr = `${d.getDate()}/${d.getMonth()}/${d.getFullYear()} · ${d.toLocaleTimeString(
+        const dateStr = `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()} · ${d.toLocaleTimeString(
             [],
             { hour: "2-digit", minute: "2-digit", hour12: false }
         )} (score: ${this.state.reputationScore.toFixed(1)})`;
