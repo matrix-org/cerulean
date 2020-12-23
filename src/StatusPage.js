@@ -150,7 +150,11 @@ class StatusPage extends React.Component {
             if (procInfo.seeMore) {
                 const link = createPermalinkForThreadEvent(event);
                 rendered.push(
-                    <div className="child" style={style} key="seeMore">
+                    <div
+                        className="child"
+                        style={style}
+                        key={"seeMore" + eventId}
+                    >
                         <a href={link}>See more...</a>
                     </div>
                 );
@@ -160,28 +164,39 @@ class StatusPage extends React.Component {
             // recent first
             const children = this.state.parentToChildren.get(eventId);
             if (children) {
-                if (children.length > maxBreadth) {
-                    // only show the first 5 then add a 'see more' link which permalinks you
-                    // to the parent which has so many children (we only display all children
-                    // on the permalink for the parent). We inject this first as it's a LIFO stack
+                // we only render children if we aren't going to go over (hence +1) the max depth, else
+                // we permalink to the parent with a "see more" link. Inject this first as it's a LIFO stack
+                if (depth + 1 >= maxDepth) {
                     toProcess.push({
                         eventId: eventId,
                         depth: depth + 1,
                         seeMore: true,
                     });
-                }
-                // The array is recent first, but we want to display the most recent message at the top of the screen
-                // so loop backwards from our cut-off to 0
-                for (
-                    let i = Math.min(children.length, maxBreadth) - 1;
-                    i >= 0;
-                    i--
-                ) {
-                    //for (let i = 0; i < children.length && i < maxBreadth; i++) {
-                    toProcess.push({
-                        eventId: children[i].event_id,
-                        depth: depth + 1,
-                    });
+                } else {
+                    // render up to maxBreadth children
+                    if (children.length > maxBreadth) {
+                        // only show the first 5 then add a 'see more' link which permalinks you
+                        // to the parent which has so many children (we only display all children
+                        // on the permalink for the parent). We inject this first as it's a LIFO stack
+                        toProcess.push({
+                            eventId: eventId,
+                            depth: depth + 1,
+                            seeMore: true,
+                        });
+                    }
+                    // The array is recent first, but we want to display the most recent message at the top of the screen
+                    // so loop backwards from our cut-off to 0 (as it's LIFO we want the most recent message pushed last)
+                    for (
+                        let i = Math.min(children.length, maxBreadth) - 1;
+                        i >= 0;
+                        i--
+                    ) {
+                        //for (let i = 0; i < children.length && i < maxBreadth; i++) {
+                        toProcess.push({
+                            eventId: children[i].event_id,
+                            depth: depth + 1,
+                        });
+                    }
                 }
             }
             rendered.push(
@@ -210,15 +225,15 @@ class StatusPage extends React.Component {
         //    [ Message E ]
         // Indentation and thread lines occur on events which have siblings.
         const maxItems = 200;
-        // which item to render next, we store the event ID and the siblingNum so we
-        // know how much to indent by
+        // which item to render next
         const toProcess = [
             {
                 eventId: ev.event_id,
                 siblingDepth: 0, // how many parents have siblings up to the root node
                 numSiblings: numSiblings, // total number of sibling this node has (incl. itself)
                 sibling: sibling, // the 0-based index of this sibling
-                depthsOfParentsWhoHaveMoreSiblings: [],
+                depthsOfParentsWhoHaveMoreSiblings: [], // depth values
+                depth: 0, // the depth of this event
             },
         ];
         const rendered = [];
@@ -229,11 +244,9 @@ class StatusPage extends React.Component {
             const numSiblings = procInfo.numSiblings;
             const sibling = procInfo.sibling;
             const isLastSibling = sibling === 0;
+            const depth = procInfo.depth;
             const depthsOfParentsWhoHaveMoreSiblings =
                 procInfo.depthsOfParentsWhoHaveMoreSiblings;
-            const style = {
-                marginLeft: 20 * (1 + siblingDepth) + "px",
-            };
             // continue the thread line down to the next sibling,
             const msgStyle = {
                 borderLeft: !isLastSibling ? "1px solid #8D99A5" : undefined,
@@ -243,6 +256,8 @@ class StatusPage extends React.Component {
                 continue;
             }
 
+            // We draw tube lines going down past nested events so we need to continue
+            // the line first before we even handle the event we're processing.
             let parentThreadLines = [];
             for (let i = 0; i <= siblingDepth; i++) {
                 let cn = "blankThreadLine";
@@ -255,16 +270,26 @@ class StatusPage extends React.Component {
             let threadLines = (
                 <div className="threadLineHolder">{parentThreadLines}</div>
             );
-            //console.log(event.content.body + " ", procInfo);
+
             if (procInfo.seeMore) {
                 const link = createPermalinkForThreadEvent(event);
+                let seeMoreStyle = {};
+                // If we're "seeing more" due to capping the breadth we want the link to be left-aligned
+                // with the thread line, else we want to indent it so it appears as a child (depth see more)
+                if (procInfo.seeMoreDepth) {
+                    seeMoreStyle = { marginLeft: "20px" };
+                }
                 rendered.push(
-                    <div className="verticalChild" style={style} key="seeMore">
-                        <a href={link}>See more...</a>
+                    <div className="verticalChild" key={"seeMore" + eventId}>
+                        {parentThreadLines}
+                        <a href={link} style={seeMoreStyle}>
+                            See more...
+                        </a>
                     </div>
                 );
                 continue;
             }
+
             // this array is in the order from POST /event_relationships which is
             // recent first
             const children = this.state.parentToChildren.get(eventId);
@@ -274,39 +299,58 @@ class StatusPage extends React.Component {
                 const newDepthsOfParents = isLastSibling
                     ? [...depthsOfParentsWhoHaveMoreSiblings]
                     : [siblingDepth, ...depthsOfParentsWhoHaveMoreSiblings];
-                const newSiblingDepth =
-                    siblingDepth + (children.length > 1 ? 1 : 0);
-                if (children.length > maxBreadth) {
-                    // only show the first 5 then add a 'see more' link which permalinks you
-                    // to the parent which has so many children (we only display all children
-                    // on the permalink for the parent). We inject this first as it's a LIFO stack
+                // we only render children if we aren't going to go over (hence +1) the max depth, else
+                // we permalink to the parent with a "see more" link.
+                if (depth + 1 >= maxDepth) {
                     toProcess.push({
                         eventId: eventId,
-                        siblingDepth: newSiblingDepth,
+                        siblingDepth: siblingDepth,
                         seeMore: true,
+                        seeMoreDepth: true,
                         numSiblings: children.length,
                         sibling: maxBreadth,
+                        // we render the "see more" link directly underneath
                         depthsOfParentsWhoHaveMoreSiblings: newDepthsOfParents,
+                        depth: depth + 1,
                     });
-                }
+                } else {
+                    const newSiblingDepth =
+                        siblingDepth + (children.length > 1 ? 1 : 0);
+                    if (children.length > maxBreadth) {
+                        // only show the first maxBreadth then add a 'see more' link which permalinks you
+                        // to the parent which has so many children (we only display all children
+                        // on the permalink for the parent). We inject this first as it's a LIFO stack
+                        toProcess.push({
+                            eventId: eventId,
+                            siblingDepth: newSiblingDepth,
+                            seeMore: true,
+                            numSiblings: children.length,
+                            sibling: maxBreadth,
+                            depthsOfParentsWhoHaveMoreSiblings: newDepthsOfParents,
+                            depth: depth + 1,
+                        });
+                    }
 
-                // The array is recent first, but we want to display the most recent message at the top of the screen
-                // so loop backwards from our cut-off to 0
-                for (
-                    let i = Math.min(children.length, maxBreadth) - 1;
-                    i >= 0;
-                    i--
-                ) {
-                    //for (let i = 0; i < children.length && i < maxBreadth; i++) {
-                    toProcess.push({
-                        eventId: children[i].event_id,
-                        siblingDepth: newSiblingDepth,
-                        numSiblings: children.length,
-                        // rendering relies on a stack so invert the sibling order, pretending the middle of the array is sibling 0
-                        sibling: Math.min(children.length, maxBreadth) - 1 - i,
-                        parentIsLastSibling: isLastSibling,
-                        depthsOfParentsWhoHaveMoreSiblings: newDepthsOfParents,
-                    });
+                    // The array is recent first, but we want to display the most recent message at the top of the screen
+                    // so loop backwards from our cut-off to 0
+                    for (
+                        let i = Math.min(children.length, maxBreadth) - 1;
+                        i >= 0;
+                        i--
+                    ) {
+                        //for (let i = 0; i < children.length && i < maxBreadth; i++) {
+                        toProcess.push({
+                            eventId: children[i].event_id,
+                            siblingDepth: newSiblingDepth,
+                            numSiblings: children.length,
+                            // rendering relies on a stack so invert the sibling order, pretending the middle of the array is sibling 0
+                            sibling:
+                                Math.min(children.length, maxBreadth) - 1 - i,
+                            parentIsLastSibling: isLastSibling,
+                            depthsOfParentsWhoHaveMoreSiblings: newDepthsOfParents,
+                            depth: depth + 1,
+                        });
+                    }
                 }
             }
 
