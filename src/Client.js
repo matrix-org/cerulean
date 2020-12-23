@@ -118,9 +118,7 @@ class Client {
 
     async getProfile(userId) {
         const data = await this.fetchJson(
-            `${this.serverUrl}/r0/profile/${encodeURIComponent(
-                userId
-            )}`,
+            `${this.serverUrl}/r0/profile/${encodeURIComponent(userId)}`,
             {
                 method: "GET",
                 headers: { Authorization: `Bearer ${this.accessToken}` },
@@ -386,6 +384,7 @@ class Client {
             }
         );
         this.joinedRooms.set(roomID, data.room_id);
+        this.sendLowPriorityTag(data.room_id);
         return data.room_id;
     }
 
@@ -421,6 +420,8 @@ class Client {
         content["org.matrix.cerulean.room_id"] = data.room_id;
         content["org.matrix.cerulean.event_id"] = eventId;
         content["org.matrix.cerulean.root"] = true;
+
+        this.sendLowPriorityTag(data.room_id);
 
         // post a copy into our timeline
         await this.postToMyTimeline(content);
@@ -575,6 +576,23 @@ class Client {
         }
     }
 
+    async sendLowPriorityTag(roomId) {
+        try {
+            await this.fetchJson(
+                `${this.serverUrl}/r0/user/${encodeURIComponent(
+                    this.userId
+                )}/rooms/${encodeURIComponent(roomId)}/tags/m.lowpriority`,
+                {
+                    method: "PUT",
+                    body: "{}",
+                    headers: { Authorization: `Bearer ${this.accessToken}` },
+                }
+            );
+        } catch (err) {
+            console.warn("failed to set low priority tag on ", roomId, err);
+        }
+    }
+
     async uploadFile(file) {
         const fileName = file.name;
         const mediaUrl = this.serverUrl.slice(0, -1 * "/client".length);
@@ -616,7 +634,11 @@ class Client {
             return;
         }
         const mediaUrl = this.serverUrl.slice(0, -1 * "/client".length);
-        return `${mediaUrl}/media/r0/thumbnail/${mxcUri.split("mxc://")[1]}?method=${encodeURIComponent(method)}&width=${encodeURIComponent(width)}&height=${encodeURIComponent(height)}`;
+        return `${mediaUrl}/media/r0/thumbnail/${
+            mxcUri.split("mxc://")[1]
+        }?method=${encodeURIComponent(method)}&width=${encodeURIComponent(
+            width
+        )}&height=${encodeURIComponent(height)}`;
     }
 
     async fetchJson(fullUrl, fetchParams) {
