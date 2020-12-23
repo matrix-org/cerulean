@@ -269,22 +269,41 @@ class Client {
         return info;
     }
 
-    async getTimeline(roomId) {
+    async getTimeline(roomId, limit, callback) {
         if (!this.accessToken) {
             console.error("No access token");
             return [];
         }
-
-        let data = await this.fetchJson(
-            `${this.serverUrl}/r0/rooms/${roomId}/messages?dir=b&limit=100`,
-            {
-                headers: { Authorization: `Bearer ${this.accessToken}` },
+        limit = limit || 100;
+        let seenEvents = 0;
+        let from;
+        while (seenEvents < limit) {
+            let fromQuery = ``;
+            if (from) {
+                fromQuery = `&from=${from}`;
             }
-        );
-        return data.chunk.map((ev) => {
-            ev.room_id = roomId;
-            return ev;
-        });
+            let data = await this.fetchJson(
+                `${this.serverUrl}/r0/rooms/${roomId}/messages?dir=b&limit=${limit}${fromQuery}`,
+                {
+                    headers: { Authorization: `Bearer ${this.accessToken}` },
+                }
+            );
+            from = data.end;
+            let msgs = [];
+            data.chunk.forEach((ev) => {
+                if (ev.type !== "m.room.message") {
+                    return;
+                }
+                ev.room_id = roomId;
+                msgs.push(ev);
+            });
+            callback(msgs);
+            seenEvents += msgs.length;
+            if (data.chunk.length < limit) {
+                break;
+            }
+            seenEvents += 1; // just in case, to stop infinite loops
+        }
     }
 
     async waitForMessageEventInRoom(roomIds, from) {
