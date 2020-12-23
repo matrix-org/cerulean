@@ -467,7 +467,6 @@ class StatusPage extends React.Component {
                         <Message
                             event={this.state.parent}
                             onPost={this.onPost.bind(this)}
-                            noLink={true}
                         />
                     </div>
                     {this.state.children.map((ev, i) => {
