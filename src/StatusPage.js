@@ -198,6 +198,18 @@ class StatusPage extends React.Component {
                         });
                     }
                 }
+            } else {
+                // just because we don't have the children doesn't mean they don't exist,
+                // check the event for children
+                let remoteChildCount =
+                    event.unsigned?.children?.["m.reference"];
+                if (remoteChildCount > 0) {
+                    toProcess.push({
+                        eventId: eventId,
+                        depth: depth + 1,
+                        seeMore: true,
+                    });
+                }
             }
             rendered.push(
                 <div className="child" style={style} key={event.event_id}>
@@ -290,15 +302,16 @@ class StatusPage extends React.Component {
                 continue;
             }
 
+            // Copy depthsOfParentsWhoHaveMoreSiblings and add in this depth if we have more
+            // siblings to render; this determines whether to draw outer thread lines
+            const newDepthsOfParents = isLastSibling
+                ? [...depthsOfParentsWhoHaveMoreSiblings]
+                : [siblingDepth, ...depthsOfParentsWhoHaveMoreSiblings];
+
             // this array is in the order from POST /event_relationships which is
             // recent first
             const children = this.state.parentToChildren.get(eventId);
             if (children) {
-                // Copy depthsOfParentsWhoHaveMoreSiblings and add in this depth if we have more
-                // siblings to render; this determines whether to draw outer thread lines
-                const newDepthsOfParents = isLastSibling
-                    ? [...depthsOfParentsWhoHaveMoreSiblings]
-                    : [siblingDepth, ...depthsOfParentsWhoHaveMoreSiblings];
                 // we only render children if we aren't going to go over (hence +1) the max depth, else
                 // we permalink to the parent with a "see more" link.
                 if (depth + 1 >= maxDepth) {
@@ -351,6 +364,24 @@ class StatusPage extends React.Component {
                             depth: depth + 1,
                         });
                     }
+                }
+            } else {
+                // just because we don't have the children doesn't mean they don't exist,
+                // check the event for children
+                let remoteChildCount =
+                    event.unsigned?.children?.["m.reference"];
+                if (remoteChildCount > 0) {
+                    toProcess.push({
+                        eventId: eventId,
+                        siblingDepth: siblingDepth,
+                        seeMore: true,
+                        seeMoreDepth: true,
+                        numSiblings: remoteChildCount,
+                        sibling: maxBreadth,
+                        // we render the "see more" link directly underneath
+                        depthsOfParentsWhoHaveMoreSiblings: newDepthsOfParents,
+                        depth: depth + 1,
+                    });
                 }
             }
 
