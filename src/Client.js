@@ -133,8 +133,6 @@ class Client {
         this.userProfileCache.set(userId, data);
         return data;
     }
-        return data;
-    }
 
     async sendMessage(roomId, content) {
         const txnId = Date.now();
