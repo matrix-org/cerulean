@@ -124,6 +124,7 @@ class Client {
                 headers: { Authorization: `Bearer ${this.accessToken}` },
             }
         );
+        return data;
     }
 
     async getRoomState(roomId, stateType, stateKey) {

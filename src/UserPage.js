@@ -55,7 +55,7 @@ class UserPage extends React.Component {
         let roomId;
         try {
             roomId = await this.props.client.followUser(this.props.userId);
-            this.loadProfile(); // don't block the UI by waiting for this
+            this.loadProfile(roomId); // don't block the UI by waiting for this
             this.setState({
                 timeline: [],
                 roomId: roomId,
@@ -78,7 +78,7 @@ class UserPage extends React.Component {
         }
     }
 
-    async loadProfile() {
+    async loadProfile(roomId) {
         try {
             const userProfile = await this.props.client.getProfile(
                 this.props.userId
