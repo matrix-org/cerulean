@@ -7,17 +7,21 @@
     line-height: 18px;
     padding-bottom: 15px;
     font-family: Inter;
-}
-
-.UserPage{
-    margin-top: 16px;
-}
-
-.UserPageHeader{
     background: #F7F7F7;
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 10px;
+}
+
+.UserProfile {
+    display: grid;
+    grid-template-columns: 1fr 10fr;
+    column-gap: 10px;
+    margin-bottom: 10px;
+}
+
+.UserPage{
+    margin-top: 16px;
 }
 
 .UserPageBody{
@@ -101,4 +105,3 @@
     align-items: center;
     margin-bottom: 8px;
 }
-

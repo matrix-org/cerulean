@@ -124,6 +124,16 @@ class Client {
                 headers: { Authorization: `Bearer ${this.accessToken}` },
             }
         );
+    }
+
+    async getRoomState(roomId, stateType, stateKey) {
+        const data = await this.fetchJson(
+            `${this.serverUrl}/r0/rooms/${encodeURIComponent(roomId)}/state/${encodeURIComponent(stateType)}/${(stateKey && encodeURIComponent(stateKey)) || ''}`,
+            {
+                method: "GET",
+                headers: { Authorization: `Bearer ${this.accessToken}` },
+            }
+        );
         return data;
     }
 
