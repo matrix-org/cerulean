@@ -7,6 +7,7 @@ class Client {
 
     constructor(storage) {
         this.joinedRooms = new Map(); // room alias -> room ID
+        this.userProfileCache = new Map(); // user_id -> {display_name; avatar;}
         if (!storage) {
             return;
         }
@@ -117,6 +118,11 @@ class Client {
     }
 
     async getProfile(userId) {
+        if (this.userProfileCache.has(userId)) {
+            console.debug(`Returning cached copy of ${userId}'s profile`)
+            return this.userProfileCache.get(userId);
+        }
+        console.debug(`Fetching fresh copy of ${userId}'s profile`)
         const data = await this.fetchJson(
             `${this.serverUrl}/r0/profile/${encodeURIComponent(userId)}`,
             {
@@ -124,6 +130,7 @@ class Client {
                 headers: { Authorization: `Bearer ${this.accessToken}` },
             }
         );
+        this.userProfileCache.set(userId, data);
         return data;
     }
 
