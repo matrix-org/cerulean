@@ -25,12 +25,21 @@ class Message extends React.Component {
             reputationScore: 0,
             hidden: false,
             uploadFile: null,
+            displayname: null,
         };
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         if (!this.props.event) {
             return;
+        }
+        try {
+            const profile = await this.context.client.getProfile(this.props.event.sender);
+            this.setState({
+                displayname: profile.displayname,
+            });
+        } catch (ex) {
+            console.debug(`Failed to fetch profile for user ${this.props.event.sender}:`, ex);
         }
         this.context.reputation.trackScore(
             this.props.event,
@@ -43,7 +52,7 @@ class Message extends React.Component {
         );
     }
 
-    componentDidUpdate(oldProps) {
+    async componentDidUpdate(oldProps) {
         if (
             oldProps.event &&
             this.props.event &&
@@ -66,6 +75,15 @@ class Message extends React.Component {
                     });
                 }
             );
+            // Ensure we update the profile
+            try {
+                const profile = await this.context.client.getProfile(this.props.event.sender);
+                this.setState({
+                    displayname: profile.displayname,
+                });
+            } catch (ex) {
+                console.debug(`Failed to fetch profile for user ${this.props.event.sender}:`, ex);
+            }
         }
     }
 
@@ -214,8 +232,9 @@ class Message extends React.Component {
                     <div
                         className="MessageAuthor"
                         onClick={this.onAuthorClick.bind(this, event.sender)}
+                        title={event.sender}
                     >
-                        {event.sender}{" "}
+                        {this.state.displayname || event.sender}{" "}
                     </div>
                     {this.renderTime(event.origin_server_ts)}
                 </div>
