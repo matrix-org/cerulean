@@ -14,7 +14,7 @@ class UserPage extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: true,
+            loading: false,
             error: null,
             withReplies: this.props.withReplies,
             timeline: [],
@@ -43,6 +43,9 @@ class UserPage extends React.Component {
     }
 
     async loadEvents() {
+        if (this.state.loading) {
+            return;
+        }
         this.setState({
             loading: true,
         });
@@ -51,23 +54,18 @@ class UserPage extends React.Component {
         let roomId;
         try {
             roomId = await this.props.client.followUser(this.props.userId);
-            try {
-                const userProfile = await this.props.client.getProfile(this.props.userId);
-                this.setState({
-                    userProfile,
-                });
-                if (userProfile.avatar_url) {
-                    userProfile.avatar_url = this.props.client.thumbnailLink(userProfile.avatar_url, "scale", 64, 64);
-                }
-            } catch (ex) {
-                console.warn(`Failed to fetch user profile, might not be set yet`, ex);
-            }
+            this.loadProfile(); // don't block the UI by waiting for this
 
-            let timeline = await this.props.client.getTimeline(roomId);
-            console.log("Set timeline with ", timeline.length, " items");
             this.setState({
-                timeline: timeline,
+                timeline: [],
                 roomId: roomId,
+            });
+            await this.props.client.getTimeline(roomId, 100, (events) => {
+                console.log("Adding ", events.length, " items");
+                this.setState({
+                    timeline: this.state.timeline.concat(events),
+                    loading: false,
+                });
             });
         } catch (err) {
             this.setState({
@@ -77,6 +75,30 @@ class UserPage extends React.Component {
             this.setState({
                 loading: false,
             });
+        }
+    }
+
+    async loadProfile() {
+        try {
+            const userProfile = await this.props.client.getProfile(
+                this.props.userId
+            );
+            if (userProfile.avatar_url) {
+                userProfile.avatar_url = this.props.client.thumbnailLink(
+                    userProfile.avatar_url,
+                    "scale",
+                    64,
+                    64
+                );
+            }
+            this.setState({
+                userProfile,
+            });
+        } catch (ex) {
+            console.warn(
+                `Failed to fetch user profile, might not be set yet`,
+                ex
+            );
         }
     }
 
@@ -161,9 +183,13 @@ class UserPage extends React.Component {
                     if (this.state.isMe) {
                         emptyListText = (
                             <span>
-                                No posts yet. Try following{" "}
-                                <a href={"/@matthew:dendrite.matrix.org"}>
-                                    Matthew
+                                No posts yet. Check the{" "}
+                                <a
+                                    href={
+                                        "/@matthew:dendrite.matrix.org/!k1vs5pdsUeTpGOYd:dendrite.matrix.org/$OFpdqr-ZMaCRN68pcNaAZULhR-MOTi7f8_9fUxTHpKg"
+                                    }
+                                >
+                                    welcome post
                                 </a>
                                 .
                             </span>
@@ -196,9 +222,23 @@ class UserPage extends React.Component {
         if (!this.props.client.isGuest) {
             userPageHeader = (
                 <div className="UserPageHeader">
-                    { this.state.userProfile?.avatar_url && <img alt="User avatar" className="userAvatar" src={this.state.userProfile?.avatar_url}></img>}
-                    { this.state.userProfile?.displayname && <div className="displayName">{this.state.userProfile?.displayname}</div> }
-                    <div className="userName">{this.props.userId}</div>
+                    <div className="userSection">
+                        {this.state.userProfile?.avatar_url && (
+                            <img
+                                alt="User avatar"
+                                className="userAvatar"
+                                src={this.state.userProfile?.avatar_url}
+                            ></img>
+                        )}
+                        <div className="userInfo">
+                            {this.state.userProfile?.displayname && (
+                                <div className="displayName">
+                                    {this.state.userProfile?.displayname}
+                                </div>
+                            )}
+                            <div className="userName">{this.props.userId}</div>
+                        </div>
+                    </div>
                     {inputMessage}
                     {errBlock}
                 </div>

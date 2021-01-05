@@ -124,9 +124,7 @@ class Client {
         }
         console.debug(`Fetching fresh copy of ${userId}'s profile`)
         const data = await this.fetchJson(
-            `${this.serverUrl}/r0/profile/${encodeURIComponent(
-                userId
-            )}`,
+            `${this.serverUrl}/r0/profile/${encodeURIComponent(userId)}`,
             {
                 method: "GET",
                 headers: { Authorization: `Bearer ${this.accessToken}` },
@@ -280,22 +278,41 @@ class Client {
         return info;
     }
 
-    async getTimeline(roomId) {
+    async getTimeline(roomId, limit, callback) {
         if (!this.accessToken) {
             console.error("No access token");
             return [];
         }
-
-        let data = await this.fetchJson(
-            `${this.serverUrl}/r0/rooms/${roomId}/messages?dir=b&limit=100`,
-            {
-                headers: { Authorization: `Bearer ${this.accessToken}` },
+        limit = limit || 100;
+        let seenEvents = 0;
+        let from;
+        while (seenEvents < limit) {
+            let fromQuery = ``;
+            if (from) {
+                fromQuery = `&from=${from}`;
             }
-        );
-        return data.chunk.map((ev) => {
-            ev.room_id = roomId;
-            return ev;
-        });
+            let data = await this.fetchJson(
+                `${this.serverUrl}/r0/rooms/${roomId}/messages?dir=b&limit=${limit}${fromQuery}`,
+                {
+                    headers: { Authorization: `Bearer ${this.accessToken}` },
+                }
+            );
+            from = data.end;
+            let msgs = [];
+            data.chunk.forEach((ev) => {
+                if (ev.type !== "m.room.message") {
+                    return;
+                }
+                ev.room_id = roomId;
+                msgs.push(ev);
+            });
+            callback(msgs);
+            seenEvents += msgs.length;
+            if (data.chunk.length < limit) {
+                break;
+            }
+            seenEvents += 1; // just in case, to stop infinite loops
+        }
     }
 
     async waitForMessageEventInRoom(roomIds, from) {
@@ -395,6 +412,7 @@ class Client {
             }
         );
         this.joinedRooms.set(roomID, data.room_id);
+        this.sendLowPriorityTag(data.room_id);
         return data.room_id;
     }
 
@@ -430,6 +448,8 @@ class Client {
         content["org.matrix.cerulean.room_id"] = data.room_id;
         content["org.matrix.cerulean.event_id"] = eventId;
         content["org.matrix.cerulean.root"] = true;
+
+        this.sendLowPriorityTag(data.room_id);
 
         // post a copy into our timeline
         await this.postToMyTimeline(content);
@@ -584,6 +604,23 @@ class Client {
         }
     }
 
+    async sendLowPriorityTag(roomId) {
+        try {
+            await this.fetchJson(
+                `${this.serverUrl}/r0/user/${encodeURIComponent(
+                    this.userId
+                )}/rooms/${encodeURIComponent(roomId)}/tags/m.lowpriority`,
+                {
+                    method: "PUT",
+                    body: "{}",
+                    headers: { Authorization: `Bearer ${this.accessToken}` },
+                }
+            );
+        } catch (err) {
+            console.warn("failed to set low priority tag on ", roomId, err);
+        }
+    }
+
     async uploadFile(file) {
         const fileName = file.name;
         const mediaUrl = this.serverUrl.slice(0, -1 * "/client".length);
@@ -625,7 +662,11 @@ class Client {
             return;
         }
         const mediaUrl = this.serverUrl.slice(0, -1 * "/client".length);
-        return `${mediaUrl}/media/r0/thumbnail/${mxcUri.split("mxc://")[1]}?method=${encodeURIComponent(method)}&width=${encodeURIComponent(width)}&height=${encodeURIComponent(height)}`;
+        return `${mediaUrl}/media/r0/thumbnail/${
+            mxcUri.split("mxc://")[1]
+        }?method=${encodeURIComponent(method)}&width=${encodeURIComponent(
+            width
+        )}&height=${encodeURIComponent(height)}`;
     }
 
     async fetchJson(fullUrl, fetchParams) {

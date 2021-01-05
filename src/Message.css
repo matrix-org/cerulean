@@ -17,9 +17,6 @@
     margin-bottom: 8px;
     min-width: 0;
 }
-.MessageBodyWithLink{
-    cursor: pointer;
-}
 
 .moreCommentsButton {
     background: rgba(41, 82, 190, 0.1);
@@ -64,6 +61,7 @@
 
     margin-left: 6px;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 .MessageText {
@@ -73,8 +71,10 @@
     font-weight: normal;
     font-size: 15px;
     line-height: 24px;
+    word-break: break-word;
 
     /* or 160% */
+    cursor: pointer;
 
     color: #17191C;
 }
@@ -110,4 +110,5 @@
 .userImage{
     max-width: 100%;
     margin: 5px;
+    cursor: pointer;
 }

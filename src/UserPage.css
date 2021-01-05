@@ -91,6 +91,14 @@
 }
 
 .userAvatar{
-    float: left;
     margin-right: 1em;
+    max-width: 64px;
+    max-height: 64px;
 }
+
+.userSection {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+

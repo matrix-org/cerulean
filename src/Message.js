@@ -12,8 +12,8 @@ import {
 //  - event: The matrix event to render.
 //  - isTimelineEvent: True if this event is in a timeline room. False if in a thread room.
 //  - numReplies: Optional number of replies to this event, to display on the UI.
-//  - noLink: Optional boolean whether to hyperlink to the event when clicked.
 //  - onPost: Optional callback invoked when a reply is sent. Called as onPost(parentEvent, childId)
+//  - noReply: Optional boolean whether to show reply button or not.
 class Message extends React.Component {
     constructor(props) {
         super(props);
@@ -26,6 +26,7 @@ class Message extends React.Component {
             hidden: false,
             uploadFile: null,
             displayname: null,
+            noReply: this.props.noReply,
         };
     }
 
@@ -170,26 +171,31 @@ class Message extends React.Component {
             return <span className="dateString">Now</span>;
         }
         const d = new Date(ts);
-        const dateStr = `${d.getDate()}/${d.getMonth()}/${d.getFullYear()} · ${d.toLocaleTimeString(
-            [],
-            { hour: "2-digit", minute: "2-digit", hour12: false }
-        )} (score: ${this.state.reputationScore.toFixed(1)})`;
-        return <div className="DateString">{dateStr}</div>;
+        const dateStr = `${d.getDate()}/${
+            d.getMonth() + 1
+        }/${d.getFullYear()} · ${d.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+        })} (score: ${this.state.reputationScore.toFixed(1)})`;
+        return (
+            <div
+                className="DateString"
+                onClick={this.onMessageClick.bind(this)}
+            >
+                {dateStr}
+            </div>
+        );
     }
 
-    renderEvent(noLink) {
+    renderEvent() {
         const event = this.props.event;
         if (!event) {
             return <div></div>;
         }
-        let handler;
-        let classes = " MessageBody";
-        if (!noLink) {
-            handler = this.onMessageClick.bind(this);
-            classes += " MessageBodyWithLink";
-        }
         let blurStyle = {};
         let hiddenTooltip;
+        let handler = this.onMessageClick.bind(this);
         if (this.state.hidden) {
             // 0 -> -10 = 1px blur
             // -10 -> -20 = 2px blur
@@ -222,12 +228,14 @@ class Message extends React.Component {
                     alt="user upload"
                     style={blurStyle}
                     className="userImage"
+                    title={hiddenTooltip}
+                    onClick={handler}
                     src={this.context.client.downloadLink(event.content.url)}
                 />
             );
         }
         return (
-            <div className={classes} onClick={handler}>
+            <div className="MessageBody">
                 <div className="MessageHeader">
                     <div
                         className="MessageAuthor"
@@ -242,6 +250,7 @@ class Message extends React.Component {
                     className="MessageText"
                     style={blurStyle}
                     title={hiddenTooltip}
+                    onClick={handler}
                 >
                     {"" + event.content.body}
                 </div>
@@ -351,7 +360,7 @@ class Message extends React.Component {
         }
 
         let replyButton;
-        if (!this.context.client.isGuest) {
+        if (!this.context.client.isGuest && !this.state.noReply) {
             replyButton = (
                 <button
                     className="darkButton"
@@ -366,7 +375,7 @@ class Message extends React.Component {
         return (
             <div className="Message">
                 {modal}
-                {this.renderEvent(this.props.noLink)}
+                {this.renderEvent()}
                 <div className="MessageButtons">
                     <span className="moreCommentsButton">{replies}</span>
                     {replyButton}
