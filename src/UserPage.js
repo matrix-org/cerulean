@@ -83,8 +83,11 @@ class UserPage extends React.Component {
             const userProfile = await this.props.client.getProfile(
                 this.props.userId
             );
+            let profile = {
+                displayname: userProfile.displayname,
+            }
             if (userProfile.avatar_url) {
-                userProfile.avatar_url = this.props.client.thumbnailLink(
+                profile.avatar_url = this.props.client.thumbnailLink(
                     userProfile.avatar_url,
                     "scale",
                     64,
@@ -92,7 +95,7 @@ class UserPage extends React.Component {
                 );
             }
             this.setState({
-                userProfile,
+                userProfile: profile,
             });
         } catch (ex) {
             console.warn(

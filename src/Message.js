@@ -26,6 +26,7 @@ class Message extends React.Component {
             hidden: false,
             uploadFile: null,
             displayname: null,
+            avatarUrl: null,
             noReply: this.props.noReply,
         };
     }
@@ -36,8 +37,10 @@ class Message extends React.Component {
         }
         try {
             const profile = await this.context.client.getProfile(this.props.event.sender);
+            const avatarUrl = profile.avatar_url && this.context.client.thumbnailLink(profile.avatar_url, 'scale', 48, 48);
             this.setState({
                 displayname: profile.displayname,
+                avatarUrl,
             });
         } catch (ex) {
             console.debug(`Failed to fetch profile for user ${this.props.event.sender}:`, ex);
@@ -81,6 +84,7 @@ class Message extends React.Component {
                 const profile = await this.context.client.getProfile(this.props.event.sender);
                 this.setState({
                     displayname: profile.displayname,
+                    avatarUrl: profile.avatar_url && this.context.client.thumbnailLink(profile.avatar_url, 'scale', 48, 48),
                 });
             } catch (ex) {
                 console.debug(`Failed to fetch profile for user ${this.props.event.sender}:`, ex);
@@ -375,6 +379,7 @@ class Message extends React.Component {
         return (
             <div className="Message">
                 {modal}
+                <img alt="" className="MessageAvatar" src={this.state.avatarUrl}></img>
                 {this.renderEvent()}
                 <div className="MessageButtons">
                     <span className="moreCommentsButton">{replies}</span>
