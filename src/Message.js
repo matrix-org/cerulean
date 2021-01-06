@@ -379,7 +379,7 @@ class Message extends React.Component {
         return (
             <div className="Message">
                 {modal}
-                <img className="MessageAvatar" src={this.state.avatarUrl}></img>
+                <img alt="" className="MessageAvatar" src={this.state.avatarUrl}></img>
                 {this.renderEvent()}
                 <div className="MessageButtons">
                     <span className="moreCommentsButton">{replies}</span>
