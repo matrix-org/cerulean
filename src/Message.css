@@ -10,12 +10,21 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: 10px;
 }
+
+.MessageAvatar {
+    width: 48px;
+    border-radius: 32px;
+    margin-left: 16px;
+}
+
 .MessageBody{
     margin-left: 24px;
     margin-top: 6px;
     margin-bottom: 8px;
     min-width: 0;
+    flex: min-content;
 }
 
 .moreCommentsButton {
