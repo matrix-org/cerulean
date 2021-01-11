@@ -21,6 +21,7 @@ class UserPage extends React.Component {
             isMe: props.userId === props.client.userId,
             roomId: null,
             userProfile: null,
+            userBiography: null,
         };
     }
 
@@ -54,8 +55,7 @@ class UserPage extends React.Component {
         let roomId;
         try {
             roomId = await this.props.client.followUser(this.props.userId);
-            this.loadProfile(); // don't block the UI by waiting for this
-
+            this.loadProfile(roomId); // don't block the UI by waiting for this
             this.setState({
                 timeline: [],
                 roomId: roomId,
@@ -78,7 +78,7 @@ class UserPage extends React.Component {
         }
     }
 
-    async loadProfile() {
+    async loadProfile(roomId) {
         try {
             const userProfile = await this.props.client.getProfile(
                 this.props.userId
@@ -91,8 +91,10 @@ class UserPage extends React.Component {
                     64
                 );
             }
+            const topicRes = await this.props.client.getRoomState(roomId, 'm.room.topic');
             this.setState({
                 userProfile,
+                userBiography: topicRes?.topic || '',
             });
         } catch (ex) {
             console.warn(
@@ -237,6 +239,11 @@ class UserPage extends React.Component {
                                 </div>
                             )}
                             <div className="userName">{this.props.userId}</div>
+                            { this.state.userBiography && (
+                                <div className="userBiography">
+                                    {this.state.userBiography}
+                                </div>  
+                            )}
                         </div>
                     </div>
                     {inputMessage}
