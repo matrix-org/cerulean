@@ -91,10 +91,13 @@ class UserPage extends React.Component {
                     64
                 );
             }
-            const topicRes = await this.props.client.getRoomState(roomId, 'm.room.topic');
+            const topicRes = await this.props.client.getRoomState(
+                roomId,
+                "m.room.topic"
+            );
             this.setState({
                 userProfile,
-                userBiography: topicRes?.topic || '',
+                userBiography: topicRes?.topic || "",
             });
         } catch (ex) {
             console.warn(
@@ -188,7 +191,7 @@ class UserPage extends React.Component {
                                 No posts yet. Check the{" "}
                                 <a
                                     href={
-                                        "/@matthew:dendrite.matrix.org/!k1vs5pdsUeTpGOYd:dendrite.matrix.org/$OFpdqr-ZMaCRN68pcNaAZULhR-MOTi7f8_9fUxTHpKg"
+                                        "/@matthew:dendrite.matrix.org/!o3r2XygCOPz3cWID:dendrite.matrix.org/$K94YqDqDTfv-DsHYQAdZL1BsUjWzlwqr5bVrXIeyxZs"
                                     }
                                 >
                                     welcome post
@@ -239,10 +242,10 @@ class UserPage extends React.Component {
                                 </div>
                             )}
                             <div className="userName">{this.props.userId}</div>
-                            { this.state.userBiography && (
+                            {this.state.userBiography && (
                                 <div className="userBiography">
                                     {this.state.userBiography}
-                                </div>  
+                                </div>
                             )}
                         </div>
                     </div>

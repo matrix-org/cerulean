@@ -130,7 +130,7 @@ class TimelinePage extends React.Component {
                             Nothing to see yet. Check the{" "}
                             <a
                                 href={
-                                    "/@matthew:dendrite.matrix.org/!k1vs5pdsUeTpGOYd:dendrite.matrix.org/$OFpdqr-ZMaCRN68pcNaAZULhR-MOTi7f8_9fUxTHpKg"
+                                    "/@matthew:dendrite.matrix.org/!o3r2XygCOPz3cWID:dendrite.matrix.org/$K94YqDqDTfv-DsHYQAdZL1BsUjWzlwqr5bVrXIeyxZs"
                                 }
                             >
                                 welcome post
