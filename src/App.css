@@ -1,6 +1,6 @@
 @font-face {
-    font-family: 'Inter';
-    src: url('/Inter.ttf');
+    font-family: "Inter";
+    src: url("/Inter.ttf");
 }
 
 body {
@@ -12,9 +12,9 @@ body {
     font-family: Inter, Helvetica, arial, sans-serif;
 }
 
-.AppHeader{
-    color: #FFFFFF;
-    background: #2952BE;
+.AppHeader {
+    color: #ffffff;
+    background: #2952be;
     width: 100%;
     height: 47px;
     left: 0px;
@@ -26,7 +26,7 @@ body {
     max-width: 960px;
 }
 
-.topRightNav{
+.topRightNav {
     margin-right: 16px;
     float: right;
     transform: translate(0%, 50%);
@@ -47,11 +47,11 @@ body {
     line-height: 18px;
     text-align: center;
     letter-spacing: 0.08em;
-    color: #FFFFFF;
+    color: #ffffff;
     margin-left: 8px;
 }
 
-.titleAndLogo{
+.titleAndLogo {
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -62,11 +62,11 @@ body {
 }
 
 .lightButton {
-    background: #FFFFFF;
+    background: #ffffff;
     border-radius: 6px;
     border: none;
     font-family: Inter;
-    color: #2952BE;
+    color: #2952be;
     font-style: normal;
     font-weight: 600;
     font-size: 12px;
@@ -75,11 +75,11 @@ body {
 }
 
 .darkButton {
-    background: #2952BE;
+    background: #2952be;
     border-radius: 6px;
     border: none;
     font-family: Inter;
-    color: #FFFFFF;
+    color: #ffffff;
     font-style: normal;
     font-weight: 600;
     font-size: 12px;
@@ -87,11 +87,11 @@ body {
     padding: 4px 8px 4px 8px;
 }
 
-button:hover{
+button:hover {
     cursor: pointer;
 }
 
-.loggedInUser{
+.loggedInUser {
     margin-right: 16px;
     cursor: pointer;
     vertical-align: middle;
@@ -101,8 +101,8 @@ button:hover{
     white-space: nowrap;
 }
 
-.inputLogin{
-    background: #FFFFFF;
+.inputLogin {
+    background: #ffffff;
     border: 0px;
     border-radius: 200px;
     padding-left: 16px;
@@ -115,7 +115,7 @@ button:hover{
     outline: none;
 }
 
-.modalSignIn{
+.modalSignIn {
     font-family: Inter;
     font-style: normal;
     font-weight: 600;
@@ -124,11 +124,11 @@ button:hover{
     text-align: center;
     padding-top: 15px;
     padding-bottom: 15px;
-    color: #2952BE;
+    color: #2952be;
     margin-bottom: 16px;
 }
 
-.modalSignInButton{
+.modalSignInButton {
     margin-top: 20px;
     float: right;
     cursor: pointer;
@@ -139,7 +139,7 @@ button:hover{
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: #F7F7F7;
+    background: #f7f7f7;
     border-radius: 12px;
     z-index: 1010;
     width: 640px;
@@ -161,18 +161,18 @@ button:hover{
 .display-block {
     display: block;
 }
-  
+
 .display-none {
     display: none;
 }
 
-.closeButton{
+.closeButton {
     cursor: pointer;
     margin: 8px;
     float: right;
 }
 
-.filterButton{
+.filterButton {
     margin-right: 20px;
     vertical-align: middle;
     cursor: pointer;
@@ -185,44 +185,44 @@ button:hover{
 
 .loader,
 .loader:after {
-  border-radius: 50%;
-  width: 2em;
-  height: 2em;
+    border-radius: 50%;
+    width: 2em;
+    height: 2em;
 }
 .loader {
-  margin: 20px auto;
-  font-size: 10px;
-  position: relative;
-  text-indent: -9999em;
-  border-top: 0.5em solid rgba(41,82,190,1);
-  border-right: 0.5em solid rgba(41,82,190,1);
-  border-bottom: 0.5em solid rgba(41,82,190,1);
-  border-left: 0.5em solid #F7F7F7;
-  -webkit-transform: translateZ(0);
-  -ms-transform: translateZ(0);
-  transform: translateZ(0);
-  -webkit-animation: load8 1.1s infinite linear;
-  animation: load8 1.1s infinite linear;
+    margin: 20px auto;
+    font-size: 10px;
+    position: relative;
+    text-indent: -9999em;
+    border-top: 0.5em solid rgba(41, 82, 190, 1);
+    border-right: 0.5em solid rgba(41, 82, 190, 1);
+    border-bottom: 0.5em solid rgba(41, 82, 190, 1);
+    border-left: 0.5em solid #f7f7f7;
+    -webkit-transform: translateZ(0);
+    -ms-transform: translateZ(0);
+    transform: translateZ(0);
+    -webkit-animation: load8 1.1s infinite linear;
+    animation: load8 1.1s infinite linear;
 }
 @-webkit-keyframes load8 {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
 }
 @keyframes load8 {
-  0% {
-    -webkit-transform: rotate(0deg);
-    transform: rotate(0deg);
-  }
-  100% {
-    -webkit-transform: rotate(360deg);
-    transform: rotate(360deg);
-  }
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
 }
 
 @media screen and (max-width: 960px) {
@@ -235,4 +235,10 @@ button:hover{
     .topRightNav {
         max-width: 60%;
     }
+}
+
+#recaptcha {
+    margin: 0 auto;
+    display: table;
+    padding: 10px;
 }

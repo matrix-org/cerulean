@@ -17,6 +17,7 @@ class Client {
         this.accessToken = storage.getItem("accessToken");
         this.isGuest = (this.userId || "").indexOf("@cerulean_guest_") === 0;
         this.serverName = storage.getItem("serverName");
+        this.recaptcha = null;
     }
 
     saveAuthState() {
@@ -27,6 +28,34 @@ class Client {
         setOrDelete(this.storage, "userId", this.userId);
         setOrDelete(this.storage, "accessToken", this.accessToken);
         setOrDelete(this.storage, "serverName", this.serverName);
+    }
+
+    async registerWithCaptcha(serverUrl, recaptchaToken) {
+        if (!this.recaptcha) {
+            throw new Error(
+                "cannot call registerWithCaptcha without calling registerAsGuest first"
+            );
+        }
+        const data = await this.fetchJson(`${serverUrl}/r0/register`, {
+            method: "POST",
+            body: JSON.stringify({
+                auth: {
+                    type: "m.login.recaptcha",
+                    session: this.recaptcha.session,
+                    response: recaptchaToken,
+                },
+                username: this.recaptcha.user,
+                password: this.recaptcha.pass,
+            }),
+        });
+        this.recaptcha = null;
+        this.serverUrl = serverUrl;
+        this.userId = data.user_id;
+        this.accessToken = data.access_token;
+        this.serverName = data.home_server;
+        this.isGuest = true;
+        this.saveAuthState();
+        console.log("Registered as guest (with recaptcha) ", data.user_id);
     }
 
     async registerAsGuest(serverUrl) {
@@ -40,16 +69,31 @@ class Client {
         let username = "cerulean_guest_" + Date.now();
         let password = generateToken(32);
 
-        const data = await this.fetchJson(`${serverUrl}/r0/register`, {
-            method: "POST",
-            body: JSON.stringify({
-                auth: {
-                    type: "m.login.dummy",
-                },
-                username: username,
-                password: password,
-            }),
-        });
+        let data;
+        try {
+            data = await this.fetchJson(`${serverUrl}/r0/register`, {
+                method: "POST",
+                body: JSON.stringify({
+                    auth: {
+                        type: "m.login.dummy",
+                    },
+                    username: username,
+                    password: password,
+                }),
+            });
+        } catch (err) {
+            // check if a recaptcha is required
+            if (err.params && err.params["m.login.recaptcha"]) {
+                this.recaptcha = {
+                    response: err.params["m.login.recaptcha"],
+                    user: username,
+                    pass: password,
+                    session: err.session,
+                };
+                return;
+            }
+            throw err;
+        }
         this.serverUrl = serverUrl;
         this.userId = data.user_id;
         this.accessToken = data.access_token;
@@ -119,10 +163,10 @@ class Client {
 
     async getProfile(userId) {
         if (this.userProfileCache.has(userId)) {
-            console.debug(`Returning cached copy of ${userId}'s profile`)
+            console.debug(`Returning cached copy of ${userId}'s profile`);
             return this.userProfileCache.get(userId);
         }
-        console.debug(`Fetching fresh copy of ${userId}'s profile`)
+        console.debug(`Fetching fresh copy of ${userId}'s profile`);
         const data = await this.fetchJson(
             `${this.serverUrl}/r0/profile/${encodeURIComponent(userId)}`,
             {
@@ -136,7 +180,11 @@ class Client {
 
     async getRoomState(roomId, stateType, stateKey) {
         const data = await this.fetchJson(
-            `${this.serverUrl}/r0/rooms/${encodeURIComponent(roomId)}/state/${encodeURIComponent(stateType)}/${(stateKey && encodeURIComponent(stateKey)) || ''}`,
+            `${this.serverUrl}/r0/rooms/${encodeURIComponent(
+                roomId
+            )}/state/${encodeURIComponent(stateType)}/${
+                (stateKey && encodeURIComponent(stateKey)) || ""
+            }`,
             {
                 method: "GET",
                 headers: { Authorization: `Bearer ${this.accessToken}` },

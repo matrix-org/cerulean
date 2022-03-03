@@ -75,10 +75,35 @@ class App extends React.Component {
         }
     }
 
-    async registerAsGuest() {
+    async registerAsGuest(recaptchaToken) {
         try {
             let serverUrl = this.state.inputLoginUrl + "/_matrix/client";
-            await this.props.client.registerAsGuest(serverUrl);
+            if (recaptchaToken) {
+                await this.props.client.registerWithCaptcha(
+                    serverUrl,
+                    recaptchaToken
+                );
+            } else {
+                await this.props.client.registerAsGuest(serverUrl);
+            }
+            if (this.props.client.recaptcha) {
+                console.log("recaptcha is required");
+                this.setState(
+                    {
+                        recaptcha: this.props.client.recaptcha,
+                    },
+                    () => {
+                        window.recaptchaCallback = (token) => {
+                            this.registerAsGuest(token);
+                        };
+                        window.grecaptcha.render("recaptcha", {
+                            sitekey: this.props.client.recaptcha.response
+                                .public_key,
+                        });
+                    }
+                );
+                return;
+            }
             window.location.reload();
         } catch (err) {
             console.error("Failed to register as guest:", err);
@@ -288,7 +313,13 @@ class App extends React.Component {
      */
     renderPage() {
         if (!this.props.client.accessToken) {
-            return <div>Please wait....</div>;
+            if (this.state.recaptcha) {
+                return (
+                    <div id="recaptcha" data-callback="recaptchaCallback"></div>
+                );
+            } else {
+                return <div>Please wait....</div>;
+            }
         }
         if (this.state.page === "user") {
             return (
