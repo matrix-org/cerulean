@@ -33,7 +33,7 @@ class Client {
     async registerWithCaptcha(serverUrl, recaptchaToken) {
         if (!this.recaptcha) {
             throw new Error(
-                "cannot call registerWithCaptcha without calling registerAsGuest first"
+                "cannot call registerWithCaptcha without calling registerAsGuest/register first"
             );
         }
         const data = await this.fetchJson(`${serverUrl}/r0/register`, {
@@ -48,14 +48,14 @@ class Client {
                 password: this.recaptcha.pass,
             }),
         });
+        this.isGuest = this.recaptcha.isGuest;
         this.recaptcha = null;
         this.serverUrl = serverUrl;
         this.userId = data.user_id;
         this.accessToken = data.access_token;
         this.serverName = data.home_server;
-        this.isGuest = true;
         this.saveAuthState();
-        console.log("Registered as guest (with recaptcha) ", data.user_id);
+        console.log("Registered (with recaptcha) ", data.user_id);
     }
 
     async registerAsGuest(serverUrl) {
@@ -89,6 +89,7 @@ class Client {
                     user: username,
                     pass: password,
                     session: err.session,
+                    isGuest: true,
                 };
                 return;
             }
@@ -101,23 +102,6 @@ class Client {
         this.isGuest = true;
         this.saveAuthState();
         console.log("Registered as guest ", username);
-
-        /*
-        const data = await this.fetchJson(
-            `${serverUrl}/r0/register?kind=guest`,
-            {
-                method: "POST",
-                body: JSON.stringify({}),
-            }
-        );
-        this.serverUrl = serverUrl;
-        this.userId = data.user_id;
-        this.accessToken = data.access_token;
-        this.guest = true;
-        this.serverName = data.home_server;
-        if (saveToStorage) {
-            this.saveAuthState();
-        } */
     }
 
     async login(serverUrl, username, password, saveToStorage) {
@@ -143,16 +127,32 @@ class Client {
     }
 
     async register(serverUrl, username, password) {
-        const data = await this.fetchJson(`${serverUrl}/r0/register`, {
-            method: "POST",
-            body: JSON.stringify({
-                auth: {
-                    type: "m.login.dummy",
-                },
-                username: username,
-                password: password,
-            }),
-        });
+        let data;
+        try {
+            data = await this.fetchJson(`${serverUrl}/r0/register`, {
+                method: "POST",
+                body: JSON.stringify({
+                    auth: {
+                        type: "m.login.dummy",
+                    },
+                    username: username,
+                    password: password,
+                }),
+            });
+        } catch (err) {
+            // check if a recaptcha is required
+            if (err.params && err.params["m.login.recaptcha"]) {
+                this.recaptcha = {
+                    response: err.params["m.login.recaptcha"],
+                    user: username,
+                    pass: password,
+                    session: err.session,
+                    isGuest: false,
+                };
+                return;
+            }
+            throw err;
+        }
         this.serverUrl = serverUrl;
         this.userId = data.user_id;
         this.accessToken = data.access_token;

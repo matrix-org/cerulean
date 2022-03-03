@@ -90,13 +90,13 @@ class App extends React.Component {
                 console.log("recaptcha is required");
                 this.setState(
                     {
-                        recaptcha: this.props.client.recaptcha,
+                        recaptchaGuest: this.props.client.recaptcha,
                     },
                     () => {
                         window.recaptchaCallback = (token) => {
                             this.registerAsGuest(token);
                         };
-                        window.grecaptcha.render("recaptcha", {
+                        window.grecaptcha.render("recaptchaguest", {
                             sitekey: this.props.client.recaptcha.response
                                 .public_key,
                         });
@@ -192,14 +192,39 @@ class App extends React.Component {
         }
     }
 
-    async onSubmitRegister() {
+    async onSubmitRegister(ev, recaptchaToken) {
         try {
             let serverUrl = this.state.inputLoginUrl + "/_matrix/client";
-            await this.props.client.register(
-                serverUrl,
-                this.state.inputLoginUsername,
-                this.state.inputLoginPassword
-            );
+            if (recaptchaToken) {
+                await this.props.client.registerWithCaptcha(
+                    serverUrl,
+                    recaptchaToken
+                );
+            } else {
+                await this.props.client.register(
+                    serverUrl,
+                    this.state.inputLoginUsername,
+                    this.state.inputLoginPassword
+                );
+            }
+            if (this.props.client.recaptcha) {
+                console.log("recaptcha is required for registration");
+                this.setState(
+                    {
+                        recaptcha: this.props.client.recaptcha,
+                    },
+                    () => {
+                        window.recaptchaCallback = (token) => {
+                            this.onSubmitRegister(null, token);
+                        };
+                        window.grecaptcha.render("recaptchareg", {
+                            sitekey: this.props.client.recaptcha.response
+                                .public_key,
+                        });
+                    }
+                );
+                return;
+            }
             this.setState({
                 page: "user",
                 viewingUserId: this.props.client.userId,
@@ -313,9 +338,12 @@ class App extends React.Component {
      */
     renderPage() {
         if (!this.props.client.accessToken) {
-            if (this.state.recaptcha) {
+            if (this.state.recaptchaGuest) {
                 return (
-                    <div id="recaptcha" data-callback="recaptchaCallback"></div>
+                    <div
+                        id="recaptchaguest"
+                        data-callback="recaptchaCallback"
+                    ></div>
                 );
             } else {
                 return <div>Please wait....</div>;
@@ -355,6 +383,12 @@ class App extends React.Component {
         let errMsg;
         if (this.state.error) {
             errMsg = <div className="errblock">{this.state.error}</div>;
+        }
+        let recaptchaReg;
+        if (this.state.recaptcha) {
+            recaptchaReg = (
+                <div id="recaptchareg" data-callback="recaptchaCallback"></div>
+            );
         }
         return (
             <div className="App">
@@ -469,6 +503,7 @@ class App extends React.Component {
                             ></input>
                         </div>
                         {errMsg}
+                        {recaptchaReg}
                         <div>
                             <input
                                 type="button"
